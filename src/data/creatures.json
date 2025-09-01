@@ -1,0 +1,13 @@
+[
+  {
+    "name": "Basilisk",
+    "base": "Basilisk_ASA.png",
+    "masks": ["Basilisk_ASA_m.png"],
+    "noMask": [3]
+  },
+  {
+    "name": "Raptor",
+    "base": "Raptor_ASA.png",
+    "masks": ["Raptor_ASA_m.png"]
+  }
+]

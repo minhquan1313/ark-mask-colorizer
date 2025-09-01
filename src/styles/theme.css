@@ -1,0 +1,491 @@
+/* =========================
+   THEME & GLOBAL FOUNDATION
+   ========================= */
+
+:root {
+  --surface: #ffffff; /* nền panel / button */
+  --surface-2: #f7f7f9; /* nền phụ */
+  --text: #111827; /* chữ chính */
+  --muted: #6b7280; /* chữ phụ */
+  --border: #e5e7eb; /* viền */
+  --shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+
+  --radius: 12px;
+  --radius-sm: 10px;
+  --transition: 120ms ease;
+}
+
+/* Dark mode: tự động theo máy */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: #0f1115;
+    --surface-2: #12151b;
+    --text: #e5e7eb;
+    --muted: #9ca3af;
+    --border: #2a2f3a;
+    --shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* Nếu app có toggle dark thủ công, gán .dark lên html/body rồi override */
+.dark {
+  --surface: #0f1115 !important;
+  --surface-2: #12151b !important;
+  --text: #e5e7eb !important;
+  --muted: #9ca3af !important;
+  --border: #2a2f3a !important;
+  --shadow: 0 12px 40px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Reset nhỏ giúp bố cục mượt hơn */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  background: var(--surface-2);
+  color: var(--text);
+  font: 14px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji';
+}
+
+/* =========================
+   LAYOUT
+   ========================= */
+
+.container {
+  display: grid;
+  grid-template-columns: 1fr 360px; /* preview | controls */
+  gap: 16px;
+  padding: 16px;
+}
+
+@media (max-width: 1100px) {
+  .container {
+    grid-template-columns: 1fr; /* stack dọc */
+  }
+}
+
+.panel {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  min-width: 0; /* tránh overflow grid child */
+  box-shadow: var(--shadow);
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+/* Stack helpers */
+.hstack {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.vstack {
+  display: flex;
+  gap: 12px;
+  flex-direction: column;
+}
+
+/* Typo helpers */
+.small {
+  font-size: 12px;
+}
+.subtle {
+  color: var(--muted);
+}
+
+/* KBD tip */
+kbd {
+  padding: 2px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  font-size: 12px;
+}
+
+/* =========================
+   BUTTONS & INPUTS
+   ========================= */
+
+.btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.btn:hover {
+  background: var(--surface-2);
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Text / select / color inputs (phong cách đồng bộ) */
+input[type='text'],
+select,
+input[type='color'] {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+}
+
+/* =========================
+   CANVAS / PREVIEW
+   ========================= */
+
+.canvas-wrap {
+  position: relative;
+}
+.canvas-wrap canvas {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+/* =========================
+   POPOVER (nếu dùng class)
+   ========================= */
+
+.popover {
+  position: fixed;
+  z-index: 1000;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* =========================
+   TOOLBAR & SLIDERS
+   ========================= */
+
+/* Nhóm hàng trong toolbar */
+.toolbar {
+  display: grid;
+  gap: 12px;
+}
+
+/* 3 cột: nhãn | slider | số.
+   Cột slider có min 240px, tối đa 1fr ⇒ không bị ép thành chấm */
+.toolbar .row {
+  display: grid;
+  grid-template-columns: auto minmax(240px, 1fr) 64px;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* con số cố định chiều rộng + tabular-nums để không giật khi đổi 2→3 chữ số */
+.toolbar .value {
+  width: 64px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* === Range kiểu Bootstrap-ish === */
+.form-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 1.2rem;
+  padding: 0;
+  background-color: transparent;
+}
+.form-range:focus {
+  outline: none;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  height: 0.35rem;
+  cursor: pointer;
+  background-color: var(--border);
+  border-radius: 999px;
+}
+.form-range::-moz-range-track {
+  height: 0.35rem;
+  cursor: pointer;
+  background-color: var(--border);
+  border-radius: 999px;
+}
+
+.form-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -0.425rem; /* align thumb to track */
+  width: 1rem;
+  height: 1rem;
+  background-color: var(--text);
+  border: 0;
+  border-radius: 50%;
+  box-shadow: 0 0.05rem 0.15rem rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform var(--transition);
+}
+.form-range::-moz-range-thumb {
+  width: 1rem;
+  height: 1rem;
+  background-color: var(--text);
+  border: 0;
+  border-radius: 50%;
+  box-shadow: 0 0.05rem 0.15rem rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform var(--transition);
+}
+.form-range:hover::-webkit-slider-thumb {
+  transform: scale(1.02);
+}
+.form-range:active::-webkit-slider-thumb {
+  transform: scale(0.98);
+}
+
+/* Compat: nếu code cũ dùng .slider, áp dụng style y hệt form-range */
+.toolbar .slider {
+  all: unset;
+}
+.toolbar .slider {
+  display: block;
+  width: 100%;
+}
+.toolbar .slider[type='range'] {
+  composes: form-range;
+} /* (không chuẩn CSS, fallback dưới) */
+.toolbar .slider[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 1.2rem;
+  padding: 0;
+  background-color: transparent;
+}
+.toolbar .slider[type='range']::-webkit-slider-runnable-track {
+  height: 0.35rem;
+  cursor: pointer;
+  background-color: var(--border);
+  border-radius: 999px;
+}
+.toolbar .slider[type='range']::-moz-range-track {
+  height: 0.35rem;
+  cursor: pointer;
+  background-color: var(--border);
+  border-radius: 999px;
+}
+.toolbar .slider[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -0.425rem;
+  width: 1rem;
+  height: 1rem;
+  background-color: var(--text);
+  border: 0;
+  border-radius: 50%;
+  box-shadow: 0 0.05rem 0.15rem rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform var(--transition);
+}
+.toolbar .slider[type='range']::-moz-range-thumb {
+  width: 1rem;
+  height: 1rem;
+  background-color: var(--text);
+  border: 0;
+  border-radius: 50%;
+  box-shadow: 0 0.05rem 0.15rem rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform var(--transition);
+}
+.toolbar .slider[type='range']:hover::-webkit-slider-thumb {
+  transform: scale(1.02);
+}
+.toolbar .slider[type='range']:active::-webkit-slider-thumb {
+  transform: scale(0.98);
+}
+
+/* Mobile: slider xuống hàng, full width */
+@media (max-width: 520px) {
+  .toolbar .row {
+    grid-template-columns: 1fr 64px; /* nhãn | số */
+    grid-template-rows: auto auto; /* slider ở hàng dưới */
+  }
+  .toolbar .row label {
+    grid-column: 1 / 2;
+  }
+  .toolbar .row .value {
+    grid-column: 2 / 3;
+  }
+  .toolbar .row .form-range,
+  .toolbar .row .slider {
+    grid-column: 1 / 3;
+    width: 100%;
+  }
+}
+
+/* =========================
+   MISC / UTILITIES
+   ========================= */
+
+/* Tooltip / toast cơ bản (nếu cần dùng class thay vì inline styles) */
+.toast {
+  position: absolute;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  box-shadow: var(--shadow);
+  white-space: nowrap;
+  pointer-events: none;
+  font-size: 12px;
+}
+
+/* Checker background utility (nền caro cho slot null) */
+.checker {
+  background-image: linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(135deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%),
+    linear-gradient(135deg, transparent 75%, #ccc 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+/* Toolbar 2 cột trên PC */
+.toolbar-grid {
+  display: grid;
+  gap: 16px;
+}
+@media (min-width: 1024px) {
+  .toolbar-grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+
+/* Các slider cùng chiều dài: label cố định 110px để track đều */
+.toolbar .row {
+  display: grid;
+  grid-template-columns: 110px 1fr 64px; /* nhãn | slider | value */
+  align-items: center;
+  gap: 12px;
+}
+
+.toolbar .value {
+  width: 64px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Range style (bootstrap-ish), đảm bảo chiều dài bằng nhau */
+.form-range,
+.slider[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 1.2rem;
+  background: transparent;
+}
+.form-range::-webkit-slider-runnable-track,
+.slider[type='range']::-webkit-slider-runnable-track {
+  height: 0.35rem;
+  background-color: var(--border);
+  border-radius: 999px;
+}
+.form-range::-webkit-slider-thumb,
+.slider[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 1rem;
+  height: 1rem;
+  margin-top: -0.425rem;
+  background: var(--text);
+  border-radius: 50%;
+  box-shadow: 0 0.05rem 0.15rem rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+/* Hàng chọn màu export gọn, cùng 1 hàng với nhãn "Export" */
+.row-colors {
+  display: grid;
+  grid-template-columns: 110px auto auto; /* khớp label-width = 110px */
+  align-items: center;
+  gap: 12px;
+}
+.row-colors .swatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+}
+
+/* Input color: nhỏ gọn, KHÔNG khung to */
+.row-colors input[type='color'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  box-shadow: 0 0 0 1px var(--border) inset; /* viền mảnh */
+  cursor: pointer;
+}
+
+/* Mobile: slider & row-colors xuống hàng gọn */
+@media (max-width: 520px) {
+  .toolbar .row {
+    grid-template-columns: 1fr 64px;
+    grid-template-rows: auto auto;
+  }
+  .toolbar .row label {
+    grid-column: 1 / 2;
+  }
+  .toolbar .row .value {
+    grid-column: 2 / 3;
+  }
+  .toolbar .row .form-range,
+  .toolbar .row .slider {
+    grid-column: 1 / 3;
+    width: 100%;
+  }
+
+  .row-colors {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+/* Cột phải: nhóm nút hành động xếp cột, PC = cột; mobile = hàng */
+.actions {
+  display: grid;
+  gap: 10px;
+}
+@media (min-width: 1024px) {
+  .actions {
+    grid-auto-rows: min-content;
+  }
+}

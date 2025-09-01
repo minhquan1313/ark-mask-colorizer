@@ -1,0 +1,3 @@
+SpawnExactDino "Blueprint'/Game/PrimalEarth/Dinos/Raptor/Raptor_Character_BP.Raptor_Character_BP'" "" 1 1 0 "0,0,0,0,0,0,0,0" "0,0,0,0,0,0,0,0" "" 0 0 "" "" "" 0 0,99999025 "68,57,83,68,76,83" 1070157773017624414 0 0 20 20
+SpawnExactDino "Blueprint'/Game/Aberration/Dinos/Basilisk/Basilisk_Character_BP.Basilisk_Character_BP'" "" 1 362 0 "103,53,0,0,100,105,0,0" "0,0,0,0,0,0,0,0" "@@Flower" 0 0 "" "" "" 0 0 "76,83,83,0,83,70" 0 0 0 20 20
+SpawnExactDino "Blueprint'/Game/PrimalEarth/Dinos/Anglerfish/Angler_Character_BP.Angler_Character_BP'" "" 1 1 0 "0,0,0,0,0,0,0,0" "0,0,0,0,0,0,0,0" "" 0 0 "" "" "" 0 0 "68,0,0,0,76,83" 627909774999202891 0 0 20 20
