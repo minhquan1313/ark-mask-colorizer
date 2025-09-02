@@ -67,7 +67,7 @@ function coerceRGB(v) {
   }
   return null;
 }
-export function useRecolor({ threshold = 80, strength = 1, feather = 0, gamma = 1, keepLight = 0.98, chromaBoost = 1.18, chromaCurve = 0.9 } = {}) {
+export function useRecolor({ threshold = 80, strength = 1, feather = 0, gamma = 1, keepLight = 0.98, chromaBoost = 1.18, chromaCurve = 0.9, speckleClean = 0.35, edgeSmooth = 0 } = {}) {
   function draw({ baseImg, maskImg, baseCanvasRef, maskCanvasRef, outCanvasRef, slots }) {
     const src = baseImg || maskImg;
     if (!src) return;
@@ -101,12 +101,30 @@ export function useRecolor({ threshold = 80, strength = 1, feather = 0, gamma = 
       out = octx.createImageData(w, h),
       pal = new Array(6);
     for (let s = 0; s < 6; s++) pal[s] = coerceRGB(slots?.[s]);
+    // Detect if all selected target colors are the same, and if that color is achromatic
+    let sameTarget = true;
+    let t0 = null;
+    for (let s = 0; s < 6; s++) {
+      const p = pal[s];
+      if (!p) continue;
+      if (!t0) t0 = p;
+      else if (p[0] !== t0[0] || p[1] !== t0[1] || p[2] !== t0[2]) {
+        sameTarget = false;
+        break;
+      }
+    }
+    let sameTargetAchroma = false;
+    if (sameTarget && t0) {
+      const tOK0 = rgb2oklab(t0[0] / 255, t0[1] / 255, t0[2] / 255);
+      const tLCH0 = oklabToLch(tOK0.L, tOK0.a, tOK0.b);
+      sameTargetAchroma = tLCH0.C <= 0.03; // grayscaleish target
+    }
     const seedChr = 8 + Math.round((threshold / 150) * 96), // ngÆ°á»¡ng chroma Ä‘á»ƒ thÃ nh seed (threshold cao â†’ cáº§n Ä‘áº­m hÆ¡n)
       spreadPx = 2 + feather * 6, // bÃ¡n kÃ­nh má»m (px) cho lan
       INF = 1e9,
       dist = new Float32Array(w * h);
     dist.fill(INF);
-    const lab = new Int16Array(w * h);
+    let lab = new Int16Array(w * h);
     lab.fill(-1);
     const conf = new Float32Array(w * h);
     for (let y = 0; y < h; y++) {
@@ -191,6 +209,49 @@ export function useRecolor({ threshold = 80, strength = 1, feather = 0, gamma = 
         if (lab[i] < 0 && l >= 0) lab[i] = l;
       }
     }
+    // Small-region smoothing (majority filter) to remove tiny speckles in low-confidence areas
+    if (w * h <= 4096 || feather >= 0) {
+      const scRaw = Math.max(0, Math.min(2, speckleClean));
+      const sc1 = Math.min(scRaw, 1); // 0..1
+      const sc2 = Math.max(0, scRaw - 1); // extra 0..1
+      const confThr = 0.05 + 0.50 * sc1 + 0.30 * sc2; // up to ~0.85
+      const minMajor = scRaw >= 1.0 ? 3 : scRaw >= 0.7 ? 4 : 5; // allow 3/8 at max
+      const passes = scRaw >= 1.6 ? 3 : scRaw >= 0.6 ? 2 : 1; // up to 3 passes
+      let srcLab = lab;
+      for (let pass = 0; pass < passes; pass++) {
+        const dstLab = new Int16Array(srcLab);
+        for (let y = 1; y < h - 1; y++) {
+          for (let x = 1; x < w - 1; x++) {
+            const i = y * w + x;
+            if (conf[i] > confThr) continue; // only smooth very low chroma/uncertain pixels
+            // 3x3 majority vote among labels
+            const cnt = new Int16Array(6);
+            let best = -1,
+              bestC = 0;
+            for (let dy = -1; dy <= 1; dy++) {
+              for (let dx = -1; dx <= 1; dx++) {
+                if (dx === 0 && dy === 0) continue;
+                const k = (y + dy) * w + (x + dx);
+                const lk = srcLab[k];
+                if (lk >= 0 && lk < 6) {
+                  const c = ++cnt[lk];
+                  if (c > bestC) {
+                    bestC = c;
+                    best = lk;
+                  }
+                }
+              }
+            }
+            // if a clear local majority exists, adopt it
+            if (best >= 0 && bestC >= minMajor) {
+              dstLab[i] = best;
+            }
+          }
+        }
+        srcLab = dstLab;
+      }
+      lab = srcLab;
+    }
     const tolPix = spreadPx * 1.25;
     for (let i = 0; i < w * h; i++) {
       const j = 4 * i,
@@ -220,15 +281,37 @@ export function useRecolor({ threshold = 80, strength = 1, feather = 0, gamma = 
       // Hard/soft gates to control bleed without killing saturated colors
       // Whiteness: bright + low chroma => near white areas should be suppressed
       const whiteness = val * (1 - conf[i]);
-      const whiteClip = smoothstep(0.20, 0.55, whiteness);
+      let whiteClip = smoothstep(0.20, 0.55, whiteness);
       // Blackness: very low value (dark) => suppress strongly
       const blackness = 1 - val;
-      const blackClip = smoothstep(0.80, 0.98, blackness);
+      let blackClip = smoothstep(0.80, 0.98, blackness);
       // Low chroma: softly reduce influence but keep some tint
       const chromaSoft = smoothstep(0.05, 0.25, 1 - conf[i]);
-      const hardCut = (1 - whiteClip) * (1 - blackClip);
-      const softCut = 1 - 0.4 * chromaSoft;
+      let hardCut = (1 - whiteClip) * (1 - blackClip);
+      let softCut = 1 - 0.4 * chromaSoft;
+      // If all targets equal and achromatic (e.g., fill all black/grey/white), be less aggressive
+      if (sameTargetAchroma) {
+        const scRaw = Math.max(0, Math.min(2, speckleClean));
+        const sc1 = Math.min(scRaw, 1);
+        const sc2 = Math.max(0, scRaw - 1);
+        // be less aggressive on clips when cleaning speckles; stronger beyond 1.0
+        whiteClip *= (1 - 0.6 * sc1) * (1 - 0.25 * sc2);
+        blackClip *= (1 - 0.3 * sc1) * (1 - 0.20 * sc2);
+        hardCut = (1 - whiteClip) * (1 - blackClip);
+        softCut = 1 - (0.25 + 0.35 * sc1 + 0.25 * sc2) * chromaSoft;
+      }
       wMask *= hardCut * softCut;
+      if (sameTargetAchroma) {
+        // Ensure a floor in uncertain pixels so small speckles get filled
+        const scRaw = Math.max(0, Math.min(2, speckleClean));
+        const sc1 = Math.min(scRaw, 1);
+        const sc2 = Math.max(0, scRaw - 1);
+        const floorConf = (0.2 + 0.6 * sc1 + 0.5 * sc2) * conf[i];
+        const floorDark = (0.15 * sc1 + 0.20 * sc2) * (1 - val); // darker base → allow more fill
+        const floorBase = 0.05 * sc1 + 0.10 * sc2; // baseline rises beyond 1.0
+        const floor = Math.min(1, floorBase + floorConf + floorDark);
+        if (wMask < floor) wMask = floor;
+      }
       if (wMask > 1) wMask = 1;
       if (wMask < 0) wMask = 0;
       if (wMask <= 1e-5) {
@@ -381,6 +464,57 @@ export function useRecolor({ threshold = 80, strength = 1, feather = 0, gamma = 
       out.data[j + 1] = Math.round(Math.max(0, Math.min(1, lin2srgb(o1))) * 255);
       out.data[j + 2] = Math.round(Math.max(0, Math.min(1, lin2srgb(o2))) * 255);
       out.data[j + 3] = ba;
+    }
+    // Optional edge-aware smoothing (joint bilateral guided by base luminance)
+    if (edgeSmooth && edgeSmooth > 0.001) {
+      const sAmt = Math.max(0, Math.min(1, edgeSmooth));
+      const radius = sAmt < 0.5 ? 1 : 2; // 3x3 or 5x5
+      const sigmaS = 0.6 + 1.2 * sAmt;
+      const sigmaR = 0.05 + 0.15 * sAmt; // luminance range in linear space
+      const inv2sS = 1 / (2 * sigmaS * sigmaS);
+      const inv2sR = 1 / (2 * sigmaR * sigmaR);
+      const W = w, H = h;
+      const outLin0 = new Float32Array(W * H * 3);
+      const baseLum = new Float32Array(W * H);
+      for (let i = 0, p = 0; i < W * H; i++, p += 4) {
+        const r = out.data[p] / 255, g = out.data[p + 1] / 255, b = out.data[p + 2] / 255;
+        const rl = srgb2lin(r), gl = srgb2lin(g), bl = srgb2lin(b);
+        outLin0[i * 3 + 0] = rl; outLin0[i * 3 + 1] = gl; outLin0[i * 3 + 2] = bl;
+        const br = base.data[p] / 255, bg = base.data[p + 1] / 255, bb = base.data[p + 2] / 255;
+        const brl = srgb2lin(br), bgl = srgb2lin(bg), bbl = srgb2lin(bb);
+        baseLum[i] = 0.2126 * brl + 0.7152 * bgl + 0.0722 * bbl;
+      }
+      const outLin1 = new Float32Array(W * H * 3);
+      for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+          const i = y * W + x;
+          const Lc = baseLum[i];
+          let ws = 0, a0 = 0, a1 = 0, a2 = 0;
+          for (let dy = -radius; dy <= radius; dy++) {
+            const yy = Math.min(H - 1, Math.max(0, y + dy));
+            for (let dx = -radius; dx <= radius; dx++) {
+              const xx = Math.min(W - 1, Math.max(0, x + dx));
+              const k = yy * W + xx;
+              const ds2 = dx * dx + dy * dy;
+              const wS = Math.exp(-ds2 * inv2sS);
+              const dL = baseLum[k] - Lc;
+              const wR = Math.exp(-(dL * dL) * inv2sR);
+              const wgt = wS * wR;
+              ws += wgt;
+              a0 += wgt * outLin0[k * 3 + 0];
+              a1 += wgt * outLin0[k * 3 + 1];
+              a2 += wgt * outLin0[k * 3 + 2];
+            }
+          }
+          const inv = ws > 1e-8 ? 1 / ws : 1;
+          const rl = a0 * inv, gl = a1 * inv, bl = a2 * inv;
+          const p = i * 4;
+          out.data[p] = Math.round(Math.max(0, Math.min(1, lin2srgb(rl))) * 255);
+          out.data[p + 1] = Math.round(Math.max(0, Math.min(1, lin2srgb(gl))) * 255);
+          out.data[p + 2] = Math.round(Math.max(0, Math.min(1, lin2srgb(bl))) * 255);
+          // alpha keep
+        }
+      }
     }
     octx.putImageData(out, 0, 0);
   }

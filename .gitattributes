@@ -1,0 +1,16 @@
+# Enforce CRLF line endings for text files
+* text eol=crlf
+
+# Treat images as binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+
+# Keep common data/assets safe
+*.pdf binary
+*.zip binary
+*.docx binary
+

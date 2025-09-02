@@ -1,18 +1,18 @@
-// src/hooks/useImages.js
+﻿// src/hooks/useImages.js
 import { useCallback, useRef, useState } from 'react';
 
 export function useImages() {
   const [baseImg, setBaseImg] = useState(null);
   const [maskImg, setMaskImg] = useState(null);
-  const loadSeqRef = useRef(0); // chống đua
+  const loadSeqRef = useRef(0); // chá»‘ng Ä‘ua
 
-  const loadImageFromAssets = (filename) =>
+  const loadImageFromAssets = (relPath) =>
     new Promise((res) => {
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.onload = () => res(img);
       img.onerror = () => res(null);
-      img.src = `/assets/${filename}`;
+      img.src = `/assets/${relPath}`;
     });
   const loadImageFromFile = (file) =>
     new Promise((res) => {
@@ -30,7 +30,7 @@ export function useImages() {
       img.src = url;
     });
 
-  // KHÔNG auto loadDefault nữa (đã bỏ trong App)
+  // KHÃ”NG auto loadDefault ná»¯a (Ä‘Ã£ bá» trong App)
 
   const loadPairFromFiles = useCallback(async (fileList) => {
     if (!fileList || !fileList.length) return;
@@ -48,33 +48,53 @@ export function useImages() {
     if (!chosen) return;
 
     const seq = ++loadSeqRef.current;
-    // clear ảnh cũ ngay lập tức để tránh “nháy sai”
+    // clear áº£nh cÅ© ngay láº­p tá»©c Ä‘á»ƒ trÃ¡nh â€œnhÃ¡y saiâ€
     setBaseImg(null);
     setMaskImg(null);
 
+    const guessFolder = (name) => {
+      const idx = name.indexOf('_');
+      return idx > 0 ? name.slice(0, idx) : name;
+    };
+    const folder = guessFolder(chosen.name);
+    const tryLoad = async (cands) => {
+      for (const p of cands) {
+        const img = await loadImageFromAssets(p);
+        if (img) return img;
+      }
+      return null;
+    };
     const [b, m] = await Promise.all([
-      chosen.base ? loadImageFromFile(chosen.base) : loadImageFromAssets(chosen.name + '.png'),
-      chosen.mask ? loadImageFromFile(chosen.mask) : loadImageFromAssets(chosen.name + '_m.png'),
+      chosen.base
+        ? loadImageFromFile(chosen.base)
+        : tryLoad([`dino/${folder}/${chosen.name}.png`, `${chosen.name}.png`]),
+      chosen.mask
+        ? loadImageFromFile(chosen.mask)
+        : tryLoad([`dino/${folder}/${chosen.name}_m.png`, `${chosen.name}_m.png`]),
     ]);
 
-    if (loadSeqRef.current !== seq) return; // có request mới rồi, bỏ cũ
+    if (loadSeqRef.current !== seq) return; // cÃ³ request má»›i rá»“i, bá» cÅ©
     setBaseImg(b || null);
     setMaskImg(m || null);
 
     return chosen.name;
   }, []);
 
-  // ✅ nạp theo entry từ creatures.json, có clear + race guard
+  // âœ… náº¡p theo entry tá»« creatures.json, cÃ³ clear + race guard
   const loadFromEntry = useCallback(async (entry) => {
     if (!entry) return;
     const seq = ++loadSeqRef.current;
     setBaseImg(null);
-    setMaskImg(null); // clear cũ
+    setMaskImg(null); // clear cÅ©
 
-    const [b, m] = await Promise.all([
-      entry.base ? loadImageFromAssets(entry.base) : Promise.resolve(null),
-      entry.masks && entry.masks[0] ? loadImageFromAssets(entry.masks[0]) : Promise.resolve(null),
-    ]);
+    const prefix = entry.maskPath ? `dino/${entry.maskPath}/` : "";
+    const baseCandidates = [];
+    const maskCandidates = [];
+    if (entry.base) { if (prefix) baseCandidates.push(prefix + entry.base); baseCandidates.push(entry.base); }
+    const maskFile = entry.masks && entry.masks[0];
+    if (maskFile) { if (prefix) maskCandidates.push(prefix + maskFile); maskCandidates.push(maskFile); }
+    const tryLoad = async (cands) => { for (const p of cands) { const img = await loadImageFromAssets(p); if (img) return img; } return null; };
+    const [b, m] = await Promise.all([ baseCandidates.length ? tryLoad(baseCandidates) : Promise.resolve(null), maskCandidates.length ? tryLoad(maskCandidates) : Promise.resolve(null) ]);
 
     if (loadSeqRef.current !== seq) return;
     setBaseImg(b || null);
@@ -83,3 +103,4 @@ export function useImages() {
 
   return { baseImg, maskImg, loadPairFromFiles, loadFromEntry };
 }
+

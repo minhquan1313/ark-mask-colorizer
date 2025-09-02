@@ -1,5 +1,5 @@
 // src/components/CreaturePicker.jsx
-export default function CreaturePicker({ list, currentName, onPick }) {
+export default function CreaturePicker({ list, currentName, onPick, customMode = false }) {
   return (
     <div
       className="hstack"
@@ -10,8 +10,12 @@ export default function CreaturePicker({ list, currentName, onPick }) {
         Sinh vật
       </label>
       <select
-        value={currentName || ''}
-        onChange={(e) => onPick(e.target.value)}
+        value={customMode ? '__custom__' : currentName || ''}
+        onChange={(e) => {
+          const v = e.target.value;
+          if (v === '__custom__') return; // stay in custom
+          onPick(v);
+        }}
         style={{
           minWidth: 180,
           padding: '8px 10px',
@@ -20,6 +24,9 @@ export default function CreaturePicker({ list, currentName, onPick }) {
           background: 'var(--surface)',
           color: 'var(--text)',
         }}>
+        {customMode && (
+          <option value="__custom__">Custom</option>
+        )}
         {list.map((c) => (
           <option
             key={c.name}

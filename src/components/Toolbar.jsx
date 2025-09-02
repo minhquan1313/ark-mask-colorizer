@@ -16,6 +16,10 @@ export default function Toolbar({
   setChromaBoost,
   chromaCurve,
   setChromaCurve,
+  speckleClean,
+  setSpeckleClean,
+  edgeSmooth,
+  setEdgeSmooth,
   exportBg,
   setExportBg,
   exportText,
@@ -125,6 +129,34 @@ export default function Toolbar({
             <span className="small value">{chromaCurve.toFixed(2)}</span>
           </div>
 
+          <div className="row">
+            <label className="small subtle">Speckle Clean</label>
+            <input
+              className="form-range"
+              type="range"
+              min="0"
+              max="2"
+              step="0.05"
+              value={speckleClean}
+              onChange={(e) => setSpeckleClean(+e.target.value)}
+            />
+            <span className="small value">{speckleClean.toFixed(2)}</span>
+          </div>
+
+          <div className="row">
+            <label className="small subtle">Edge Smooth</label>
+            <input
+              className="form-range"
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={edgeSmooth}
+              onChange={(e) => setEdgeSmooth(+e.target.value)}
+            />
+            <span className="small value">{edgeSmooth.toFixed(2)}</span>
+          </div>
+
           {/* Export colors: 1 hàng, input màu hiển thị đúng */}
           <div className="row-colors">
             <label className="small subtle">Export</label>
@@ -160,7 +192,12 @@ export default function Toolbar({
             accept="image/png"
             multiple
             style={{ display: 'none' }}
-            onChange={(e) => onCustomFiles(e.target.files)}
+            onChange={(e) => {
+              const files = e.target.files;
+              if (files && files.length) onCustomFiles(files);
+              // allow selecting the same file again to re-trigger onChange
+              e.target.value = '';
+            }}
           />
           <button
             className="btn"
