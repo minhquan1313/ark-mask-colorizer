@@ -38,6 +38,10 @@ export default function App() {
   const [strength, setStrength] = useState(DEFAULTS.strength);
   const [feather, setFeather] = useState(DEFAULTS.feather);
   const [gamma, setGamma] = useState(DEFAULTS.gamma);
+  // Advanced OKLab tuning
+  const [keepLight, setKeepLight] = useState(DEFAULTS.keepLight);
+  const [chromaBoost, setChromaBoost] = useState(DEFAULTS.chromaBoost);
+  const [chromaCurve, setChromaCurve] = useState(DEFAULTS.chromaCurve);
   const [exportBg, setExportBg] = useState(initialBg);
   const [exportText, setExportText] = useState(initialText);
   const [fillOpen, setFillOpen] = useState(false);
@@ -49,7 +53,7 @@ export default function App() {
   const disabledSet = new Set(current?.noMask || []);
 
   const { baseImg, maskImg, loadPairFromFiles, loadFromEntry } = useImages();
-  const { draw } = useRecolor({ threshold, strength, feather, gamma });
+  const { draw } = useRecolor({ threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve });
   const rafRef = useRef(0);
   const pendingArgsRef = useRef(null);
 
@@ -75,7 +79,7 @@ export default function App() {
       draw(pendingArgsRef.current);
       rafRef.current = 0;
     });
-  }, [baseImg, maskImg, slots, threshold, strength, feather, gamma, draw]);
+  }, [baseImg, maskImg, slots, threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, draw]);
 
   // ✅ Lưu slots mỗi khi đổi (đã an toàn vì init từ storage)
   useEffect(() => {
@@ -243,6 +247,12 @@ export default function App() {
           setFeather={setFeather}
           gamma={gamma}
           setGamma={setGamma}
+          keepLight={keepLight}
+          setKeepLight={setKeepLight}
+          chromaBoost={chromaBoost}
+          setChromaBoost={setChromaBoost}
+          chromaCurve={chromaCurve}
+          setChromaCurve={setChromaCurve}
           exportBg={exportBg}
           setExportBg={setExportBg}
           exportText={exportText}

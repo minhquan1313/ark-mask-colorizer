@@ -1,245 +1,392 @@
-// ===== Linear <-> sRGB =====
-const srgb2lin = (v) => (v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
-const lin2srgb = (v) => (v <= 0.0031308 ? v * 12.92 : 1.055 * Math.pow(v, 1 / 2.4) - 0.055);
-
-// ===== RGB <-> HSL (sRGB 0..1) =====
-function rgb2hsl(r, g, b) {
-  const max = Math.max(r, g, b),
-    min = Math.min(r, g, b);
-  let h,
-    s,
-    l = (max + min) / 2;
-  if (max === min) {
-    h = s = 0;
-  } else {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    switch (max) {
-      case r:
-        h = (g - b) / d + (g < b ? 6 : 0);
-        break;
-      case g:
-        h = (b - r) / d + 2;
-        break;
-      default:
-        h = (r - g) / d + 4;
-    }
-    h /= 6;
-  }
-  return [h, s, l];
+﻿// src/hooks/useRecolor.js
+const srgb2lin = (v) => (v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)),
+  lin2srgb = (v) => (v <= 0.0031308 ? v * 12.92 : 1.055 * Math.pow(v, 1 / 2.4) - 0.055);
+function rgb2oklab(r, g, b) {
+  const rl = srgb2lin(r),
+    gl = srgb2lin(g),
+    bl = srgb2lin(b),
+    L = 0.4122214708 * rl + 0.5363325363 * gl + 0.0514459929 * bl,
+    M = 0.2119034982 * rl + 0.6806995451 * gl + 0.1073969566 * bl,
+    S = 0.0883024619 * rl + 0.2817188376 * gl + 0.6299787005 * bl,
+    l = Math.cbrt(L),
+    m = Math.cbrt(M),
+    s = Math.cbrt(S);
+  return { L: 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s, a: 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s, b: 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s };
 }
-function hsl2rgb(h, s, l) {
-  const hue2rgb = (p, q, t) => {
-    if (t < 0) t += 1;
-    if (t > 1) t -= 1;
-    if (t < 1 / 6) return p + (q - p) * 6 * t;
-    if (t < 1 / 2) return q;
-    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-    return p;
-  };
-  let r, g, b;
-  if (s === 0) {
-    r = g = b = l;
-  } else {
-    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-    const p = 2 * l - q;
-    r = hue2rgb(p, q, h + 1 / 3);
-    g = hue2rgb(p, q, h);
-    b = hue2rgb(p, q, h - 1 / 3);
-  }
-  return [r, g, b];
+function oklab2rgb(L, a, b) {
+  const l_ = L + 0.3963377774 * a + 0.2158037573 * b,
+    m_ = L - 0.1055613458 * a - 0.0638541728 * b,
+    s_ = L - 0.0894841775 * a - 1.291485548 * b,
+    l = l_ * l_ * l_,
+    m = m_ * m_ * m_,
+    s = s_ * s_ * s_,
+    rl = 4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+    gl = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+    bl = 0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s;
+  return [Math.max(0, Math.min(1, lin2srgb(rl))), Math.max(0, Math.min(1, lin2srgb(gl))), Math.max(0, Math.min(1, lin2srgb(bl)))];
 }
-
-// 6 màu tham chiếu của mask (slot 0..5)
-const SLOT_REF = [
-  [255, 0, 0], // 0 red
-  [0, 255, 0], // 1 green
-  [0, 0, 255], // 2 blue
-  [0, 255, 255], // 3 cyan
-  [255, 255, 0], // 4 yellow
-  [255, 0, 255], // 5 magenta
-];
-const MAX_DIST = Math.sqrt(255 * 255 * 3); // ≈441.673
-
-// smoothstep
+function oklabToLch(L, a, b) {
+  const C = Math.hypot(a, b),
+    h = Math.atan2(b, a);
+  return { L, C, h };
+}
+function lchToOklab(L, C, h) {
+  return { L, a: C * Math.cos(h), b: C * Math.sin(h) };
+}
 const smoothstep = (a, b, x) => {
-  if (b <= a) return x < a ? 0 : 1;
-  const t = Math.max(0, Math.min(1, (x - a) / (b - a)));
-  return t * t * (3 - 2 * t);
-};
-
-// parse hex "#RRGGBB" -> [r,g,b]
-function hexToRgb(hex) {
-  if (!hex) return null;
-  const h = hex[0] === '#' ? hex.slice(1) : hex;
-  if (h.length !== 6) return null;
-  const n = parseInt(h, 16);
-  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-}
-
-// đảm bảo target là [r,g,b]
+    if (b <= a) return x < a ? 0 : 1;
+    const t = Math.max(0, Math.min(1, (x - a) / (b - a)));
+    return t * t * (3 - 2 * t);
+  },
+  MAX_DIST = Math.sqrt(255 * 255 * 3),
+  REF = [
+    [1, 0, 0],
+    [0, 1, 0],
+    [0, 0, 1],
+    [0, 1, 1],
+    [1, 1, 0],
+    [1, 0, 1],
+  ].map((v) => {
+    const L = Math.hypot(v[0], v[1], v[2]);
+    return [v[0] / L, v[1] / L, v[2] / L];
+  });
 function coerceRGB(v) {
   if (!v) return null;
   if (Array.isArray(v)) return v;
-  if (typeof v === 'string') return hexToRgb(v);
-  if (typeof v === 'object' && v.hex) return hexToRgb(v.hex);
+  if (typeof v === 'string') {
+    const h = v[0] === '#' ? v.slice(1) : v;
+    if (h.length !== 6) return null;
+    const n = parseInt(h, 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+  if (typeof v === 'object' && v.hex) {
+    const h = v.hex[0] === '#' ? v.hex.slice(1) : v.hex;
+    if (h.length !== 6) return null;
+    const n = parseInt(h, 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
   return null;
 }
-
-/**
- * Hook trả về hàm draw({ baseImg, maskImg, baseCanvasRef, maskCanvasRef, outCanvasRef, slots })
- * Thuật toán:
- *  - gán slot mask theo màu gần nhất trong 6 màu chuẩn
- *  - tính trọng số theo threshold/feather đã chuẩn hoá
- *  - blend tuyến tính trong linear sRGB (fix màu cực tối/sáng: #000/#fff/#171717, v.v.)
- */
-export function useRecolor({ threshold = 80, strength = 1, feather = 0, gamma = 1, preserveShading = true, satBoost = 1 }) {
+export function useRecolor({ threshold = 80, strength = 1, feather = 0, gamma = 1, keepLight = 0.98, chromaBoost = 1.18, chromaCurve = 0.9 } = {}) {
   function draw({ baseImg, maskImg, baseCanvasRef, maskCanvasRef, outCanvasRef, slots }) {
-    if (!baseImg || !maskImg) return;
-    const w = baseImg.naturalWidth;
-    const h = baseImg.naturalHeight;
-
-    const baseCanvas = baseCanvasRef.current;
-    const maskCanvas = maskCanvasRef.current;
-    const outCanvas = outCanvasRef.current;
-
-    if (!baseCanvas || !maskCanvas || !outCanvas) return;
-
-    baseCanvas.width = w;
-    baseCanvas.height = h;
-    maskCanvas.width = w;
-    maskCanvas.height = h;
-    outCanvas.width = w;
-    outCanvas.height = h;
-
-    const bctx = baseCanvas.getContext('2d', { willReadFrequently: true });
-    const mctx = maskCanvas.getContext('2d', { willReadFrequently: true });
-    const octx = outCanvas.getContext('2d');
+    const src = baseImg || maskImg;
+    if (!src) return;
+    const w = src.naturalWidth,
+      h = src.naturalHeight,
+      B = baseCanvasRef?.current,
+      M = maskCanvasRef?.current,
+      O = outCanvasRef?.current;
+    if (!B || !M || !O) return;
+    B.width = w;
+    B.height = h;
+    M.width = w;
+    M.height = h;
+    O.width = w;
+    O.height = h;
+    const bctx = B.getContext('2d', { willReadFrequently: !0 }),
+      mctx = M.getContext('2d', { willReadFrequently: !0 }),
+      octx = O.getContext('2d');
+    bctx.imageSmoothingEnabled = mctx.imageSmoothingEnabled = octx.imageSmoothingEnabled = !1;
     bctx.clearRect(0, 0, w, h);
     mctx.clearRect(0, 0, w, h);
     octx.clearRect(0, 0, w, h);
-    bctx.drawImage(baseImg, 0, 0, w, h);
-    mctx.drawImage(maskImg, 0, 0, w, h);
-
-    const b = bctx.getImageData(0, 0, w, h);
-    const m = mctx.getImageData(0, 0, w, h);
-    const o = octx.createImageData(w, h);
-
-    // threshold: 0..150 (cao = khắt khe) → tolerance (thấp = khắt khe)
-    const tolerance = ((150 - Math.max(0, Math.min(150, threshold))) / 150) * MAX_DIST; // 0..MAX_DIST
-    // feather: 0..4 → độ rộng mép theo khoảng cách màu (px RGB)
-    const featherWidth = (0.04 + 0.04 * Math.max(0, Math.min(4, feather))) * MAX_DIST; // ≈ 0.04..0.20 * MAX_DIST
-    const S = Math.max(0, Math.min(1, strength));
-    const gpow = gamma && gamma !== 1 ? 1 / gamma : 1;
-
-    const pal = new Array(6);
+    baseImg && bctx.drawImage(baseImg, 0, 0, w, h);
+    maskImg && mctx.drawImage(maskImg, 0, 0, w, h);
+    if (!maskImg) {
+      octx.drawImage(B, 0, 0);
+      return;
+    }
+    const base = bctx.getImageData(0, 0, w, h),
+      mask = mctx.getImageData(0, 0, w, h),
+      out = octx.createImageData(w, h),
+      pal = new Array(6);
     for (let s = 0; s < 6; s++) pal[s] = coerceRGB(slots?.[s]);
-
+    const seedChr = 8 + Math.round((threshold / 150) * 96), // ngÆ°á»¡ng chroma Ä‘á»ƒ thÃ nh seed (threshold cao â†’ cáº§n Ä‘áº­m hÆ¡n)
+      spreadPx = 2 + feather * 6, // bÃ¡n kÃ­nh má»m (px) cho lan
+      INF = 1e9,
+      dist = new Float32Array(w * h);
+    dist.fill(INF);
+    const lab = new Int16Array(w * h);
+    lab.fill(-1);
+    const conf = new Float32Array(w * h);
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const i = y * w + x,
+          j = 4 * i,
+          mr = mask.data[j],
+          mg = mask.data[j + 1],
+          mb = mask.data[j + 2],
+          maxC = Math.max(mr, mg, mb),
+          minC = Math.min(mr, mg, mb),
+          chr = maxC - minC;
+        let rx = mr - minC,
+          gx = mg - minC,
+          bx = mb - minC;
+        const L = Math.hypot(rx, gx, bx);
+        if (L > 1e-6) {
+          rx /= L;
+          gx /= L;
+          bx /= L;
+          let best = -2,
+            si = -1;
+          for (let s = 0; s < 6; s++) {
+            const r = REF[s],
+              cs = rx * r[0] + gx * r[1] + bx * r[2];
+            if (cs > best) {
+              best = cs;
+              si = s;
+            }
+          }
+          lab[i] = si;
+          conf[i] = chr / 255;
+          if (chr >= seedChr) {
+            dist[i] = 0;
+          }
+        }
+      }
+    }
+    const W1 = 1,
+      W2 = 1.41421356237;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const i = y * w + x;
+        let d = dist[i],
+          l = lab[i];
+        const relax = (nx, ny, cost) => {
+          if (nx < 0 || ny < 0 || nx >= w || ny >= h) return;
+          const k = ny * w + nx,
+            nd = dist[k] + cost;
+          if (nd < d) {
+            d = nd;
+            l = lab[k];
+          }
+        };
+        relax(x - 1, y, W1);
+        relax(x, y - 1, W1);
+        relax(x - 1, y - 1, W2);
+        relax(x + 1, y - 1, W2);
+        dist[i] = d;
+        if (lab[i] < 0 && l >= 0) lab[i] = l;
+      }
+    }
+    for (let y = h - 1; y >= 0; y--) {
+      for (let x = w - 1; x >= 0; x--) {
+        const i = y * w + x;
+        let d = dist[i],
+          l = lab[i];
+        const relax = (nx, ny, cost) => {
+          if (nx < 0 || ny < 0 || nx >= w || ny >= h) return;
+          const k = ny * w + nx,
+            nd = dist[k] + cost;
+          if (nd < d) {
+            d = nd;
+            l = lab[k];
+          }
+        };
+        relax(x + 1, y, W1);
+        relax(x, y + 1, W1);
+        relax(x + 1, y + 1, W2);
+        relax(x - 1, y + 1, W2);
+        dist[i] = d;
+        if (lab[i] < 0 && l >= 0) lab[i] = l;
+      }
+    }
+    const tolPix = spreadPx * 1.25;
     for (let i = 0; i < w * h; i++) {
-      const j = i * 4;
-      const br = b.data[j],
-        bg = b.data[j + 1],
-        bb = b.data[j + 2],
-        ba = b.data[j + 3];
-      const mr = m.data[j],
-        mg = m.data[j + 1],
-        mb = m.data[j + 2];
-
-      // chọn slot gần nhất
-      let slot = -1,
-        best = 1e12;
-      for (let s = 0; s < 6; s++) {
-        const dr = mr - SLOT_REF[s][0],
-          dg = mg - SLOT_REF[s][1],
-          db = mb - SLOT_REF[s][2];
-        const d2 = dr * dr + dg * dg + db * db;
-        if (d2 < best) {
-          best = d2;
-          slot = s;
+      const j = 4 * i,
+        br = base.data[j],
+        bg = base.data[j + 1],
+        bb = base.data[j + 2],
+        ba = base.data[j + 3],
+        mr = mask.data[j],
+        mg = mask.data[j + 1],
+        mb = mask.data[j + 2],
+        maxC = Math.max(mr, mg, mb),
+        val = maxC / 255;
+      let si = lab[i];
+      if (si < 0 || !pal[si]) {
+        out.data[j] = br;
+        out.data[j + 1] = bg;
+        out.data[j + 2] = bb;
+        out.data[j + 3] = ba;
+        continue;
+      }
+      const d = dist[i],
+        ws = Math.exp(-(d / (spreadPx + 0.0001)) * (d / (spreadPx + 0.0001))); // lan theo khoáº£ng cÃ¡ch
+      const wc = 0.5 * conf[i] + 0.5 * val; // trá»ng sá»‘ theo Ä‘áº­m/nháº¡t & sÃ¡ng cá»§a chÃ­nh pixel
+      let wMask = (d <= tolPix ? ws : 0) * wc;
+      // Reweight toward chroma confidence to make slots separate better
+      wMask = (d <= tolPix ? ws : 0) * (0.7 * conf[i] + 0.3 * val);
+      // Hard/soft gates to control bleed without killing saturated colors
+      // Whiteness: bright + low chroma => near white areas should be suppressed
+      const whiteness = val * (1 - conf[i]);
+      const whiteClip = smoothstep(0.20, 0.55, whiteness);
+      // Blackness: very low value (dark) => suppress strongly
+      const blackness = 1 - val;
+      const blackClip = smoothstep(0.80, 0.98, blackness);
+      // Low chroma: softly reduce influence but keep some tint
+      const chromaSoft = smoothstep(0.05, 0.25, 1 - conf[i]);
+      const hardCut = (1 - whiteClip) * (1 - blackClip);
+      const softCut = 1 - 0.4 * chromaSoft;
+      wMask *= hardCut * softCut;
+      if (wMask > 1) wMask = 1;
+      if (wMask < 0) wMask = 0;
+      if (wMask <= 1e-5) {
+        out.data[j] = br;
+        out.data[j + 1] = bg;
+        out.data[j + 2] = bb;
+        out.data[j + 3] = ba;
+        continue;
+      }
+      // Build blended target color across slots using directional cosine weights.
+      // This makes Feather act as a cross-slot smoothness control near mask edges.
+      // Compute mask direction unit vector
+      const minC2 = Math.min(mr, mg, mb);
+      let rxd = mr - minC2,
+        gxd = mg - minC2,
+        bxd = mb - minC2;
+      const Ln = Math.hypot(rxd, gxd, bxd);
+      // Softness mapping: higher Feather -> softer selection (lower sharpness)
+      const sharp = Math.max(1.5, 12 - 2.5 * Math.max(0, Math.min(4, feather)));
+      let weights = null;
+      if (Ln > 1e-6) {
+        rxd /= Ln;
+        gxd /= Ln;
+        bxd /= Ln;
+        weights = new Float32Array(6);
+        let sumW = 0,
+          wmax = 0,
+          w2 = 0,
+          imax = -1;
+        for (let s = 0; s < 6; s++) {
+          if (!pal[s]) {
+            weights[s] = 0;
+            continue;
+          }
+          const r = REF[s];
+          // cosine similarity in [-1,1]
+          let cs = rxd * r[0] + gxd * r[1] + bxd * r[2];
+          cs = Math.max(0, cs);
+          const wv = Math.pow(cs, sharp);
+          weights[s] = wv;
+          sumW += wv;
+          if (wv > wmax) {
+            w2 = wmax;
+            wmax = wv;
+            imax = s;
+          } else if (wv > w2) {
+            w2 = wv;
+          }
+        }
+        // Decide if we should blend or keep the dominant slot to avoid muddy colors
+        const ratio = w2 > 0 ? wmax / w2 : Infinity;
+        const useBlend = sumW > 1e-6 && !(ratio >= 1.8 && wmax >= 0.75 && conf[i] >= 0.25);
+        if (!useBlend) {
+          // fallback to dominant slot if any
+          if (imax >= 0) {
+            si = imax;
+            weights = null;
+          }
         }
       }
 
-      const dist = Math.sqrt(best); // khoảng cách màu tuyệt đối 0..MAX_DIST
-      let wMask;
-      if (dist <= tolerance) wMask = 1;
-      else if (dist >= tolerance + featherWidth) wMask = 0;
-      else wMask = 1 - smoothstep(tolerance, tolerance + featherWidth, dist);
-      if (wMask <= 1e-5 || slot < 0) {
-        o.data[j] = br;
-        o.data[j + 1] = bg;
-        o.data[j + 2] = bb;
-        o.data[j + 3] = ba;
-        continue;
+      // Determine target color in sRGB 0..1
+      let tR, tG, tB;
+      if (weights) {
+        let sumW = 0,
+          aR = 0,
+          aG = 0,
+          aB = 0;
+        for (let s = 0; s < 6; s++) {
+          const wv = weights[s];
+          if (wv <= 0) continue;
+          const pv = pal[s];
+          aR += wv * (pv[0] / 255);
+          aG += wv * (pv[1] / 255);
+          aB += wv * (pv[2] / 255);
+          sumW += wv;
+        }
+        if (sumW > 1e-6) {
+          const inv = 1 / sumW;
+          tR = aR * inv;
+          tG = aG * inv;
+          tB = aB * inv;
+        }
+      }
+      if (tR === undefined) {
+        const tgt = pal[si];
+        if (!tgt) {
+          out.data[j] = br;
+          out.data[j + 1] = bg;
+          out.data[j + 2] = bb;
+          out.data[j + 3] = ba;
+          continue;
+        }
+        tR = tgt[0] / 255;
+        tG = tgt[1] / 255;
+        tB = tgt[2] / 255;
       }
 
-      const tgt = pal[slot];
-      if (!tgt) {
-        o.data[j] = br;
-        o.data[j + 1] = bg;
-        o.data[j + 2] = bb;
-        o.data[j + 3] = ba;
-        continue;
-      }
-
-      const k = S * wMask;
-
-      // base (linear)
-      const rl = srgb2lin(br / 255),
-        gl = srgb2lin(bg / 255),
-        bl = srgb2lin(bb / 255);
-
-      let out0, out1, out2;
-
-      if (preserveShading) {
-        // 🆕 preserveShading path: Color blend (HSL): H,S từ target; L từ base
-        const tr = tgt[0] / 255,
-          tg = tgt[1] / 255,
-          tb = tgt[2] / 255;
-        const [ht, st] = rgb2hsl(tr, tg, tb); // H,S của target
-        const [, , lb] = rgb2hsl(br / 255, bg / 255, bb / 255); // L của base
-
-        const sAdj = Math.max(0, Math.min(1, st * satBoost)); // nếu muốn tăng giảm saturation
-        const [rt, gt, bt] = hsl2rgb(ht, sAdj, lb); // “tint” giữ sáng base
-
-        // blend (làm trên linear để mượt)
-        const tl0 = srgb2lin(rt),
-          tl1 = srgb2lin(gt),
-          tl2 = srgb2lin(bt);
-        let t0 = rl * (1 - k) + tl0 * k;
-        let t1 = gl * (1 - k) + tl1 * k;
-        let t2 = bl * (1 - k) + tl2 * k;
-
-        // gamma
-        t0 = Math.pow(t0, gpow);
-        t1 = Math.pow(t1, gpow);
-        t2 = Math.pow(t2, gpow);
-        out0 = Math.round(lin2srgb(t0) * 255);
-        out1 = Math.round(lin2srgb(t1) * 255);
-        out2 = Math.round(lin2srgb(t2) * 255);
+      const k = Math.max(0, Math.min(1, strength)) * wMask,
+        bL = br / 255,
+        bG = bg / 255,
+        bB = bb / 255,
+        baseOK = rgb2oklab(bL, bG, bB),
+        tOK = rgb2oklab(tR, tG, tB),
+        tLC = oklabToLch(tOK.L, tOK.a, tOK.b);
+      // Compute target mix in OKLCH with special handling for achromatic palette colors
+      const isAchroma = tLC.C <= 0.03; // treat very low-chroma targets as grayscale band
+      let Lmix, Cmix, Hmix;
+      if (isAchroma) {
+        // Achromatic path: push L toward target more aggressively and kill chroma
+        const A_KEEP = 0.35; // keep fraction of base lightness for texture
+        const A_PWR = 1.35; // contrast shaping toward pure white/black
+        Lmix = baseOK.L * A_KEEP + tOK.L * (1 - A_KEEP);
+        if (tOK.L >= 0.5) {
+          // brighten toward white
+          Lmix = 1 - Math.pow(1 - Math.max(0, Math.min(1, Lmix)), A_PWR);
+        } else {
+          // darken toward black
+          Lmix = Math.pow(Math.max(0, Math.min(1, Lmix)), A_PWR);
+        }
+        Cmix = 0; // no chroma for grayscale
+        Hmix = 0; // hue irrelevant when C=0
       } else {
-        // đường cũ: linear lerp RGB (tô phẳng khi k≈1)
-        const tl0 = srgb2lin(tgt[0] / 255),
-          tl1 = srgb2lin(tgt[1] / 255),
-          tl2 = srgb2lin(tgt[2] / 255);
-        let t0 = rl * (1 - k) + tl0 * k;
-        let t1 = gl * (1 - k) + tl1 * k;
-        let t2 = bl * (1 - k) + tl2 * k;
-        t0 = Math.pow(t0, gpow);
-        t1 = Math.pow(t1, gpow);
-        t2 = Math.pow(t2, gpow);
-        out0 = Math.round(lin2srgb(t0) * 255);
-        out1 = Math.round(lin2srgb(t1) * 255);
-        out2 = Math.round(lin2srgb(t2) * 255);
+        // Chromatic path: respect tuning
+        let Cx = Math.pow(tLC.C, chromaCurve) * chromaBoost;
+        const C_REF = 0.30; // typical OKLCH chroma scale in sRGB gamut
+        const Cn = Math.max(0, Math.min(1, Cx / C_REF));
+        const keepLightDrop = 0.15; // slightly relax keepLight when chroma is small
+        const keepL = Math.max(0, Math.min(1, keepLight - (1 - Cn) * keepLightDrop));
+        Lmix = baseOK.L * keepL + tLC.L * (1 - keepL);
+        Cmix = Cx;
+        Hmix = tLC.h;
       }
-
-      o.data[j] = out0;
-      o.data[j + 1] = out1;
-      o.data[j + 2] = out2;
-      o.data[j + 3] = ba;
+      const tint = lchToOklab(Lmix, Cmix, Hmix),
+        [rt, gt, bt] = oklab2rgb(tint.L, tint.a, tint.b),
+        rl = srgb2lin(bL),
+        gl = srgb2lin(bG),
+        bl = srgb2lin(bB),
+        tl0 = srgb2lin(rt),
+        tl1 = srgb2lin(gt),
+        tl2 = srgb2lin(bt);
+      let o0 = rl * (1 - k) + tl0 * k,
+        o1 = gl * (1 - k) + tl1 * k,
+        o2 = bl * (1 - k) + tl2 * k;
+      const gpow = gamma && gamma !== 1 ? 1 / gamma : 1;
+      o0 = Math.pow(o0, gpow);
+      o1 = Math.pow(o1, gpow);
+      o2 = Math.pow(o2, gpow);
+      out.data[j] = Math.round(Math.max(0, Math.min(1, lin2srgb(o0))) * 255);
+      out.data[j + 1] = Math.round(Math.max(0, Math.min(1, lin2srgb(o1))) * 255);
+      out.data[j + 2] = Math.round(Math.max(0, Math.min(1, lin2srgb(o2))) * 255);
+      out.data[j + 3] = ba;
     }
-
-    octx.putImageData(o, 0, 0);
+    octx.putImageData(out, 0, 0);
   }
-
   return { draw };
 }
+
+
+
+

@@ -10,6 +10,12 @@ export default function Toolbar({
   setFeather,
   gamma,
   setGamma,
+  keepLight,
+  setKeepLight,
+  chromaBoost,
+  setChromaBoost,
+  chromaCurve,
+  setChromaCurve,
   exportBg,
   setExportBg,
   exportText,
@@ -76,6 +82,47 @@ export default function Toolbar({
               onChange={(e) => setGamma(+e.target.value)}
             />
             <span className="small value">{gamma.toFixed(2)}</span>
+          </div>
+
+          {/* Advanced OKLab tuning */}
+          <div className="row">
+            <label className="small subtle">Keep Light</label>
+            <input
+              className="form-range"
+              type="range"
+              min="0.90"
+              max="1.00"
+              step="0.005"
+              value={keepLight}
+              onChange={(e) => setKeepLight(+e.target.value)}
+            />
+            <span className="small value">{keepLight.toFixed(3)}</span>
+          </div>
+          <div className="row">
+            <label className="small subtle">Chroma Boost</label>
+            <input
+              className="form-range"
+              type="range"
+              min="1.00"
+              max="1.50"
+              step="0.01"
+              value={chromaBoost}
+              onChange={(e) => setChromaBoost(+e.target.value)}
+            />
+            <span className="small value">{chromaBoost.toFixed(2)}</span>
+          </div>
+          <div className="row">
+            <label className="small subtle">Chroma Curve</label>
+            <input
+              className="form-range"
+              type="range"
+              min="0.80"
+              max="1.20"
+              step="0.01"
+              value={chromaCurve}
+              onChange={(e) => setChromaCurve(+e.target.value)}
+            />
+            <span className="small value">{chromaCurve.toFixed(2)}</span>
           </div>
 
           {/* Export colors: 1 hàng, input màu hiển thị đúng */}
