@@ -1,4 +1,4 @@
-// src/components/CreaturePicker.jsx
+﻿// src/components/CreaturePicker.jsx
 export default function CreaturePicker({ list, currentName, onPick, customMode = false }) {
   return (
     <div
@@ -7,7 +7,7 @@ export default function CreaturePicker({ list, currentName, onPick, customMode =
       <label
         className="small subtle"
         style={{ opacity: 0.8 }}>
-        Sinh vật
+        Sinh v&#x1EAD;t
       </label>
       <select
         value={customMode ? '__custom__' : currentName || ''}
@@ -38,3 +38,5 @@ export default function CreaturePicker({ list, currentName, onPick, customMode =
     </div>
   );
 }
+
+

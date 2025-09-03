@@ -171,10 +171,10 @@ input[type='color'] {
 
 .canvas-wrap {
   position: relative;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
+  /* background: var(--surface-2); */
+  /* border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 12px;
+  padding: 12px; */
 }
 .canvas-wrap canvas {
   max-width: 100%;
@@ -380,8 +380,7 @@ input[type='color'] {
 
 /* Checker background utility (nền caro cho slot null) */
 .checker {
-  background-image: linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(135deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%),
-    linear-gradient(135deg, transparent 75%, #ccc 75%);
+  background-image: linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(135deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(135deg, transparent 75%, #ccc 75%);
   background-size: 8px 8px;
   background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
   border: 1px solid var(--border);

@@ -52,7 +52,7 @@ export default function App() {
   const { list, current, selectByName, setCurrent } = useCreatures(preferredCreature);
   const [tempCreatureName, setTempCreatureName] = useState(null);
   const [customMode, setCustomMode] = useState(false);
-  const creatureName = tempCreatureName ?? (current?.name || 'â€”');
+  const creatureName = tempCreatureName ?? (current?.name || '—');
   const disabledSet = customMode ? new Set() : new Set(current?.noMask || []);
 
   const { baseImg, maskImg, loadPairFromFiles, loadFromEntry } = useImages();
@@ -200,15 +200,22 @@ export default function App() {
     const W = src.width,
       H = src.height;
     // layout similar to CanvasView.exportWithPaletteBlob
-    const padTop = 10, padBottom = 18, padX = 16;
-    const gap = 12, sw = 44, sh = 44, labelY = 14, items = 6;
+    const padTop = 10,
+      padBottom = 18,
+      padX = 16;
+    const gap = 12,
+      sw = 44,
+      sh = 44,
+      labelY = 14,
+      items = 6;
     const contentW = items * sw + (items - 1) * gap;
     const stripW = Math.min(W - padX * 2, contentW);
     const startX = Math.round((W - stripW) / 2);
     const startY = H + padTop;
     const totalH = H + padTop + sh + labelY + padBottom;
     const off = document.createElement('canvas');
-    off.width = W; off.height = totalH;
+    off.width = W;
+    off.height = totalH;
     const ctx = off.getContext('2d');
     if (exportBg && exportBg !== 'transparent') {
       ctx.fillStyle = exportBg;
@@ -217,14 +224,18 @@ export default function App() {
       ctx.clearRect(0, 0, W, totalH);
     }
     ctx.drawImage(src, 0, 0, W, H);
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `12px system-ui, -apple-system, Segoe UI, Roboto`;
-    let x = startX, y = startY;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = `12px system-ui, -apple-system, Segoe UI, Roboto`;
+    let x = startX,
+      y = startY;
     for (let i = 0; i < 6; i++) {
       const entry = slots[i];
       // swatch box
       if (entry?.hex) {
         ctx.fillStyle = entry.hex;
-        roundRect(ctx, x, y, sw, sh, 8); ctx.fill();
+        roundRect(ctx, x, y, sw, sh, 8);
+        ctx.fill();
         // index
         const rgb = hexToRgb(entry.hex);
         if (rgb) {
@@ -234,7 +245,9 @@ export default function App() {
         }
       } else {
         drawChecker(ctx, x, y, sw, sh, 8);
-        ctx.strokeStyle = '#ccc'; roundRect(ctx, x, y, sw, sh, 8); ctx.stroke();
+        ctx.strokeStyle = '#ccc';
+        roundRect(ctx, x, y, sw, sh, 8);
+        ctx.stroke();
       }
       // label
       ctx.fillStyle = exportText || '#fff';
@@ -263,7 +276,9 @@ export default function App() {
   }
   function relLuminance(r, g, b) {
     const toLin = (v) => (v <= 10.314 ? v / 3294 : Math.pow((v + 14.025) / 269.025, 2.4));
-    const rl = toLin(r), gl = toLin(g), bl = toLin(b);
+    const rl = toLin(r),
+      gl = toLin(g),
+      bl = toLin(b);
     return 0.2126 * rl + 0.7152 * gl + 0.0722 * bl;
   }
   const isNearBlack = (hex) => {
@@ -274,15 +289,16 @@ export default function App() {
   const isGrayish = (hex) => {
     const rgb = hexToRgb(hex);
     if (!rgb) return false;
-    const max = Math.max(...rgb), min = Math.min(...rgb);
+    const max = Math.max(...rgb),
+      min = Math.min(...rgb);
     const sat = (max - min) / 255;
-    return sat < 0.10; // low chroma
+    return sat < 0.1; // low chroma
   };
   // Light gray/white range: #FFFFFF down to #616161 (inclusive), and grayish (low chroma)
   const isLightGrayOrWhite = (hex) => {
     const rgb = hexToRgb(hex);
     if (!rgb) return false;
-    const [r,g,b] = rgb;
+    const [r, g, b] = rgb;
     const grayish = isGrayish(hex);
     const lightEnough = r >= 0x61 && g >= 0x61 && b >= 0x61; // >= #616161
     return grayish && lightEnough;
@@ -373,7 +389,9 @@ export default function App() {
     if (!baseName) return;
     setCustomMode(true);
     setTempCreatureName(baseName);
-    try { setCurrent && setCurrent(null); } catch {}
+    try {
+      setCurrent && setCurrent(null);
+    } catch {}
     saveJSON(STORAGE_KEYS.creature, baseName);
   }
   const resetSlotsOnly = () => {
@@ -481,9 +499,8 @@ export default function App() {
 
         <hr />
         <div className="subtle small">
-          LÆ°u Ã½: Index <b>255</b> lÃ  undefined (bá» qua slot). Cáº·p tÃªn: <code>name.png</code> & <code>name_m.png</code>.
+          Lưu ý: Index <b>255</b> là undefined (bỏ qua slot). Cặp tên: <code>name.png</code> & <code>name_m.png</code>.
         </div>
-
         {/* working canvases */}
         <canvas
           ref={baseCanvasRef}
@@ -497,10 +514,3 @@ export default function App() {
     </div>
   );
 }
-
-
-
-
-
-
-

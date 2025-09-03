@@ -1,4 +1,4 @@
-// src/components/SlotPicker.jsx
+﻿// src/components/SlotPicker.jsx
 import { useEffect, useRef, useState } from 'react';
 import { ARK_PALETTE } from '../utils/arkPalette';
 import { hexToRgb, relLuminance } from '../utils/color';
@@ -74,7 +74,6 @@ export default function SlotPicker({ slotIndex, value, onChange, disabled = fals
         className="btn"
         onClick={() => !disabled && setOpen(true)}
         title={value ? `${value.index} - ${value.name}` : disabled ? 'Slot không có mask' : 'Chọn màu…'}
-        // tabIndex={disabled ? -1 : 0}
         tabIndex={-1}
         aria-disabled={disabled}
         style={btnStyle}>
@@ -131,7 +130,7 @@ export default function SlotPicker({ slotIndex, value, onChange, disabled = fals
           cursor: disabled ? 'not-allowed' : 'pointer',
           opacity: disabled ? 0.5 : 1,
         }}>
-        ×
+        X
       </button>
 
       {open && !disabled && (
