@@ -29,8 +29,9 @@ export default function SlotControls({ slots, disabledSet, onPickSlot, onRandomA
         {extraActions /* ⬅️ “Fill” popover gắn từ App */}
         <button
           className="btn"
-          onClick={onPasteCmd}>
-          Paste CMD
+          onClick={onPasteCmd}
+          title="Paste Color">
+          Paste Color
         </button>
       </div>
     </div>

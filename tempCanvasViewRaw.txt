@@ -1,4 +1,4 @@
-// src/components/CanvasView.jsx
+﻿// src/components/CanvasView.jsx
 import { useEffect, useRef, useState } from 'react';
 import { hexToRgb, relLuminance } from '../utils/color';
 
@@ -33,6 +33,7 @@ export default function CanvasView({ outCanvasRef, loading, busy = false, slots 
     setTimeout(() => setToast(null), 1200);
   };
 
+  // Left click: copy áº£nh thuáº§n (nhÆ°ng fill BG Ä‘á»ƒ Ä‘á»“ng nháº¥t)
   const onClick = async () => {
     try {
       const src = outCanvasRef.current;
@@ -43,29 +44,26 @@ export default function CanvasView({ outCanvasRef, loading, busy = false, slots 
       off.width = W;
       off.height = H;
       const ctx = off.getContext('2d');
-      if (exportBg && exportBg !== 'transparent') {
-        ctx.fillStyle = exportBg;
-        ctx.fillRect(0, 0, W, H);
-      } else {
-        ctx.clearRect(0, 0, W, H);
-      }
+      ctx.fillStyle = exportBg;
+      ctx.fillRect(0, 0, W, H);
       ctx.drawImage(src, 0, 0, W, H);
       const blob = await new Promise((res) => off.toBlob(res, 'image/png'));
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-      notify('Đã copy ảnh!');
+      notify('ÄÃ£ copy áº£nh!');
     } catch {
-      notify('Copy thất bại');
+      notify('Copy tháº¥t báº¡i');
     }
   };
 
+  // Right click: copy áº£nh + palette bÃªn dÆ°á»›i (tÄƒng chiá»u cao)
   const onContextMenu = async (e) => {
     e.preventDefault();
     try {
       const blob = await exportWithPaletteBlob(outCanvasRef.current, slots, { exportBg, exportText });
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-      notify('Đã copy ảnh kèm palette!');
+      notify('ÄÃ£ copy áº£nh kÃ¨m palette!');
     } catch {
-      notify('Copy thất bại');
+      notify('Copy tháº¥t báº¡i');
     }
   };
 
@@ -76,58 +74,23 @@ export default function CanvasView({ outCanvasRef, loading, busy = false, slots 
       style={{ position: 'relative' }}>
       <div style={{ width: '100%', overflow: 'auto', position: 'relative' }}>
         {loading ? (
-          <div
-            style={{
-              position: 'relative',
-              width: '100%',
-              aspectRatio: '1 / 1',
-              borderRadius: 12,
-              border: '1px solid var(--border)',
-              overflow: 'hidden',
-              background: 'linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.10) 37%, rgba(255,255,255,0.04) 63%)',
-              backgroundSize: '400% 100%',
-              animation: 'shimmer 1.2s ease-in-out infinite',
-            }}>
-            <div
-              aria-busy
-              style={{
-                position: 'absolute',
-                top: 12,
-                right: 12,
-                width: 28,
-                height: 28,
-                border: '2px solid var(--border)',
-                borderTopColor: 'var(--text)',
-                borderRadius: '50%',
-                animation: 'spin 0.9s linear infinite',
-              }}
-            />
-          </div>
+          <div style={{ padding: 16, textAlign: 'center', color: 'var(--muted)' }}>Äang táº£i áº£nhâ€¦</div>
         ) : (
-          <div
+          // src/components/CanvasView.jsx (chá»‰ dÃ²ng style canvas)
+          <canvas
+            ref={outCanvasRef}
             style={{
-              position: 'relative',
               width: '100%',
-              aspectRatio: '1 / 1',
+              height: 'auto',
+              display: 'block',
               borderRadius: 12,
               border: '1px solid var(--border)',
-              background: exportBg,
-              overflow: 'hidden',
-            }}>
-            <canvas
-              ref={outCanvasRef}
-              style={{
-                width: '100%',
-                height: '100%',
-                display: 'block',
-                objectFit: 'contain',
-                borderRadius: 12,
-                cursor: 'copy',
-              }}
-              onClick={onClick}
-              onContextMenu={onContextMenu}
-            />
-          </div>
+              background: exportBg, // â¬…ï¸ dÃ¹ng BG export trá»±c tiáº¿p
+              cursor: 'copy',
+            }}
+            onClick={onClick}
+            onContextMenu={onContextMenu}
+          />
         )}
         {!loading && busy && (
           <div
@@ -148,6 +111,7 @@ export default function CanvasView({ outCanvasRef, loading, busy = false, slots 
         )}
       </div>
 
+      {/* tooltip */}
       {!loading && hint && (
         <div
           style={{
@@ -165,6 +129,7 @@ export default function CanvasView({ outCanvasRef, loading, busy = false, slots 
         </div>
       )}
 
+      {/* toast gáº§n con trá» */}
       {toast && (
         <div
           role="status"
@@ -195,13 +160,14 @@ async function exportWithPaletteBlob(srcCanvas, slots, { exportBg, exportText })
   const W = srcCanvas.width,
     H = srcCanvas.height;
 
+  // layout strip
   const padX = 16,
     padTop = 10,
     padBottom = 18;
   const gap = 12;
   const sw = 44,
     sh = 44;
-  const labelY = 14;
+  const labelY = 14; // space for "Slot n"
   const items = 6;
   const contentW = items * sw + (items - 1) * gap;
   const stripW = Math.min(W - padX * 2, contentW);
@@ -215,14 +181,12 @@ async function exportWithPaletteBlob(srcCanvas, slots, { exportBg, exportText })
   off.height = totalH;
   const ctx = off.getContext('2d');
 
-  if (exportBg && exportBg !== 'transparent') {
-    ctx.fillStyle = exportBg;
-    ctx.fillRect(0, 0, W, totalH);
-  } else {
-    ctx.clearRect(0, 0, W, totalH);
-  }
+  // fill bg then draw original image
+  ctx.fillStyle = exportBg;
+  ctx.fillRect(0, 0, W, totalH);
   ctx.drawImage(srcCanvas, 0, 0, W, H);
 
+  // draw swatches (no background box)
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.font = `12px system-ui, -apple-system, Segoe UI, Roboto`;
@@ -231,6 +195,7 @@ async function exportWithPaletteBlob(srcCanvas, slots, { exportBg, exportText })
     y = startY;
   for (let i = 0; i < items; i++) {
     const entry = slots[i];
+    // swatch background: color or checker
     if (entry?.hex) {
       ctx.fillStyle = entry.hex;
       roundRect(ctx, x, y, sw, sh, 8);
@@ -241,12 +206,14 @@ async function exportWithPaletteBlob(srcCanvas, slots, { exportBg, exportText })
       roundRect(ctx, x, y, sw, sh, 8);
       ctx.stroke();
     }
+    // id text inside swatch: auto black/white
     if (entry?.hex) {
       const [r, g, b] = hexToRgb(entry.hex);
       const lum = relLuminance(r, g, b);
       ctx.fillStyle = lum > 0.55 ? '#111' : '#fff';
       ctx.fillText(String(entry.index), x + sw / 2, y + sh / 2);
     }
+    // slot label below (uses exportText)
     ctx.fillStyle = exportText || '#fff';
     ctx.font = `12px system-ui, -apple-system, Segoe UI, Roboto`;
     ctx.fillText(`Slot ${i}`, x + sw / 2, y + sh + labelY - 4);
@@ -279,9 +246,10 @@ function drawChecker(c, x, y, w, h, size) {
   c.restore();
 }
 
+// keyframes defined inline via injected style tag if not present
 if (typeof document !== 'undefined' && !document.getElementById('cv-spin-style')) {
   const style = document.createElement('style');
   style.id = 'cv-spin-style';
-  style.textContent = '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}';
+  style.textContent = '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
   document.head.appendChild(style);
 }

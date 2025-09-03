@@ -9,7 +9,7 @@ import Toolbar from './components/Toolbar.jsx';
 import { DEFAULTS } from './config/defaults.js';
 import { useCreatures } from './hooks/useCreatures.js';
 import { useImages } from './hooks/useImages.js';
-import { useRecolor } from './hooks/useRecolor.js';
+import { useRecolorWorker } from './hooks/useRecolorWorker.js';
 import { extractQuoted, extractSpeciesFromBlueprint, normalizeName, parseNumList, sanitizeName } from './utils/arkCmd.js';
 import { ARK_PALETTE } from './utils/arkPalette.js';
 import { STORAGE_KEYS, loadJSON, saveJSON } from './utils/storage.js';
@@ -56,7 +56,7 @@ export default function App() {
   const disabledSet = customMode ? new Set() : new Set(current?.noMask || []);
 
   const { baseImg, maskImg, loadPairFromFiles, loadFromEntry } = useImages();
-  const { draw } = useRecolor({ threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth });
+  const { draw, busy } = useRecolorWorker({ threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth });
   const rafRef = useRef(0);
   const pendingArgsRef = useRef(null);
 
@@ -162,7 +162,9 @@ export default function App() {
     }
   }
 
-  function handleDownload() {
+  const [downloadingType, setDownloadingType] = useState(null); // 'image' | 'palette' | null
+
+  function handleDownloadImage() {
     const src = outCanvasRef.current;
     if (!src) return;
     const W = src.width,
@@ -171,16 +173,170 @@ export default function App() {
     off.width = W;
     off.height = H;
     const ctx = off.getContext('2d');
-    ctx.fillStyle = exportBg;
-    ctx.fillRect(0, 0, W, H);
+    if (exportBg && exportBg !== 'transparent') {
+      ctx.fillStyle = exportBg;
+      ctx.fillRect(0, 0, W, H);
+    } else {
+      ctx.clearRect(0, 0, W, H);
+    }
     ctx.drawImage(src, 0, 0, W, H);
+    setDownloadingType('image');
     off.toBlob((blob) => {
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'recolor.png';
-      a.click();
-      URL.revokeObjectURL(a.href);
+      try {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'recolor.png';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      } finally {
+        setDownloadingType(null);
+      }
     }, 'image/png');
+  }
+
+  function handleDownloadWithPalette() {
+    const src = outCanvasRef.current;
+    if (!src) return;
+    const W = src.width,
+      H = src.height;
+    // layout similar to CanvasView.exportWithPaletteBlob
+    const padTop = 10, padBottom = 18, padX = 16;
+    const gap = 12, sw = 44, sh = 44, labelY = 14, items = 6;
+    const contentW = items * sw + (items - 1) * gap;
+    const stripW = Math.min(W - padX * 2, contentW);
+    const startX = Math.round((W - stripW) / 2);
+    const startY = H + padTop;
+    const totalH = H + padTop + sh + labelY + padBottom;
+    const off = document.createElement('canvas');
+    off.width = W; off.height = totalH;
+    const ctx = off.getContext('2d');
+    if (exportBg && exportBg !== 'transparent') {
+      ctx.fillStyle = exportBg;
+      ctx.fillRect(0, 0, W, totalH);
+    } else {
+      ctx.clearRect(0, 0, W, totalH);
+    }
+    ctx.drawImage(src, 0, 0, W, H);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `12px system-ui, -apple-system, Segoe UI, Roboto`;
+    let x = startX, y = startY;
+    for (let i = 0; i < 6; i++) {
+      const entry = slots[i];
+      // swatch box
+      if (entry?.hex) {
+        ctx.fillStyle = entry.hex;
+        roundRect(ctx, x, y, sw, sh, 8); ctx.fill();
+        // index
+        const rgb = hexToRgb(entry.hex);
+        if (rgb) {
+          const lum = relLuminance(rgb[0], rgb[1], rgb[2]);
+          ctx.fillStyle = lum > 0.55 ? '#111' : '#fff';
+          ctx.fillText(String(entry.index), x + sw / 2, y + sh / 2);
+        }
+      } else {
+        drawChecker(ctx, x, y, sw, sh, 8);
+        ctx.strokeStyle = '#ccc'; roundRect(ctx, x, y, sw, sh, 8); ctx.stroke();
+      }
+      // label
+      ctx.fillStyle = exportText || '#fff';
+      ctx.fillText(`Slot ${i}`, x + sw / 2, y + sh + labelY - 4);
+      x += sw + gap;
+    }
+    setDownloadingType('palette');
+    off.toBlob((blob) => {
+      try {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'recolor_palette.png';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      } finally {
+        setDownloadingType(null);
+      }
+    }, 'image/png');
+  }
+
+  function hexToRgb(hex) {
+    const h = hex?.[0] === '#' ? hex.slice(1) : hex;
+    if (!h || h.length !== 6) return null;
+    const n = parseInt(h, 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+  function relLuminance(r, g, b) {
+    const toLin = (v) => (v <= 10.314 ? v / 3294 : Math.pow((v + 14.025) / 269.025, 2.4));
+    const rl = toLin(r), gl = toLin(g), bl = toLin(b);
+    return 0.2126 * rl + 0.7152 * gl + 0.0722 * bl;
+  }
+  const isNearBlack = (hex) => {
+    const rgb = hexToRgb(hex);
+    if (!rgb) return false;
+    return relLuminance(rgb[0], rgb[1], rgb[2]) < 0.22;
+  };
+  const isGrayish = (hex) => {
+    const rgb = hexToRgb(hex);
+    if (!rgb) return false;
+    const max = Math.max(...rgb), min = Math.min(...rgb);
+    const sat = (max - min) / 255;
+    return sat < 0.10; // low chroma
+  };
+  // Light gray/white range: #FFFFFF down to #616161 (inclusive), and grayish (low chroma)
+  const isLightGrayOrWhite = (hex) => {
+    const rgb = hexToRgb(hex);
+    if (!rgb) return false;
+    const [r,g,b] = rgb;
+    const grayish = isGrayish(hex);
+    const lightEnough = r >= 0x61 && g >= 0x61 && b >= 0x61; // >= #616161
+    return grayish && lightEnough;
+  };
+
+  // Smart setter for export BG to keep text readable automatically
+  function handleSetExportBg(next) {
+    setExportBg(next);
+    try {
+      if (next === 'transparent') {
+        if (exportText && isGrayish(exportText)) {
+          setExportText('#171717'); // ARK 79 ActualBlack
+        }
+        return;
+      }
+      if (typeof next === 'string' && next.startsWith('#') && next.length === 7) {
+        // PRIORITY: Light gray/white first to avoid flicker in gray range
+        if (isLightGrayOrWhite(next)) {
+          // BG white..gray: if text is white -> swap to black
+          if (exportText === '#FFFFFF') setExportText('#171717');
+          return;
+        }
+
+        // Else consider near-black backgrounds
+        if (isNearBlack(next)) {
+          if (exportText === '#171717' || isNearBlack(exportText)) {
+            setExportText('#FFFFFF'); // ARK 36
+          }
+          return;
+        }
+        // Other mid colors: do nothing to avoid jitter while dragging
+      }
+    } catch {}
+  }
+  function roundRect(c, x, y, w, h, r) {
+    c.beginPath();
+    c.moveTo(x + r, y);
+    c.arcTo(x + w, y, x + w, y + h, r);
+    c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r);
+    c.arcTo(x, y, x + w, y, r);
+    c.closePath();
+  }
+  function drawChecker(c, x, y, w, h, size) {
+    c.save();
+    c.fillStyle = '#cfcfcf';
+    c.fillRect(x, y, w, h);
+    c.fillStyle = '#e9e9e9';
+    for (let yy = 0; yy < h; yy += size) {
+      for (let xx = Math.floor(yy / size) % 2 === 0 ? 0 : size; xx < w; xx += size * 2) {
+        c.fillRect(x + xx, y + yy, size, size);
+      }
+    }
+    c.restore();
   }
 
   const doFillWith = (entry) => {
@@ -189,11 +345,15 @@ export default function App() {
   };
 
   const reset = () => {
-    setSlots([...DEFAULTS.slots]);
     setThreshold(DEFAULTS.threshold);
     setStrength(DEFAULTS.strength);
     setFeather(DEFAULTS.feather);
     setGamma(DEFAULTS.gamma);
+    setKeepLight(DEFAULTS.keepLight);
+    setChromaBoost(DEFAULTS.chromaBoost);
+    setChromaCurve(DEFAULTS.chromaCurve);
+    setSpeckleClean(DEFAULTS.speckleClean);
+    setEdgeSmooth(DEFAULTS.edgeSmooth);
     // slots sáº½ Ä‘Æ°á»£c lÆ°u láº¡i qua effect á»Ÿ trÃªn
   };
   const onPickSlot = (i, entryOrNull) => {
@@ -234,6 +394,7 @@ export default function App() {
         <CanvasView
           outCanvasRef={outCanvasRef}
           loading={!baseImg || !maskImg}
+          busy={busy}
           slots={slots}
           exportBg={exportBg}
           exportText={exportText}
@@ -259,11 +420,13 @@ export default function App() {
           edgeSmooth={edgeSmooth}
           setEdgeSmooth={setEdgeSmooth}
           exportBg={exportBg}
-          setExportBg={setExportBg}
+          setExportBg={handleSetExportBg}
           exportText={exportText}
           setExportText={setExportText}
           onReset={reset}
-          onDownload={handleDownload}
+          onDownloadImage={handleDownloadImage}
+          onDownloadWithPalette={handleDownloadWithPalette}
+          downloadingType={downloadingType}
           onCustomFiles={handleCustomFiles}
         />
       </section>

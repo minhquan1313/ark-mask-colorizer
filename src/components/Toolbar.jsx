@@ -25,10 +25,43 @@ export default function Toolbar({
   exportText,
   setExportText,
   onReset,
-  onDownload,
+  onDownloadImage,
+  onDownloadWithPalette,
+  downloadingType = null,
   onCustomFiles,
 }) {
   const fileRef = useRef(null);
+  const isTransparent = exportBg === 'transparent';
+
+  // Ensure keyframes exist for spinner if not already present
+  if (typeof document !== 'undefined' && !document.getElementById('tb-spin-style')) {
+    const style = document.createElement('style');
+    style.id = 'tb-spin-style';
+    style.textContent = '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
+    document.head.appendChild(style);
+  }
+
+  const IconDownload = ({ size = 14 }) => (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden>
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line
+        x1="12"
+        y1="15"
+        x2="12"
+        y2="3"
+      />
+    </svg>
+  );
 
   return (
     <>
@@ -128,7 +161,6 @@ export default function Toolbar({
             />
             <span className="small value">{chromaCurve.toFixed(2)}</span>
           </div>
-
           <div className="row">
             <label className="small subtle">Speckle Clean</label>
             <input
@@ -142,7 +174,6 @@ export default function Toolbar({
             />
             <span className="small value">{speckleClean.toFixed(2)}</span>
           </div>
-
           <div className="row">
             <label className="small subtle">Edge Smooth</label>
             <input
@@ -157,7 +188,6 @@ export default function Toolbar({
             <span className="small value">{edgeSmooth.toFixed(2)}</span>
           </div>
 
-          {/* Export colors: 1 hàng, input màu hiển thị đúng */}
           <div className="row-colors">
             <label className="small subtle">Export</label>
             <div className="swatch">
@@ -167,6 +197,18 @@ export default function Toolbar({
                 value={exportBg}
                 onChange={(e) => setExportBg(e.target.value)}
               />
+              <button
+                className="btn"
+                title="Nền trong suốt"
+                onClick={() => setExportBg('transparent')}
+                style={{
+                  padding: '4px 8px',
+                  borderWidth: isTransparent ? 2 : 1,
+                  borderColor: isTransparent ? '#5cc8ff' : undefined,
+                  boxShadow: isTransparent ? '0 0 0 2px rgba(92,200,255,0.25) inset' : undefined,
+                }}>
+                Trong suốt
+              </button>
             </div>
             <div className="swatch">
               <span className="small subtle">Text</span>
@@ -195,7 +237,6 @@ export default function Toolbar({
             onChange={(e) => {
               const files = e.target.files;
               if (files && files.length) onCustomFiles(files);
-              // allow selecting the same file again to re-trigger onChange
               e.target.value = '';
             }}
           />
@@ -204,11 +245,51 @@ export default function Toolbar({
             onClick={onReset}>
             Reset
           </button>
-          <button
-            className="btn"
-            onClick={onDownload}>
-            Tải ảnh
-          </button>
+
+          <div
+            className="hstack"
+            style={{ gap: 6, width: '100%' }}>
+            <button
+              className="btn"
+              onClick={onDownloadImage}
+              disabled={downloadingType === 'image' || downloadingType === 'palette'}
+              title="Tải ảnh"
+              style={{ flex: 1, display: 'inline-flex', justifyContent: 'center' }}>
+              {downloadingType === 'image' ? (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <span
+                    aria-busy
+                    style={{ width: 14, height: 14, border: '2px solid var(--border)', borderTopColor: 'var(--text)', borderRadius: '50%', animation: 'spin 0.9s linear infinite' }}
+                  />
+                  Ảnh
+                </span>
+              ) : (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <IconDownload /> Ảnh
+                </span>
+              )}
+            </button>
+            <button
+              className="btn"
+              onClick={onDownloadWithPalette}
+              disabled={downloadingType === 'image' || downloadingType === 'palette'}
+              title="Tải ảnh kèm palette"
+              style={{ flex: 1, display: 'inline-flex', justifyContent: 'center' }}>
+              {downloadingType === 'palette' ? (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <span
+                    aria-busy
+                    style={{ width: 14, height: 14, border: '2px solid var(--border)', borderTopColor: 'var(--text)', borderRadius: '50%', animation: 'spin 0.9s linear infinite' }}
+                  />
+                  Ảnh + màu
+                </span>
+              ) : (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <IconDownload /> Ảnh + màu
+                </span>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </>

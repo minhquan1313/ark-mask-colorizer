@@ -3,27 +3,28 @@
    ========================= */
 
 :root {
-  --surface: #ffffff; /* nền panel / button */
-  --surface-2: #f7f7f9; /* nền phụ */
-  --text: #111827; /* chữ chính */
-  --muted: #6b7280; /* chữ phụ */
-  --border: #e5e7eb; /* viền */
-  --shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+  /* Default to dark to match previous look */
+  --surface: #0f1115;
+  --surface-2: #12151b;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --border: #2a2f3a;
+  --shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
 
   --radius: 12px;
   --radius-sm: 10px;
   --transition: 120ms ease;
 }
 
-/* Dark mode: tự động theo máy */
-@media (prefers-color-scheme: dark) {
+/* Light mode: switch if user prefers light */
+@media (prefers-color-scheme: light) {
   :root {
-    --surface: #0f1115;
-    --surface-2: #12151b;
-    --text: #e5e7eb;
-    --muted: #9ca3af;
-    --border: #2a2f3a;
-    --shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    --surface: #ffffff; /* nền panel / button */
+    --surface-2: #f7f7f9; /* nền phụ */
+    --text: #111827; /* chữ chính */
+    --muted: #6b7280; /* chữ phụ */
+    --border: #e5e7eb; /* viền */
+    --shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
   }
 }
 
@@ -63,6 +64,8 @@ body {
   grid-template-columns: 1fr 360px; /* preview | controls */
   gap: 16px;
   padding: 16px;
+  max-width: 1150px;
+  margin: 0 auto;
 }
 
 @media (max-width: 1100px) {
@@ -106,6 +109,13 @@ body {
 }
 .subtle {
   color: var(--muted);
+}
+
+/* Horizontal rule */
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 12px 0;
 }
 
 /* KBD tip */
@@ -161,14 +171,16 @@ input[type='color'] {
 
 .canvas-wrap {
   position: relative;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
 }
 .canvas-wrap canvas {
   max-width: 100%;
   height: auto;
   display: block;
   border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background: var(--surface-2);
 }
 
 /* =========================
@@ -461,6 +473,7 @@ input[type='color'] {
   .toolbar .row {
     grid-template-columns: 1fr 64px;
     grid-template-rows: auto auto;
+    gap: 0;
   }
   .toolbar .row label {
     grid-column: 1 / 2;
