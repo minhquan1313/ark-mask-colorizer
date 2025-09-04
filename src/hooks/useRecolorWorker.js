@@ -21,7 +21,35 @@ export function useRecolorWorker({ threshold = 80, strength = 1, feather = 0, ga
     return w;
   };
 
-  const runDraw = useCallback(({ baseImg, maskImg, baseCanvasRef, maskCanvasRef, outCanvasRef, slots }) => {
+  // Coerce slot entry -> [r,g,b] or null
+  const coerceRGB = (v) => {
+    if (!v) return null;
+    if (Array.isArray(v)) return v;
+    if (typeof v === 'string') {
+      const h = v[0] === '#' ? v.slice(1) : v;
+      if (h.length !== 6) return null;
+      const n = parseInt(h, 16);
+      return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+    }
+    if (typeof v === 'object' && v.hex) {
+      const h = v.hex[0] === '#' ? v.hex.slice(1) : v.hex;
+      if (h.length !== 6) return null;
+      const n = parseInt(h, 16);
+      return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+    }
+    return null;
+  };
+
+  const addMix = (a, b) => {
+    if (!a || !b) return null;
+    return [
+      Math.min(255, (a[0] | 0) + (b[0] | 0)),
+      Math.min(255, (a[1] | 0) + (b[1] | 0)),
+      Math.min(255, (a[2] | 0) + (b[2] | 0)),
+    ];
+  };
+
+  const runDraw = useCallback(({ baseImg, maskImg, extraMasks = [], baseCanvasRef, maskCanvasRef, outCanvasRef, slots }) => {
     const src = baseImg || maskImg;
     if (!src) return;
     const w = src.naturalWidth, h = src.naturalHeight;
@@ -42,86 +70,116 @@ export function useRecolorWorker({ threshold = 80, strength = 1, feather = 0, ga
     if (!maskImg) { octx.drawImage(B, 0, 0); return; }
     // Keep previous recolored image on screen; only show spinner overlay
 
-    const base = bctx.getImageData(0, 0, w, h);
-    const mask = mctx.getImageData(0, 0, w, h);
+    const base0 = bctx.getImageData(0, 0, w, h);
+    const mask0 = mctx.getImageData(0, 0, w, h);
 
-    // Fallback path if worker init fails
+    // Fallback path if worker init fails (single mask only)
     let worker;
     try {
       worker = getWorker();
     } catch (e) {
       // eslint-disable-next-line no-console
       console.warn('Worker init failed, using main thread:', e);
-      sync.draw({ baseImg, maskImg, baseCanvasRef, maskCanvasRef, outCanvasRef, slots });
+      try { sync.draw({ baseImg, maskImg, baseCanvasRef, maskCanvasRef, outCanvasRef, slots }); } catch {}
       return;
     }
-    const jobId = ++jobRef.current;
-    setBusy(true);
 
-    const onMessage = (ev) => {
-      const msg = ev.data || {};
-      if (msg.jobId !== jobId) return; // ignore stale
-      if (msg.type === 'recolor:done') {
-        try {
-          const out = new ImageData(new Uint8ClampedArray(msg.outBuffer), msg.width, msg.height);
-          octx.putImageData(out, 0, 0);
-        } finally {
-          setBusy(false);
+    const recolorOnce = (baseImageData, maskImageData, slotsOverride) => {
+      return new Promise((resolve, reject) => {
+        const jobId = ++jobRef.current;
+        const onMessage = (ev) => {
+          const msg = ev.data || {};
+          if (msg.jobId !== jobId) return;
+          if (msg.type === 'recolor:done') {
+            worker.removeEventListener('message', onMessage);
+            resolve(new ImageData(new Uint8ClampedArray(msg.outBuffer), msg.width, msg.height));
+          } else if (msg.type === 'recolor:error') {
+            worker.removeEventListener('message', onMessage);
+            reject(new Error(String(msg.error || 'worker error')));
+          }
+        };
+        const onError = (e) => {
           worker.removeEventListener('message', onMessage);
-        }
-      } else if (msg.type === 'recolor:error') {
-        // eslint-disable-next-line no-console
-        console.error('Worker recolor error:', msg.error);
-        setBusy(false);
-        worker.removeEventListener('message', onMessage);
-      }
-    };
-    worker.addEventListener('message', onMessage);
-    const onError = (e) => {
-      // eslint-disable-next-line no-console
-      console.error('Worker error:', e && e.message ? e.message : e);
-      setBusy(false);
-      worker.removeEventListener('message', onMessage);
-      worker.removeEventListener('error', onError);
-      // keep base placeholder already drawn
-      // Fallback to main-thread recolor
-      try {
-        sync.draw({ baseImg, maskImg, baseCanvasRef, maskCanvasRef, outCanvasRef, slots });
-      } catch {}
-    };
-    worker.addEventListener('error', onError);
-    const onMessageError = (e) => {
-      // eslint-disable-next-line no-console
-      console.error('Worker message error:', e);
-      setBusy(false);
-      worker.removeEventListener('message', onMessage);
-      worker.removeEventListener('error', onError);
-      worker.removeEventListener('messageerror', onMessageError);
-    };
-    worker.addEventListener('messageerror', onMessageError);
+          worker.removeEventListener('error', onError);
+          reject(e);
+        };
+        worker.addEventListener('message', onMessage);
+        worker.addEventListener('error', onError, { once: true });
 
-    // Clone data to avoid transfer issues on some browsers/dev servers
-    const baseArr = base.data.slice();
-    const maskArr = mask.data.slice();
-    const payload = {
-      jobId,
-      width: w,
-      height: h,
-      base: baseArr,
-      mask: maskArr,
-      slots,
-      params,
+        const payload = {
+          jobId,
+          width: w,
+          height: h,
+          base: baseImageData.data.slice(),
+          mask: maskImageData.data.slice(),
+          slots: slotsOverride,
+          params,
+        };
+        try {
+          worker.postMessage({ type: 'recolor', payload });
+        } catch (err) {
+          worker.removeEventListener('message', onMessage);
+          worker.removeEventListener('error', onError);
+          reject(err);
+        }
+      });
     };
-    try {
-      worker.postMessage({ type: 'recolor', payload });
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error('postMessage failed:', err);
-      setBusy(false);
-      worker.removeEventListener('message', onMessage);
-      worker.removeEventListener('error', onError);
-      worker.removeEventListener('messageerror', onMessageError);
-    }
+
+    (async () => {
+      setBusy(true);
+      try {
+        // Pass 1: primary mask with user-selected slots
+        let out = await recolorOnce(base0, mask0, slots);
+
+        // Pass 2+: overlay masks in order; only paint magenta via slot[5]
+        for (const item of extraMasks || []) {
+          if (!item?.img) continue;
+          // Prepare mask image data
+          mctx.clearRect(0, 0, w, h);
+          mctx.drawImage(item.img, 0, 0, w, h);
+          const maskN = mctx.getImageData(0, 0, w, h);
+
+          // Restrict overlay strictly to magenta-coded areas to avoid spill/misalignment
+          // Keep only pixels close to magenta; zero out others
+          {
+            const d = maskN.data;
+            for (let p = 0; p < d.length; p += 4) {
+              const r = d[p], g = d[p + 1], b = d[p + 2];
+              // Heuristic: strong magenta if R and B high, G low, R~B
+              const mag = r >= 150 && b >= 150 && g <= 80 && Math.abs(r - b) <= 64;
+              if (!mag) {
+                d[p] = 0; d[p + 1] = 0; d[p + 2] = 0; // drop non-magenta
+              } else {
+                d[p] = 255; d[p + 1] = 0; d[p + 2] = 255; // normalize to pure magenta
+              }
+            }
+          }
+
+          // Compute additive mix from pair indices
+          const [ia, ib] = Array.isArray(item.pair) ? item.pair : [];
+          if (ia == null || ib == null) continue;
+          const ca = coerceRGB(slots?.[ia]);
+          const cb = coerceRGB(slots?.[ib]);
+          if (!ca || !cb) continue;
+          const mix = addMix(ca, cb);
+          if (!mix) continue;
+
+          const overlaySlots = [null, null, null, null, null, null];
+          overlaySlots[5] = mix; // only magenta channel active
+
+          out = await recolorOnce(out, maskN, overlaySlots);
+        }
+
+        // Draw final image
+        octx.putImageData(out, 0, 0);
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('Recolor pipeline error:', err);
+        try { sync.draw({ baseImg, maskImg, baseCanvasRef, maskCanvasRef, outCanvasRef, slots }); } catch {}
+      } finally {
+        setBusy(false);
+      }
+    })();
   }, [params, sync]);
 
   const draw = useCallback((args) => {

@@ -55,7 +55,7 @@ export default function App() {
   const creatureName = tempCreatureName ?? (current?.name || '—');
   const disabledSet = customMode ? new Set() : new Set(current?.noMask || []);
 
-  const { baseImg, maskImg, loadPairFromFiles, loadFromEntry } = useImages();
+  const { baseImg, maskImg, extraMasks, loadPairFromFiles, loadFromEntry } = useImages();
   const { draw, busy } = useRecolorWorker({ threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth });
   const rafRef = useRef(0);
   const pendingArgsRef = useRef(null);
@@ -86,14 +86,14 @@ export default function App() {
   // Váº½ khi Ä‘Ã£ cÃ³ áº£nh
   useEffect(() => {
     if (!baseImg || !maskImg) return;
-    const args = { baseImg, maskImg, baseCanvasRef, maskCanvasRef, outCanvasRef, slots };
+    const args = { baseImg, maskImg, extraMasks, baseCanvasRef, maskCanvasRef, outCanvasRef, slots };
     pendingArgsRef.current = args;
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => {
       draw(pendingArgsRef.current);
       rafRef.current = 0;
     });
-  }, [baseImg, maskImg, slots, threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, draw]);
+  }, [baseImg, maskImg, extraMasks, slots, threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, draw]);
 
   // âœ… LÆ°u slots má»—i khi Ä‘á»•i (Ä‘Ã£ an toÃ n vÃ¬ init tá»« storage)
   useEffect(() => {

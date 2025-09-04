@@ -15,8 +15,8 @@
   {
     "name": "Drakeling (Autumn)",
     "maskPath": "Drakeling (Autumn)",
-    "base": "Drakeling_(Autumn).png",
-    "masks": ["Drakeling_(Autumn)_m.png", "Drakeling_(Autumn)_m_05.png", "Drakeling_(Autumn)_m_25.png"]
+    "base": "Drakeling (Autumn).png",
+    "masks": ["Drakeling (Autumn)_m.png", "Drakeling (Autumn)_m_05.png", "Drakeling (Autumn)_m_25.png"]
   },
   {
     "name": "Armadoggo",
