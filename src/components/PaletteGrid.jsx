@@ -2,6 +2,20 @@
 import { ARK_PALETTE } from '../utils/arkPalette';
 import { hexToRgb, relLuminance } from '../utils/color';
 
+// Priority ordering requested
+const PRIORITY = ['1', '2', '3', '4', '5', '6', '36', '68', '79', '83', '187', '203'];
+const seen = new Set();
+const prioritized = [];
+for (const id of PRIORITY) {
+  const found = ARK_PALETTE.find((p) => String(p.index) === String(id));
+  if (found && !seen.has(String(found.index))) {
+    prioritized.push(found);
+    seen.add(String(found.index));
+  }
+}
+const rest = ARK_PALETTE.filter((p) => !seen.has(String(p.index)));
+const LIST = prioritized.concat(rest);
+
 export default function PaletteGrid({ onPick, big = false, showIndex = false }) {
   const size = big ? 44 : 30;
   const gap = big ? 10 : 6;
@@ -10,14 +24,14 @@ export default function PaletteGrid({ onPick, big = false, showIndex = false }) 
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: `repeat(auto-fill, minmax(${size}px, 1fr))`,
+        gridTemplateColumns: `repeat(6, ${size}px)`,
         gap,
         padding: 6,
       }}>
-      {ARK_PALETTE.map((c) => {
+      {LIST.map((c) => {
         const [r, g, b] = hexToRgb(c.hex);
         const lum = relLuminance(r, g, b); // 0..1
-        const textColor = lum > 0.55 ? '#111' : '#fff'; // auto tương phản
+        const textColor = lum > 0.55 ? '#111' : '#fff';
         return (
           <button
             key={c.index}
@@ -27,7 +41,7 @@ export default function PaletteGrid({ onPick, big = false, showIndex = false }) 
               width: size,
               height: size,
               borderRadius: 10,
-              border: '1px solid var(--border)', // ⬅️
+              border: '1px solid var(--border)',
               background: c.hex,
               display: 'grid',
               placeItems: 'center',
@@ -38,7 +52,7 @@ export default function PaletteGrid({ onPick, big = false, showIndex = false }) 
                 style={{
                   fontSize: 12,
                   fontWeight: 700,
-                  color: textColor, // đen/trắng theo luminance đã có
+                  color: textColor,
                   textShadow: '0 1px 2px rgba(0,0,0,0.25)',
                 }}>
                 {c.index}
