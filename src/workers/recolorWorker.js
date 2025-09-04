@@ -72,7 +72,7 @@ function coerceRGB(v) {
 }
 
 function render({ base, mask, w, h, slots, params }) {
-  const { threshold = 80, strength = 1, feather = 0, gamma = 1, keepLight = 0.98, chromaBoost = 1.18, chromaCurve = 0.9, speckleClean = 0.35, edgeSmooth = 0 } = params || {};
+  const { threshold = 80, strength = 1, feather = 0, gamma = 1, keepLight = 0.98, chromaBoost = 1.18, chromaCurve = 0.9, speckleClean = 0.35, edgeSmooth = 0, minChroma = 0, blendMode = 'oklab' } = params || {};
 
   const out = new Uint8ClampedArray(w * h * 4);
   const pal = new Array(6);
@@ -368,57 +368,65 @@ function render({ base, mask, w, h, slots, params }) {
       tB = tgt[2] / 255;
     }
 
-    const k = Math.max(0, Math.min(1, strength)) * wMask;
-    const bL = br / 255,
-      bG = bg / 255,
-      bB = bb / 255;
-    const baseOK = rgb2oklab(bL, bG, bB),
-      tOK = rgb2oklab(tR, tG, tB),
-      tLC = oklabToLch(tOK.L, tOK.a, tOK.b);
-    const isAchroma = tLC.C <= 0.03;
-    let Lmix, Cmix, Hmix;
-    if (isAchroma) {
-      // Revert to stronger achromatic fill (older behavior)
-      const A_KEEP = 0.35; // keep fraction of base lightness for texture
-      const A_PWR = 1.35; // contrast shaping toward pure white/black
-      Lmix = baseOK.L * A_KEEP + tOK.L * (1 - A_KEEP);
-      if (tOK.L >= 0.5) {
-        // brighten toward white
-        Lmix = 1 - Math.pow(1 - Math.max(0, Math.min(1, Lmix)), A_PWR);
-      } else {
-        // darken toward black
-        Lmix = Math.pow(Math.max(0, Math.min(1, Lmix)), A_PWR);
-      }
-      Cmix = 0;
-      Hmix = 0;
-    } else {
-      let Cx = Math.pow(tLC.C, chromaCurve) * chromaBoost;
-      const C_REF = 0.3;
-      const Cn = Math.max(0, Math.min(1, Cx / C_REF));
-      const keepLightDrop = 0.15;
-      const keepL = Math.max(0, Math.min(1, keepLight - (1 - Cn) * keepLightDrop));
-      Lmix = baseOK.L * keepL + tLC.L * (1 - keepL);
-      Cmix = Cx;
-      Hmix = tLC.h;
-    }
-    const tint = lchToOklab(Lmix, Cmix, Hmix);
-    const [rt, gt, bt] = oklab2rgb(tint.L, tint.a, tint.b);
-    const rl = srgb2lin(bL),
-      gl = srgb2lin(bG),
-      bl = srgb2lin(bB);
-    const tl0 = srgb2lin(rt),
-      tl1 = srgb2lin(gt),
-      tl2 = srgb2lin(bt);
-    // Attenuate mix amount for achromatic targets to preserve shadows/highlights
-    // Revert: no additional attenuation for achromatic targets (stronger fill)
-    let kAdj = k; if (isAchroma) { if (tOK.L >= 0.5) { const protect = 0.65 + 0.35 * baseOK.L; kAdj *= protect; } else { const protect = 0.65 + 0.35 * (1 - baseOK.L); kAdj *= protect; } } let o0 = rl * (1 - kAdj) + tl0 * kAdj, o1 = gl * (1 - kAdj) + tl1 * kAdj, o2 = bl * (1 - kAdj) + tl2 * kAdj;
-    const gpow = gamma && gamma !== 1 ? 1 / gamma : 1;
-    o0 = Math.pow(o0, gpow);
-    o1 = Math.pow(o1, gpow);
-    o2 = Math.pow(o2, gpow);
-    out[j] = Math.round(Math.max(0, Math.min(1, lin2srgb(o0))) * 255);
-    out[j + 1] = Math.round(Math.max(0, Math.min(1, lin2srgb(o1))) * 255);
-    out[j + 2] = Math.round(Math.max(0, Math.min(1, lin2srgb(o2))) * 255);
+      const bL = br / 255,
+        bG = bg / 255,
+        bB = bb / 255;
+        // sRGB values for base and target
+        const rl = srgb2lin(bL), gl = srgb2lin(bG), bl = srgb2lin(bB);
+        const kBase = Math.max(0, Math.min(1, strength)) * wMask;
+        let o0, o1, o2;
+        if (blendMode === 'overlayRGB') {
+          const ov = (B, T) => (B <= 0.5 ? 2 * B * T : 1 - 2 * (1 - B) * (1 - T));
+          const oR = ov(bL, tR);
+          const oG = ov(bG, tG);
+          const oB = ov(bB, tB);
+          const tl0 = srgb2lin(oR), tl1 = srgb2lin(oG), tl2 = srgb2lin(oB);
+          o0 = rl * (1 - kBase) + tl0 * kBase;
+          o1 = gl * (1 - kBase) + tl1 * kBase;
+          o2 = bl * (1 - kBase) + tl2 * kBase;
+        } else {
+          const baseOK = rgb2oklab(bL, bG, bB), tOK = rgb2oklab(tR, tG, tB), tLC = oklabToLch(tOK.L, tOK.a, tOK.b);
+          const isAchroma = tLC.C <= 0.03;
+          let kLoc = kBase;
+          if (isAchroma) {
+            const cf = conf[i];
+            if (cf >= 0.55) kLoc = 1; else if (cf >= 0.35) kLoc = Math.max(kLoc, 0.9);
+          }
+          let Lmix, Cmix, Hmix;
+          if (isAchroma && !(minChroma > 0)) {
+            const A_KEEP = 0.35, A_PWR = 1.35;
+            Lmix = baseOK.L * A_KEEP + tOK.L * (1 - A_KEEP);
+            Lmix = tOK.L >= 0.5 ? 1 - Math.pow(1 - Math.max(0, Math.min(1, Lmix)), A_PWR) : Math.pow(Math.max(0, Math.min(1, Lmix)), A_PWR);
+            Cmix = 0; Hmix = 0;
+          } else {
+            const targetC = Math.max(tLC.C, minChroma);
+            let Cx = Math.pow(targetC, chromaCurve) * chromaBoost;
+            const C_REF = 0.3;
+            const Cn = Math.max(0, Math.min(1, Cx / C_REF));
+            const keepLightDrop = 0.15;
+            const keepL = Math.max(0, Math.min(1, keepLight - (1 - Cn) * keepLightDrop));
+            Lmix = baseOK.L * keepL + tLC.L * (1 - keepL);
+            Cmix = Cx; Hmix = tLC.h;
+          }
+          const tint = lchToOklab(Lmix, Cmix, Hmix);
+          const [rt, gt, bt] = oklab2rgb(tint.L, tint.a, tint.b);
+          const tl0 = srgb2lin(rt), tl1 = srgb2lin(gt), tl2 = srgb2lin(bt);
+          let kAdj = kLoc;
+          if (isAchroma && !sameTargetAchroma && conf[i] < 0.35) {
+            if (tOK.L >= 0.5) { const protect = 0.65 + 0.35 * baseOK.L; kAdj *= protect; }
+            else { const protect = 0.65 + 0.35 * (1 - baseOK.L); kAdj *= protect; }
+          }
+          o0 = rl * (1 - kAdj) + tl0 * kAdj;
+          o1 = gl * (1 - kAdj) + tl1 * kAdj;
+          o2 = bl * (1 - kAdj) + tl2 * kAdj;
+        }
+        const gpow = gamma && gamma !== 1 ? 1 / gamma : 1;
+        o0 = Math.pow(o0, gpow);
+        o1 = Math.pow(o1, gpow);
+        o2 = Math.pow(o2, gpow);
+        out[j] = Math.round(Math.max(0, Math.min(1, lin2srgb(o0))) * 255);
+        out[j + 1] = Math.round(Math.max(0, Math.min(1, lin2srgb(o1))) * 255);
+        out[j + 2] = Math.round(Math.max(0, Math.min(1, lin2srgb(o2))) * 255);
     out[j + 3] = ba;
   }
 
@@ -494,15 +502,18 @@ function render({ base, mask, w, h, slots, params }) {
 self.onmessage = async (ev) => {
   const msg = ev.data || {};
   if (msg.type !== 'recolor') return;
+  // Stash jobId early for error reporting
+  let jid = (msg && msg.payload && msg.payload.jobId) || 0;
   try {
-    const { jobId, width, height, baseBuffer, maskBuffer, base, mask, slots, params } = msg.payload;
+    const { jobId, width, height, baseBuffer, maskBuffer, base, mask, slots, params } = msg.payload || {};
+    jid = jobId;
     const baseArr = base instanceof Uint8ClampedArray ? base : baseBuffer ? new Uint8ClampedArray(baseBuffer) : new Uint8ClampedArray(base);
     const maskArr = mask instanceof Uint8ClampedArray ? mask : maskBuffer ? new Uint8ClampedArray(maskBuffer) : new Uint8ClampedArray(mask);
     const outBuffer = render({ base: baseArr, mask: maskArr, w: width, h: height, slots, params });
     // Post back with transferable
     self.postMessage({ type: 'recolor:done', jobId, width, height, outBuffer }, [outBuffer]);
   } catch (e) {
-    self.postMessage({ type: 'recolor:error', jobId, error: String(e && e.message ? e.message : e) });
+    self.postMessage({ type: 'recolor:error', jobId: jid, error: String(e && e.message ? e.message : e) });
   }
 };
 

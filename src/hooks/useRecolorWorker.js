@@ -132,26 +132,47 @@ export function useRecolorWorker({ threshold = 80, strength = 1, feather = 0, ga
         let out = await recolorOnce(base0, mask0, slots, params);
 
         // Pass 2+: overlay masks in order; only paint magenta via slot[5]
-        for (const item of extraMasks || []) {
+        const overlaysArr = extraMasks || [];
+        for (let idx = 0; idx < overlaysArr.length; idx++) {
+          const item = overlaysArr[idx];
           if (!item?.img) continue;
           // Prepare mask image data
           mctx.clearRect(0, 0, w, h);
           mctx.drawImage(item.img, 0, 0, w, h);
           const maskN = mctx.getImageData(0, 0, w, h);
-
-          // Restrict overlay strictly to magenta-coded areas to avoid spill/misalignment
-          // Keep only pixels close to magenta; zero out others
+          // Gate to magenta stripes using HSV hue around 300deg
           {
             const d = maskN.data;
+            let kept = 0;
             for (let p = 0; p < d.length; p += 4) {
-              const r = d[p], g = d[p + 1], b = d[p + 2];
-              // Heuristic: strong magenta if R and B high, G low, R~B
-              const mag = r >= 150 && b >= 150 && g <= 80 && Math.abs(r - b) <= 64;
-              if (!mag) {
-                d[p] = 0; d[p + 1] = 0; d[p + 2] = 0; // drop non-magenta
-              } else {
-                d[p] = 255; d[p + 1] = 0; d[p + 2] = 255; // normalize to pure magenta
+              const r = d[p] / 255, g = d[p + 1] / 255, b = d[p + 2] / 255;
+              const max = Math.max(r, g, b), min = Math.min(r, g, b);
+              const delta = max - min;
+              let hue = 0;
+              if (delta > 1e-6) {
+                if (max === r) hue = 60 * (((g - b) / delta) % 6);
+                else if (max === g) hue = 60 * (((b - r) / delta) + 2);
+                else hue = 60 * (((r - g) / delta) + 4);
               }
+              if (hue < 0) hue += 360;
+              const sat = max <= 1e-6 ? 0 : delta / max;
+              // magenta ~300deg +/- 40deg, allow anti-aliased edges
+              const isMag = (sat >= 0.2) && (max >= 0.15) && (hue >= 260 && hue <= 340);
+              if (!isMag) {
+                d[p] = d[p + 1] = d[p + 2] = 0;
+              } else {
+                // normalize to pure magenta to maximize confidence/seed
+                d[p] = 255; d[p + 1] = 0; d[p + 2] = 255;
+                kept++;
+              }
+            }
+            const minKeep = Math.max(100, Math.floor(w * h * 0.0002));
+            if (kept < minKeep) {
+              // Fall back to original (no gating) if mask appears different
+              mctx.clearRect(0, 0, w, h);
+              mctx.drawImage(item.img, 0, 0, w, h);
+              const m2 = mctx.getImageData(0, 0, w, h);
+              maskN.data.set(m2.data);
             }
           }
 
@@ -161,14 +182,39 @@ export function useRecolorWorker({ threshold = 80, strength = 1, feather = 0, ga
           const ca = coerceRGB(slots?.[ia]);
           const cb = coerceRGB(slots?.[ib]);
           if (!ca || !cb) continue;
-          const mix = addMix(ca, cb);
+          let mix = addMix(ca, cb);
+          // If additive result is near-white (low chroma, very bright),
+          // switch to a softer blend (screen) and avoid pure 255 to reduce chalky look.
+          if (mix) {
+            const M = Math.max(mix[0], mix[1], mix[2]);
+            const m = Math.min(mix[0], mix[1], mix[2]);
+            const nearWhite = M >= 240 && (M - m) <= 24;
+            if (nearWhite) {
+              const scr = [
+                255 - Math.round(((255 - ca[0]) * (255 - cb[0])) / 255),
+                255 - Math.round(((255 - ca[1]) * (255 - cb[1])) / 255),
+                255 - Math.round(((255 - ca[2]) * (255 - cb[2])) / 255),
+              ];
+              // Nudge down from pure white to keep texture
+              mix = scr.map((v) => (v >= 255 ? 252 : v));
+            }
+          }
           if (!mix) continue;
 
           const overlaySlots = [null, null, null, null, null, null];
           overlaySlots[5] = mix; // only magenta channel active
 
           // Overlays: avoid cumulative smoothing/cleaning which causes haze and blur
-          const overlayParams = { ...params, speckleClean: 0, edgeSmooth: 0, feather: 0 };
+          const overlayParams = {
+            ...params,
+            speckleClean: 0,
+            // enable final smoothing only on the last overlay pass
+            edgeSmooth: idx === overlaysArr.length - 1 ? (params.edgeSmooth || 0) : 0,
+            feather: 0,
+            // use the same light/chroma settings as user to avoid unintended dulling
+            strength: 1,
+            blendMode: 'overlayRGB',
+          };
           out = await recolorOnce(out, maskN, overlaySlots, overlayParams);
         }
 
