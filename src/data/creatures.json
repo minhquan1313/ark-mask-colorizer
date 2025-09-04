@@ -11,5 +11,18 @@
     "maskPath": "Raptor",
     "base": "Raptor_ASA.png",
     "masks": ["Raptor_ASA_m.png"]
+  },
+  {
+    "name": "Drakeling (Autumn)",
+    "maskPath": "Drakeling (Autumn)",
+    "base": "Drakeling_(Autumn).png",
+    "masks": ["Drakeling_(Autumn)_m.png", "Drakeling_(Autumn)_m_05.png", "Drakeling_(Autumn)_m_25.png"]
+  },
+  {
+    "name": "Armadoggo",
+    "maskPath": "Armadoggo",
+    "base": "Armadoggo_ASA.png",
+    "masks": ["Armadoggo_ASA_m.png"],
+    "noMask": [5]
   }
 ]
