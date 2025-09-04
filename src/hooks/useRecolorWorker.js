@@ -84,7 +84,7 @@ export function useRecolorWorker({ threshold = 80, strength = 1, feather = 0, ga
       return;
     }
 
-    const recolorOnce = (baseImageData, maskImageData, slotsOverride) => {
+    const recolorOnce = (baseImageData, maskImageData, slotsOverride, paramsOverride) => {
       return new Promise((resolve, reject) => {
         const jobId = ++jobRef.current;
         const onMessage = (ev) => {
@@ -113,7 +113,7 @@ export function useRecolorWorker({ threshold = 80, strength = 1, feather = 0, ga
           base: baseImageData.data.slice(),
           mask: maskImageData.data.slice(),
           slots: slotsOverride,
-          params,
+          params: paramsOverride || params,
         };
         try {
           worker.postMessage({ type: 'recolor', payload });
@@ -129,7 +129,7 @@ export function useRecolorWorker({ threshold = 80, strength = 1, feather = 0, ga
       setBusy(true);
       try {
         // Pass 1: primary mask with user-selected slots
-        let out = await recolorOnce(base0, mask0, slots);
+        let out = await recolorOnce(base0, mask0, slots, params);
 
         // Pass 2+: overlay masks in order; only paint magenta via slot[5]
         for (const item of extraMasks || []) {
@@ -167,7 +167,9 @@ export function useRecolorWorker({ threshold = 80, strength = 1, feather = 0, ga
           const overlaySlots = [null, null, null, null, null, null];
           overlaySlots[5] = mix; // only magenta channel active
 
-          out = await recolorOnce(out, maskN, overlaySlots);
+          // Overlays: avoid cumulative smoothing/cleaning which causes haze and blur
+          const overlayParams = { ...params, speckleClean: 0, edgeSmooth: 0, feather: 0 };
+          out = await recolorOnce(out, maskN, overlaySlots, overlayParams);
         }
 
         // Draw final image
