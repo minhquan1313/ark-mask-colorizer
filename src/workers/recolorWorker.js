@@ -72,7 +72,7 @@ function coerceRGB(v) {
 }
 
 function render({ base, mask, w, h, slots, params }) {
-  const { threshold = 80, strength = 1, feather = 0, gamma = 1, keepLight = 0.98, chromaBoost = 1.18, chromaCurve = 0.9, speckleClean = 0.35, edgeSmooth = 0, minChroma = 0, blendMode = 'oklab' } = params || {};
+  const { threshold = 80, strength = 1, feather = 0, gamma = 1, keepLight = 0.98, chromaBoost = 1.18, chromaCurve = 0.9, speckleClean = 0.35, edgeSmooth = 0, boundaryBlend = 0.28, minChroma = 0, blendMode = 'oklab' } = params || {};
 
   const out = new Uint8ClampedArray(w * h * 4);
   const pal = new Array(6);
@@ -368,9 +368,50 @@ function render({ base, mask, w, h, slots, params }) {
       tB = tgt[2] / 255;
     }
 
+    // Boundary color band: soften seams between different labels by gently
+    // pulling target color toward the most common neighboring different label.
+    // This only adjusts the target chroma; lightness is handled later via OKLab.
+    {
+      const y = Math.floor(i / w), x = i - y * w;
+      const BSTR = Math.max(0, Math.min(2, boundaryBlend || 0)); // allow up to 2x strength
+      let nb = -1, cntSelf = 0, cntOther = 0, cnt = 0, nbVotes = new Int16Array(6);
+      for (let dy = -1; dy <= 1; dy++) {
+        const yy = y + dy; if (yy < 0 || yy >= h) continue;
+        for (let dx = -1; dx <= 1; dx++) {
+          if (dx === 0 && dy === 0) continue;
+          const xx = x + dx; if (xx < 0 || xx >= w) continue;
+          const k = yy * w + xx; const lk = lab[k];
+          if (lk >= 0) {
+            cnt++;
+            if (lk === si) cntSelf++; else { cntOther++; if (++nbVotes[lk] > (nb >= 0 ? nbVotes[nb] : 0)) nb = lk; }
+          }
+        }
+      }
+      if (nb >= 0 && pal[nb] && BSTR > 0.0001) {
+        const ratio = cnt > 0 ? cntOther / cnt : 0;
+        const a = Math.max(0, Math.min(1, BSTR * ratio));
+        const nbCol = pal[nb];
+        const nr = nbCol[0] / 255, ng = nbCol[1] / 255, nbv = nbCol[2] / 255;
+        tR = tR * (1 - a) + nr * a;
+        tG = tG * (1 - a) + ng * a;
+        tB = tB * (1 - a) + nbv * a;
+      }
+    }
+
       const bL = br / 255,
         bG = bg / 255,
         bB = bb / 255;
+        // Achromatic edge damping: cap mixing near uncertain edges to avoid speckle/banding
+        {
+          const tOKp = rgb2oklab(tR || 0, tG || 0, tB || 0);
+          const tLCp = oklabToLch(tOKp.L, tOKp.a, tOKp.b);
+          if (tLCp.C <= 0.03 && wMask < 0.999) {
+            const cf = conf[i] || 0;
+            // Lower cap when confidence is low
+            const cap = 0.65 + 0.30 * cf; // 0.65..0.95
+            if (wMask > cap) wMask = cap;
+          }
+        }
         // sRGB values for base and target
         const rl = srgb2lin(bL), gl = srgb2lin(bG), bl = srgb2lin(bB);
         const kBase = Math.max(0, Math.min(1, strength)) * wMask;
@@ -400,7 +441,11 @@ function render({ base, mask, w, h, slots, params }) {
           let kLoc = kBase;
           if (isAchroma) {
             const cf = conf[i];
-            if (cf >= 0.55) kLoc = 1; else if (cf >= 0.35) kLoc = Math.max(kLoc, 0.9);
+            if (cf < 0.2) kLoc *= 0.3;
+            else if (cf < 0.35) kLoc *= 0.6;
+            else if (cf < 0.5) kLoc *= 0.85;
+            else if (cf >= 0.55) kLoc = Math.max(kLoc, 1);
+            else if (cf >= 0.35) kLoc = Math.max(kLoc, 0.9);
           }
           let Lmix, Cmix, Hmix;
           if (isAchroma && !(minChroma > 0)) {

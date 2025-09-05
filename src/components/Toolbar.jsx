@@ -1,5 +1,6 @@
 // src/components/Toolbar.jsx
 import { useRef } from 'react';
+import { DEFAULTS } from '../config/defaults.js';
 
 export default function Toolbar({
   threshold,
@@ -20,8 +21,12 @@ export default function Toolbar({
   setSpeckleClean,
   edgeSmooth,
   setEdgeSmooth,
+  boundaryBlend,
+  setBoundaryBlend,
   overlayStrength,
   setOverlayStrength,
+  overlayTint,
+  setOverlayTint,
   exportBg,
   setExportBg,
   exportText,
@@ -224,6 +229,23 @@ export default function Toolbar({
           <div
             className="row"
             style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
+            <label className="small subtle">Boundary Blend</label>
+            <input
+              className="form-range"
+              type="range"
+              min="0"
+              max="2"
+              step="0.02"
+              value={boundaryBlend}
+              onChange={(e) => setBoundaryBlend(+e.target.value)}
+              style={{ flex: 1 }}
+            />
+            <span className="small value">{boundaryBlend.toFixed(2)}</span>
+          </div>
+
+          <div
+            className="row"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
             <label className="small subtle">Overlay Strength</label>
             <input
               className="form-range"
@@ -236,6 +258,23 @@ export default function Toolbar({
               style={{ flex: 1 }}
             />
             <span className="small value">{overlayStrength.toFixed(2)}</span>
+          </div>
+
+          <div
+            className="row"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
+            <label className="small subtle">Overlay Tint (white+color)</label>
+            <input
+              className="form-range"
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={overlayTint}
+              onChange={(e) => setOverlayTint(+e.target.value)}
+              style={{ flex: 1 }}
+            />
+            <span className="small value">{overlayTint.toFixed(2)}</span>
           </div>
 
           <div
@@ -300,7 +339,15 @@ export default function Toolbar({
           />
           <button
             className="btn"
-            onClick={onReset}>
+            onClick={() => {
+              // Reset new overlay-related values here for reliability
+              try {
+                typeof setBoundaryBlend === 'function' && setBoundaryBlend(DEFAULTS.boundaryBlend);
+                typeof setOverlayStrength === 'function' && setOverlayStrength(DEFAULTS.overlayStrength);
+                typeof setOverlayTint === 'function' && setOverlayTint(DEFAULTS.overlayTint);
+              } catch {}
+              onReset && onReset();
+            }}>
             Reset
           </button>
 

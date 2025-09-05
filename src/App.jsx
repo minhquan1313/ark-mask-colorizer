@@ -1,4 +1,4 @@
-﻿// src/App.jsx
+// src/App.jsx
 import { useEffect, useMemo, useRef, useState } from 'react';
 import CanvasView from './components/CanvasView.jsx';
 import CreaturePicker from './components/CreaturePicker.jsx';
@@ -27,12 +27,14 @@ const initialChromaCurve = loadJSON(STORAGE_KEYS.chromaCurve, DEFAULTS.chromaCur
 const initialSpeckleClean = loadJSON(STORAGE_KEYS.speckleClean, DEFAULTS.speckleClean);
 const initialEdgeSmooth = loadJSON(STORAGE_KEYS.edgeSmooth, DEFAULTS.edgeSmooth);
 const initialOverlayStrength = loadJSON(STORAGE_KEYS.overlayStrength, DEFAULTS.overlayStrength);
+const initialBoundaryBlend = loadJSON(STORAGE_KEYS.boundaryBlend, DEFAULTS.boundaryBlend);
+const initialOverlayTint = loadJSON(STORAGE_KEYS.overlayTint, DEFAULTS.overlayTint);
 
 const idToEntry = (id) => ARK_PALETTE.find((p) => String(p.index) === String(id)) || null;
 const QIDX_BP = 0; // Blueprint'...'
 const QIDX_BASE = 2; // "103,53,0,0,100,105,0,0"
 const QIDX_INC = 3; // "0,0,0,0,0,0,0,0"
-const QIDX_NAME = 4; // "TÃªn dino do user Ä‘áº·t"
+const QIDX_NAME = 4; // "Tên dino do user đặt"
 const QIDX_COLORS = 8; // "76,83,83,0,83,70"
 
 export default function App() {
@@ -40,7 +42,7 @@ export default function App() {
   const maskCanvasRef = useRef(null);
   const outCanvasRef = useRef(null);
 
-  // âœ… KHá»žI Táº O tá»« localStorage ngay láº­p tá»©c (trÃ¡nh overwrite)
+  // ✅ KHỞI TẠO từ localStorage ngay lập tức (tránh overwrite)
   const initialSlots = useMemo(() => loadJSON(STORAGE_KEYS.slots, DEFAULTS.slots), []);
   const preferredCreature = useMemo(() => loadJSON(STORAGE_KEYS.creature, DEFAULTS.defaultCreatureName), []);
 
@@ -51,6 +53,8 @@ export default function App() {
   const [gamma, setGamma] = useState(initialGamma);
   const [speckleClean, setSpeckleClean] = useState(initialSpeckleClean);
   const [edgeSmooth, setEdgeSmooth] = useState(initialEdgeSmooth);
+  const [boundaryBlend, setBoundaryBlend] = useState(initialBoundaryBlend);
+  const [overlayTint, setOverlayTint] = useState(initialOverlayTint);
   const [overlayStrength, setOverlayStrength] = useState(DEFAULTS.overlayStrength);
   // Advanced OKLab tuning
   const [keepLight, setKeepLight] = useState(initialKeepLight);
@@ -64,38 +68,38 @@ export default function App() {
   const { list, current, selectByName, setCurrent } = useCreatures(preferredCreature);
   const [tempCreatureName, setTempCreatureName] = useState(null);
   const [customMode, setCustomMode] = useState(false);
-  const creatureName = tempCreatureName ?? (current?.name || '—');
+  const creatureName = tempCreatureName ?? (current?.name || '�');
   const disabledSet = customMode ? new Set() : new Set(current?.noMask || []);
 
   const { baseImg, maskImg, extraMasks, loadPairFromFiles, loadFromEntry } = useImages();
-  const { draw, busy } = useRecolorWorker({ threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, overlayStrength });
+  const { draw, busy } = useRecolorWorker({ threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, overlayStrength, overlayTint });
   const rafRef = useRef(0);
   const pendingArgsRef = useRef(null);
 
-  // Khi current thay Ä‘á»•i â†’ load áº£nh Ä‘Ãºng con, KHÃ”NG dÃ¹ng base.png máº·c Ä‘á»‹nh
+  // Khi current thay đổi → load ảnh đúng con, KHÔNG dùng base.png mặc định
   useEffect(() => {
     if (current) loadFromEntry(current);
   }, [current, loadFromEntry]);
 
-  // Khi Ä‘á»•i creature â†’ set null cho cÃ¡c slot bá»‹ disable
+  // Khi đổi creature → set null cho các slot bị disable
   useEffect(() => {
     if (!current || customMode) return;
     const disabled = new Set(current.noMask || []);
     setSlots((prev) => prev.map((v, i) => (disabled.has(i) ? null : v)));
   }, [current, customMode]);
 
-  // Khi bật customMode, clear current để lần chọn creature kế tiếp luôn tải đúng ảnh
+  // Khi b?t customMode, clear current d? l?n ch?n creature k? ti?p lu�n t?i d�ng ?nh
   useEffect(() => {
     if (customMode) {
       try {
-        // setCurrent có trong hook useCreatures
+        // setCurrent c� trong hook useCreatures
         // eslint-disable-next-line no-unused-expressions
         setCurrent && setCurrent(null);
       } catch {}
     }
   }, [customMode, setCurrent]);
 
-  // Váº½ khi Ä‘Ã£ cÃ³ áº£nh
+  // Vẽ khi đã có ảnh
   useEffect(() => {
     if (!baseImg || !maskImg) return;
     const args = { baseImg, maskImg, extraMasks, baseCanvasRef, maskCanvasRef, outCanvasRef, slots };
@@ -105,9 +109,9 @@ export default function App() {
       draw(pendingArgsRef.current);
       rafRef.current = 0;
     });
-  }, [baseImg, maskImg, extraMasks, slots, threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, overlayStrength, draw]);
+  }, [baseImg, maskImg, extraMasks, slots, threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, overlayStrength, overlayTint, draw]);
 
-  // âœ… LÆ°u slots má»—i khi Ä‘á»•i (Ä‘Ã£ an toÃ n vÃ¬ init tá»« storage)
+  // ✅ Lưu slots mỗi khi đổi (đã an toàn vì init từ storage)
   useEffect(() => { saveJSON(STORAGE_KEYS.slots, slots); }, [slots]);
   useEffect(() => { saveJSON(STORAGE_KEYS.threshold, threshold); }, [threshold]);
   useEffect(() => { saveJSON(STORAGE_KEYS.strength, strength); }, [strength]);
@@ -118,6 +122,8 @@ export default function App() {
   useEffect(() => { saveJSON(STORAGE_KEYS.chromaCurve, chromaCurve); }, [chromaCurve]);
   useEffect(() => { saveJSON(STORAGE_KEYS.speckleClean, speckleClean); }, [speckleClean]);
   useEffect(() => { saveJSON(STORAGE_KEYS.edgeSmooth, edgeSmooth); }, [edgeSmooth]);
+  useEffect(() => { saveJSON(STORAGE_KEYS.boundaryBlend, boundaryBlend); }, [boundaryBlend]);
+  useEffect(() => { saveJSON(STORAGE_KEYS.overlayTint, overlayTint); }, [overlayTint]);
   useEffect(() => { saveJSON(STORAGE_KEYS.overlayStrength, overlayStrength); }, [overlayStrength]);
 
   useEffect(() => {
@@ -127,7 +133,7 @@ export default function App() {
     saveJSON(STORAGE_KEYS.exportTx, exportText);
   }, [exportText]);
 
-  // âœ… LÆ°u creature khi Ä‘á»•i
+  // ✅ Lưu creature khi đổi
   useEffect(() => {
     if (current?.name) saveJSON(STORAGE_KEYS.creature, current.name);
   }, [current, customMode]);
@@ -137,33 +143,33 @@ export default function App() {
       if (!txt) return;
       const quoted = extractQuoted(txt);
 
-      // --- 1) Species tá»« Blueprint -> auto select creature
+      // --- 1) Species từ Blueprint -> auto select creature
       const bpStr = quoted[QIDX_BP] ?? '';
       const speciesRaw = extractSpeciesFromBlueprint(bpStr); // "Basilisk"
       const speciesNorm = normalizeName(speciesRaw);
       if (speciesNorm) {
-        // tÃ¬m trong creatures.json (so khÃ´ng phÃ¢n biá»‡t hoa thÆ°á»ng, bá» _-)
+        // tìm trong creatures.json (so không phân biệt hoa thường, bỏ _-)
         const found = list.find((c) => normalizeName(c.name) === speciesNorm);
         if (found) {
-          selectByName(found.name); // load Ä‘Ãºng base/mask cá»§a loÃ i
+          selectByName(found.name); // load đúng base/mask của loài
           saveJSON(STORAGE_KEYS.creature, found.name);
-          // náº¿u báº¡n Ä‘ang cÃ³ tempCreatureName Ä‘á»ƒ hiá»ƒn thá»‹ tÃªn tá»± do, nÃªn clear:
+          // nếu bạn đang có tempCreatureName để hiển thị tên tự do, nên clear:
           setTempCreatureName(null);
         }
       }
 
-      // --- 2) TÃªn ngÆ°á»i dÃ¹ng Ä‘áº·t (Ä‘á»ƒ hiá»ƒn thá»‹ phá»¥): khÃ´ng chá»©a kÃ½ tá»± Ä‘áº·c biá»‡t
+      // --- 2) Tên người dùng đặt (để hiển thị phụ): không chứa ký tự đặc biệt
       const rawName = quoted[QIDX_NAME] ?? '';
       const dinoName = sanitizeName(rawName);
       if (dinoName) saveJSON(STORAGE_KEYS.cmdName, dinoName);
 
-      // --- 3) Base/Inc stats (8 sá»‘ má»—i bÃªn) -> lÆ°u láº¡i cho tÆ°Æ¡ng lai
+      // --- 3) Base/Inc stats (8 số mỗi bên) -> lưu lại cho tương lai
       const baseStats = parseNumList(quoted[QIDX_BASE], 8, 8);
       const incStats = parseNumList(quoted[QIDX_INC], 8, 8);
       if (baseStats) saveJSON(STORAGE_KEYS.cmdBaseStats, baseStats);
       if (incStats) saveJSON(STORAGE_KEYS.cmdIncStats, incStats);
 
-      // --- 4) MÃ u 6 slot -> apply (bá» qua slot bá»‹ noMask)
+      // --- 4) Màu 6 slot -> apply (bỏ qua slot bị noMask)
       const colorIds = parseNumList(quoted[QIDX_COLORS], 6, 6);
       if (colorIds) {
         const disabled = new Set(current?.noMask || []);
@@ -176,7 +182,7 @@ export default function App() {
         );
       }
 
-      // (tuá»³ chá»n) hiá»ƒn thá»‹ toast: â€œÄÃ£ dÃ¡n CMD, auto chá»n Basilisk vÃ  Ã¡p mÃ uâ€
+      // (tuỳ chọn) hiển thị toast: “Đã dán CMD, auto chọn Basilisk và áp màu”
     } catch (e) {
       console.error('Paste CMD failed', e);
     }
@@ -390,7 +396,7 @@ export default function App() {
     setChromaCurve(DEFAULTS.chromaCurve);
     setSpeckleClean(DEFAULTS.speckleClean);
     setEdgeSmooth(DEFAULTS.edgeSmooth);
-    // slots sáº½ Ä‘Æ°á»£c lÆ°u láº¡i qua effect á»Ÿ trÃªn
+    // slots sẽ được lưu lại qua effect ở trên
   };
   const onPickSlot = (i, entryOrNull) => {
     setSlots((prev) => {
@@ -428,7 +434,7 @@ export default function App() {
         </div>
         <div style={{ textAlign: 'center', marginTop: 4, marginBottom: 8, color: 'var(--muted)' }}>{creatureName}</div>
 
-        {/* â¬‡ï¸ truyá»n exportBg/exportText xuá»‘ng Ä‘á»ƒ CanvasView copy Ä‘Ãºng */}
+        {/* ⬇️ truyền exportBg/exportText xuống để CanvasView copy đúng */}
         <CanvasView
           outCanvasRef={outCanvasRef}
           loading={!baseImg || !maskImg}
@@ -457,8 +463,12 @@ export default function App() {
           setSpeckleClean={setSpeckleClean}
           edgeSmooth={edgeSmooth}
           setEdgeSmooth={setEdgeSmooth}
+          boundaryBlend={boundaryBlend}
+          setBoundaryBlend={setBoundaryBlend}
           overlayStrength={overlayStrength}
           setOverlayStrength={setOverlayStrength}
+          overlayTint={overlayTint}
+          setOverlayTint={setOverlayTint}
           exportBg={exportBg}
           setExportBg={handleSetExportBg}
           exportText={exportText}
@@ -489,7 +499,7 @@ export default function App() {
         <div className="title">Slots (0 - 5)</div>
         <SlotControls
           slots={slots}
-          disabledSet={disabledSet} // â¬…ï¸ truyá»n xuá»‘ng
+          disabledSet={disabledSet} // ⬅️ truyền xuống
           onPickSlot={onPickSlot}
           onRandomAll={randomAll}
           onResetSlots={resetSlotsOnly}
@@ -521,7 +531,7 @@ export default function App() {
 
         <hr />
         <div className="subtle small">
-          Lưu ý: Index <b>255</b> là undefined (bỏ qua slot). Cặp tên: <code>name.png</code> & <code>name_m.png</code>.
+          Luu �: Index <b>255</b> l� undefined (b? qua slot). C?p t�n: <code>name.png</code> & <code>name_m.png</code>.
         </div>
         
         {/* working canvases */}
@@ -537,3 +547,4 @@ export default function App() {
     </div>
   );
 }
+

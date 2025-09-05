@@ -2,12 +2,12 @@
 import { useMemo, useRef, useState, useCallback } from 'react';
 import { useRecolor as useRecolorSync } from './useRecolor.js';
 
-export function useRecolorWorker({ threshold = 80, strength = 1, feather = 0, gamma = 1, keepLight = 0.98, chromaBoost = 1.18, chromaCurve = 0.9, speckleClean = 0.35, edgeSmooth = 0, overlayStrength = 1 } = {}) {
+export function useRecolorWorker({ threshold = 80, strength = 1, feather = 0, gamma = 1, keepLight = 0.98, chromaBoost = 1.18, chromaCurve = 0.9, speckleClean = 0.35, edgeSmooth = 0, boundaryBlend = 0.28, overlayStrength = 1, overlayTint = 0.25 } = {}) {
   const workerRef = useRef(null);
   const jobRef = useRef(0);
   const [busy, setBusy] = useState(false);
 
-  const params = useMemo(() => ({ threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth }), [threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth]);
+  const params = useMemo(() => ({ threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend }), [threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend]);
   const sync = useMemo(() => useRecolorSync(params), [params]);
   const debounceRef = useRef(0);
   const pendingArgsRef = useRef(null);
@@ -148,7 +148,12 @@ export function useRecolorWorker({ threshold = 80, strength = 1, feather = 0, ga
           const cb = coerceRGB(slots?.[ib]);
           if (!ca && !cb) continue;
           const sameColor = !!(ca && cb && ca[0] === cb[0] && ca[1] === cb[1] && ca[2] === cb[2]);
-          let mix = sameColor ? ca : (ca && cb) ? addMix(ca, cb) : (ca || cb);
+          const isWhite = (c) => c && c[0] >= 245 && c[1] >= 245 && c[2] >= 245;
+          const hasWhitePartner = !!(ca && cb && (isWhite(ca) ^ isWhite(cb)));
+          // White partner -> treat as tint of the other color (avoid additive to white)
+          let mix = hasWhitePartner
+            ? (isWhite(ca) ? cb : ca)
+            : (sameColor ? ca : (ca && cb) ? addMix(ca, cb) : (ca || cb));
           let isNearWhite = false;
           // Only treat as near-white when it's a true additive combination of two different colors
           if (!sameColor && ca && cb && mix) {
@@ -163,7 +168,20 @@ export function useRecolorWorker({ threshold = 80, strength = 1, feather = 0, ga
           const sOV = Math.max(0, Math.min(3, overlayStrength));
           // Same-color no longer forces zero; always use slider-derived strength
           const sEff = Math.min(1, sOV);
-          const overlayParams = sameColor
+          const overlayParams = hasWhitePartner
+            ? {
+                ...params,
+                speckleClean: 0,
+                edgeSmooth: 0,
+                feather: 0,
+                strength: Math.min(1, Math.max(0, overlayTint) * Math.min(1, sOV)),
+                blendMode: 'oklab',
+                // White partner: make it a very light tint of the other color
+                keepLight: 0.96,
+                minChroma: 0.0,
+                chromaBoost: 0.85,
+              }
+            : sameColor
             ? {
                 ...params,
                 speckleClean: 0,
@@ -200,7 +218,7 @@ export function useRecolorWorker({ threshold = 80, strength = 1, feather = 0, ga
         setBusy(false);
       }
     })();
-  }, [params, sync, overlayStrength]);
+  }, [params, sync, overlayStrength, overlayTint]);
 
   const draw = useCallback((args) => {
     pendingArgsRef.current = args;

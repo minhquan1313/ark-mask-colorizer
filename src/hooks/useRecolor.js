@@ -67,7 +67,7 @@ function coerceRGB(v) {
   }
   return null;
 }
-export function useRecolor({ threshold = 80, strength = 1, feather = 0, gamma = 1, keepLight = 0.98, chromaBoost = 1.18, chromaCurve = 0.9, speckleClean = 0.35, edgeSmooth = 0 } = {}) {
+export function useRecolor({ threshold = 80, strength = 1, feather = 0, gamma = 1, keepLight = 0.98, chromaBoost = 1.18, chromaCurve = 0.9, speckleClean = 0.35, edgeSmooth = 0, boundaryBlend = 0.28 } = {}) {
   function draw({ baseImg, maskImg, baseCanvasRef, maskCanvasRef, outCanvasRef, slots }) {
     const src = baseImg || maskImg;
     if (!src) return;
@@ -396,20 +396,58 @@ export function useRecolor({ threshold = 80, strength = 1, feather = 0, gamma = 
           tB = aB * inv;
         }
       }
-      if (tR === undefined) {
-        const tgt = pal[si];
-        if (!tgt) {
-          out.data[j] = br;
-          out.data[j + 1] = bg;
-          out.data[j + 2] = bb;
-          out.data[j + 3] = ba;
-          continue;
-        }
-        tR = tgt[0] / 255;
-        tG = tgt[1] / 255;
-        tB = tgt[2] / 255;
+    if (tR === undefined) {
+      const tgt = pal[si];
+      if (!tgt) {
+        out.data[j] = br;
+        out.data[j + 1] = bg;
+        out.data[j + 2] = bb;
+        out.data[j + 3] = ba;
+        continue;
       }
+      tR = tgt[0] / 255;
+      tG = tgt[1] / 255;
+      tB = tgt[2] / 255;
+    }
 
+    // Boundary color band (sync path): blend target toward most common different neighbor label
+    {
+      const BSTR = Math.max(0, Math.min(2, boundaryBlend || 0));
+      let nb = -1, cntSelf = 0, cntOther = 0, cnt = 0;
+      const votes = new Int16Array(6);
+      for (let dy = -1; dy <= 1; dy++) {
+        const yy = y + dy; if (yy < 0 || yy >= h) continue;
+        for (let dx = -1; dx <= 1; dx++) {
+          if (dx === 0 && dy === 0) continue;
+          const xx = x + dx; if (xx < 0 || xx >= w) continue;
+          const k = yy * w + xx; const lk = lab[k];
+          if (lk >= 0) {
+            cnt++;
+            if (lk === si) cntSelf++; else { cntOther++; if (++votes[lk] > (nb >= 0 ? votes[nb] : 0)) nb = lk; }
+          }
+        }
+      }
+      if (nb >= 0 && pal[nb]) {
+        const ratio = cnt > 0 ? cntOther / cnt : 0;
+        const a = Math.max(0, Math.min(1, BSTR * ratio));
+        const nbCol = pal[nb];
+        const nr = nbCol[0] / 255, ng = nbCol[1] / 255, nbv = nbCol[2] / 255;
+        tR = tR * (1 - a) + nr * a;
+        tG = tG * (1 - a) + ng * a;
+        tB = tB * (1 - a) + nbv * a;
+      }
+    }
+
+      // Achromatic edge damping: cap mixing near uncertain edges to avoid speckle when using white/black
+      (() => {
+        const tOKp = rgb2oklab(tR || 0, tG || 0, tB || 0);
+        const tLCp = oklabToLch(tOKp.L, tOKp.a, tOKp.b);
+        if (tLCp.C <= 0.03 && wMask < 0.999) {
+          const cf = conf[i] || 0;
+          const cap = 0.65 + 0.30 * cf; // 0.65..0.95
+          if (wMask > cap) wMask = cap;
+        }
+      })();
       const k = Math.max(0, Math.min(1, strength)) * wMask,
         bL = br / 255,
         bG = bg / 255,
@@ -451,9 +489,17 @@ export function useRecolor({ threshold = 80, strength = 1, feather = 0, gamma = 
         tl0 = srgb2lin(rt),
         tl1 = srgb2lin(gt),
         tl2 = srgb2lin(bt);
-      // Attenuate mix amount for achromatic targets to preserve texture in shadows/highlights
-      // Revert: no attenuation for achromatic targets
-      let kAdj = k; if (isAchroma) { if (tOK.L >= 0.5) { const protect = 0.65 + 0.35 * baseOK.L; kAdj *= protect; } else { const protect = 0.65 + 0.35 * (1 - baseOK.L); kAdj *= protect; } } let o0 = rl * (1 - kAdj) + tl0 * kAdj, o1 = gl * (1 - kAdj) + tl1 * kAdj, o2 = bl * (1 - kAdj) + tl2 * kAdj;
+      // Confidence-aware attenuation for achromatic targets to avoid speckle
+      let kAdj = k;
+      if (isAchroma) {
+        const cfv = conf[i] || 0;
+        if (cfv < 0.2) kAdj *= 0.3;
+        else if (cfv < 0.35) kAdj *= 0.6;
+        else if (cfv < 0.5) kAdj *= 0.85;
+        else if (tOK.L >= 0.5) { const protect = 0.65 + 0.35 * baseOK.L; kAdj *= protect; }
+        else { const protect = 0.65 + 0.35 * (1 - baseOK.L); kAdj *= protect; }
+      }
+      let o0 = rl * (1 - kAdj) + tl0 * kAdj, o1 = gl * (1 - kAdj) + tl1 * kAdj, o2 = bl * (1 - kAdj) + tl2 * kAdj;
       const gpow = gamma && gamma !== 1 ? 1 / gamma : 1;
       o0 = Math.pow(o0, gpow);
       o1 = Math.pow(o1, gpow);

@@ -12,8 +12,12 @@ export const DEFAULTS = {
   speckleClean: 1.45,
   // Edge-aware smoothing amount (0..1)
   edgeSmooth: 0.05,
+  // Boundary blend between neighboring mask labels (0..1)
+  boundaryBlend: 0.28,
   // Overlay strength (temporary UI control)
   overlayStrength: 1,
+  // Overlay tint factor for white-partner case (0..1)
+  overlayTint: 0.25,
   slots: [null, null, null, null, null, null],
   defaultCreatureName: 'Drakeling',
   exportBg: '#0f1115', // background when export/copy
