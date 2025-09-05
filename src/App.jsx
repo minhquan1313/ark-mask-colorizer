@@ -16,6 +16,17 @@ import { STORAGE_KEYS, loadJSON, saveJSON } from './utils/storage.js';
 
 const initialBg = loadJSON(STORAGE_KEYS.exportBg, DEFAULTS.exportBg);
 const initialText = loadJSON(STORAGE_KEYS.exportTx, DEFAULTS.exportText);
+// Load persisted slider states (fallback to defaults)
+const initialThreshold = loadJSON(STORAGE_KEYS.threshold, DEFAULTS.threshold);
+const initialStrength = loadJSON(STORAGE_KEYS.strength, DEFAULTS.strength);
+const initialFeather = loadJSON(STORAGE_KEYS.feather, DEFAULTS.feather);
+const initialGamma = loadJSON(STORAGE_KEYS.gamma, DEFAULTS.gamma);
+const initialKeepLight = loadJSON(STORAGE_KEYS.keepLight, DEFAULTS.keepLight);
+const initialChromaBoost = loadJSON(STORAGE_KEYS.chromaBoost, DEFAULTS.chromaBoost);
+const initialChromaCurve = loadJSON(STORAGE_KEYS.chromaCurve, DEFAULTS.chromaCurve);
+const initialSpeckleClean = loadJSON(STORAGE_KEYS.speckleClean, DEFAULTS.speckleClean);
+const initialEdgeSmooth = loadJSON(STORAGE_KEYS.edgeSmooth, DEFAULTS.edgeSmooth);
+const initialOverlayStrength = loadJSON(STORAGE_KEYS.overlayStrength, DEFAULTS.overlayStrength);
 
 const idToEntry = (id) => ARK_PALETTE.find((p) => String(p.index) === String(id)) || null;
 const QIDX_BP = 0; // Blueprint'...'
@@ -34,16 +45,17 @@ export default function App() {
   const preferredCreature = useMemo(() => loadJSON(STORAGE_KEYS.creature, DEFAULTS.defaultCreatureName), []);
 
   const [slots, setSlots] = useState(Array.isArray(initialSlots) && initialSlots.length === 6 ? initialSlots : DEFAULTS.slots);
-  const [threshold, setThreshold] = useState(DEFAULTS.threshold);
-  const [strength, setStrength] = useState(DEFAULTS.strength);
-  const [feather, setFeather] = useState(DEFAULTS.feather);
-  const [gamma, setGamma] = useState(DEFAULTS.gamma);
-  const [speckleClean, setSpeckleClean] = useState(DEFAULTS.speckleClean);
-  const [edgeSmooth, setEdgeSmooth] = useState(DEFAULTS.edgeSmooth);
+  const [threshold, setThreshold] = useState(initialThreshold);
+  const [strength, setStrength] = useState(initialStrength);
+  const [feather, setFeather] = useState(initialFeather);
+  const [gamma, setGamma] = useState(initialGamma);
+  const [speckleClean, setSpeckleClean] = useState(initialSpeckleClean);
+  const [edgeSmooth, setEdgeSmooth] = useState(initialEdgeSmooth);
+  const [overlayStrength, setOverlayStrength] = useState(DEFAULTS.overlayStrength);
   // Advanced OKLab tuning
-  const [keepLight, setKeepLight] = useState(DEFAULTS.keepLight);
-  const [chromaBoost, setChromaBoost] = useState(DEFAULTS.chromaBoost);
-  const [chromaCurve, setChromaCurve] = useState(DEFAULTS.chromaCurve);
+  const [keepLight, setKeepLight] = useState(initialKeepLight);
+  const [chromaBoost, setChromaBoost] = useState(initialChromaBoost);
+  const [chromaCurve, setChromaCurve] = useState(initialChromaCurve);
   const [exportBg, setExportBg] = useState(initialBg);
   const [exportText, setExportText] = useState(initialText);
   const [fillOpen, setFillOpen] = useState(false);
@@ -56,7 +68,7 @@ export default function App() {
   const disabledSet = customMode ? new Set() : new Set(current?.noMask || []);
 
   const { baseImg, maskImg, extraMasks, loadPairFromFiles, loadFromEntry } = useImages();
-  const { draw, busy } = useRecolorWorker({ threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth });
+  const { draw, busy } = useRecolorWorker({ threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, overlayStrength });
   const rafRef = useRef(0);
   const pendingArgsRef = useRef(null);
 
@@ -93,12 +105,20 @@ export default function App() {
       draw(pendingArgsRef.current);
       rafRef.current = 0;
     });
-  }, [baseImg, maskImg, extraMasks, slots, threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, draw]);
+  }, [baseImg, maskImg, extraMasks, slots, threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, overlayStrength, draw]);
 
   // âœ… LÆ°u slots má»—i khi Ä‘á»•i (Ä‘Ã£ an toÃ n vÃ¬ init tá»« storage)
-  useEffect(() => {
-    saveJSON(STORAGE_KEYS.slots, slots);
-  }, [slots]);
+  useEffect(() => { saveJSON(STORAGE_KEYS.slots, slots); }, [slots]);
+  useEffect(() => { saveJSON(STORAGE_KEYS.threshold, threshold); }, [threshold]);
+  useEffect(() => { saveJSON(STORAGE_KEYS.strength, strength); }, [strength]);
+  useEffect(() => { saveJSON(STORAGE_KEYS.feather, feather); }, [feather]);
+  useEffect(() => { saveJSON(STORAGE_KEYS.gamma, gamma); }, [gamma]);
+  useEffect(() => { saveJSON(STORAGE_KEYS.keepLight, keepLight); }, [keepLight]);
+  useEffect(() => { saveJSON(STORAGE_KEYS.chromaBoost, chromaBoost); }, [chromaBoost]);
+  useEffect(() => { saveJSON(STORAGE_KEYS.chromaCurve, chromaCurve); }, [chromaCurve]);
+  useEffect(() => { saveJSON(STORAGE_KEYS.speckleClean, speckleClean); }, [speckleClean]);
+  useEffect(() => { saveJSON(STORAGE_KEYS.edgeSmooth, edgeSmooth); }, [edgeSmooth]);
+  useEffect(() => { saveJSON(STORAGE_KEYS.overlayStrength, overlayStrength); }, [overlayStrength]);
 
   useEffect(() => {
     saveJSON(STORAGE_KEYS.exportBg, exportBg);
@@ -437,6 +457,8 @@ export default function App() {
           setSpeckleClean={setSpeckleClean}
           edgeSmooth={edgeSmooth}
           setEdgeSmooth={setEdgeSmooth}
+          overlayStrength={overlayStrength}
+          setOverlayStrength={setOverlayStrength}
           exportBg={exportBg}
           setExportBg={handleSetExportBg}
           exportText={exportText}
@@ -501,6 +523,7 @@ export default function App() {
         <div className="subtle small">
           Lưu ý: Index <b>255</b> là undefined (bỏ qua slot). Cặp tên: <code>name.png</code> & <code>name_m.png</code>.
         </div>
+        
         {/* working canvases */}
         <canvas
           ref={baseCanvasRef}

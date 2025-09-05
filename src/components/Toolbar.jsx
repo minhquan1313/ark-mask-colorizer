@@ -20,6 +20,8 @@ export default function Toolbar({
   setSpeckleClean,
   edgeSmooth,
   setEdgeSmooth,
+  overlayStrength,
+  setOverlayStrength,
   exportBg,
   setExportBg,
   exportText,
@@ -66,10 +68,16 @@ export default function Toolbar({
   return (
     <>
       <hr />
-      <div className="toolbar-grid">
+      <div
+        className="toolbar-grid"
+        style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'flex-end' }}>
         {/* LEFT: sliders + colors */}
-        <div className="toolbar">
-          <div className="row">
+        <div
+          className="toolbar"
+          style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'flex-end', flex: '1 1 100%' }}>
+          <div
+            className="row"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
             <label className="small subtle">Threshold</label>
             <input
               className="form-range"
@@ -78,10 +86,13 @@ export default function Toolbar({
               max="150"
               value={threshold}
               onChange={(e) => setThreshold(+e.target.value)}
+              style={{ flex: 1 }}
             />
             <span className="small value">{threshold}</span>
           </div>
-          <div className="row">
+          <div
+            className="row"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
             <label className="small subtle">Strength</label>
             <input
               className="form-range"
@@ -91,10 +102,13 @@ export default function Toolbar({
               step="0.05"
               value={strength}
               onChange={(e) => setStrength(+e.target.value)}
+              style={{ flex: 1 }}
             />
             <span className="small value">{strength.toFixed(2)}</span>
           </div>
-          <div className="row">
+          <div
+            className="row"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
             <label className="small subtle">Feather</label>
             <input
               className="form-range"
@@ -104,10 +118,13 @@ export default function Toolbar({
               step="0.1"
               value={feather}
               onChange={(e) => setFeather(+e.target.value)}
+              style={{ flex: 1 }}
             />
             <span className="small value">{feather.toFixed(1)}px</span>
           </div>
-          <div className="row">
+          <div
+            className="row"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
             <label className="small subtle">Gamma</label>
             <input
               className="form-range"
@@ -117,12 +134,15 @@ export default function Toolbar({
               step="0.05"
               value={gamma}
               onChange={(e) => setGamma(+e.target.value)}
+              style={{ flex: 1 }}
             />
             <span className="small value">{gamma.toFixed(2)}</span>
           </div>
 
           {/* Advanced OKLab tuning */}
-          <div className="row">
+          <div
+            className="row"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
             <label className="small subtle">Keep Light</label>
             <input
               className="form-range"
@@ -132,10 +152,13 @@ export default function Toolbar({
               step="0.005"
               value={keepLight}
               onChange={(e) => setKeepLight(+e.target.value)}
+              style={{ flex: 1 }}
             />
             <span className="small value">{keepLight.toFixed(3)}</span>
           </div>
-          <div className="row">
+          <div
+            className="row"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
             <label className="small subtle">Chroma Boost</label>
             <input
               className="form-range"
@@ -145,10 +168,13 @@ export default function Toolbar({
               step="0.01"
               value={chromaBoost}
               onChange={(e) => setChromaBoost(+e.target.value)}
+              style={{ flex: 1 }}
             />
             <span className="small value">{chromaBoost.toFixed(2)}</span>
           </div>
-          <div className="row">
+          <div
+            className="row"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
             <label className="small subtle">Chroma Curve</label>
             <input
               className="form-range"
@@ -158,10 +184,13 @@ export default function Toolbar({
               step="0.01"
               value={chromaCurve}
               onChange={(e) => setChromaCurve(+e.target.value)}
+              style={{ flex: 1 }}
             />
             <span className="small value">{chromaCurve.toFixed(2)}</span>
           </div>
-          <div className="row">
+          <div
+            className="row"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
             <label className="small subtle">Speckle Clean</label>
             <input
               className="form-range"
@@ -171,10 +200,13 @@ export default function Toolbar({
               step="0.05"
               value={speckleClean}
               onChange={(e) => setSpeckleClean(+e.target.value)}
+              style={{ flex: 1 }}
             />
             <span className="small value">{speckleClean.toFixed(2)}</span>
           </div>
-          <div className="row">
+          <div
+            className="row"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
             <label className="small subtle">Edge Smooth</label>
             <input
               className="form-range"
@@ -184,13 +216,35 @@ export default function Toolbar({
               step="0.05"
               value={edgeSmooth}
               onChange={(e) => setEdgeSmooth(+e.target.value)}
+              style={{ flex: 1 }}
             />
             <span className="small value">{edgeSmooth.toFixed(2)}</span>
           </div>
 
-          <div className="row-colors">
+          <div
+            className="row"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
+            <label className="small subtle">Overlay Strength</label>
+            <input
+              className="form-range"
+              type="range"
+              min="0"
+              max="3"
+              step="0.05"
+              value={overlayStrength}
+              onChange={(e) => setOverlayStrength(+e.target.value)}
+              style={{ flex: 1 }}
+            />
+            <span className="small value">{overlayStrength.toFixed(2)}</span>
+          </div>
+
+          <div
+            className="row-colors"
+            style={{ display: 'flex', alignItems: 'center', gap: 12, flex: '1 1 320px' }}>
             <label className="small subtle">Export</label>
-            <div className="swatch">
+            <div
+              className="swatch"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
               <span className="small subtle">BG</span>
               <input
                 type="color"
@@ -210,7 +264,9 @@ export default function Toolbar({
                 Trong suốt
               </button>
             </div>
-            <div className="swatch">
+            <div
+              className="swatch"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
               <span className="small subtle">Text</span>
               <input
                 type="color"
@@ -222,7 +278,9 @@ export default function Toolbar({
         </div>
 
         {/* RIGHT: actions */}
-        <div className="actions">
+        <div
+          className="actions"
+          style={{ display: 'flex', flex: '1 1 100%', gap: 8, flexWrap: 'wrap' }}>
           <button
             className="btn"
             onClick={() => fileRef.current?.click()}>
@@ -248,7 +306,7 @@ export default function Toolbar({
 
           <div
             className="hstack"
-            style={{ gap: 6, width: '100%' }}>
+            style={{ display: 'inline-flex', gap: 6 }}>
             <button
               className="btn"
               onClick={onDownloadImage}
@@ -274,7 +332,7 @@ export default function Toolbar({
               onClick={onDownloadWithPalette}
               disabled={downloadingType === 'image' || downloadingType === 'palette'}
               title="Tải ảnh kèm palette"
-              style={{ flex: 1, display: 'inline-flex', justifyContent: 'center' }}>
+              style={{ flex: 1, display: 'inline-flex', justifyContent: 'center', whiteSpace: 'nowrap' }}>
               {downloadingType === 'palette' ? (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                   <span

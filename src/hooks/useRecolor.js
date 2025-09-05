@@ -466,13 +466,15 @@ export function useRecolor({ threshold = 80, strength = 1, feather = 0, gamma = 
     // Optional edge-aware smoothing (joint bilateral guided by base luminance)
     if (edgeSmooth && edgeSmooth > 0.001) {
       const sAmt = Math.max(0, Math.min(1, edgeSmooth));
-      const radius = sAmt < 0.5 ? 1 : 2; // 3x3 or 5x5
-      const sigmaS = 0.6 + 1.2 * sAmt;
-      const sigmaR = 0.05 + 0.15 * sAmt; // luminance range in linear space
-      const inv2sS = 1 / (2 * sigmaS * sigmaS);
-      const inv2sR = 1 / (2 * sigmaR * sigmaR);
-      const W = w,
-        H = h;
+      if (sAmt > 0.12) {
+        const sNorm = (sAmt - 0.12) / 0.88; // remap 0.12..1 -> 0..1
+        const radius = sNorm < 0.4 ? 1 : 2; // 3x3 or 5x5
+        const sigmaS = 0.2 + 1.0 * sNorm;
+        const sigmaR = 0.03 + 0.12 * sNorm; // luminance range in linear space
+        const inv2sS = 1 / (2 * sigmaS * sigmaS);
+        const inv2sR = 1 / (2 * sigmaR * sigmaR);
+        const W = w,
+          H = h;
       const outLin0 = new Float32Array(W * H * 3);
       const baseLum = new Float32Array(W * H);
       for (let i = 0, p = 0; i < W * H; i++, p += 4) {
@@ -511,7 +513,17 @@ export function useRecolor({ threshold = 80, strength = 1, feather = 0, gamma = 
               const wS = Math.exp(-ds2 * inv2sS);
               const dL = baseLum[k] - Lc;
               const wR = Math.exp(-(dL * dL) * inv2sR);
-              const wgt = wS * wR;
+              let wgt = wS * wR;
+              // Label-aware gating: reduce smoothing across different mask labels to avoid bleed
+              if (typeof lab !== 'undefined' && typeof conf !== 'undefined') {
+                const sameLab = (lab[k] >= 0 && lab[i] >= 0 && lab[k] === lab[i]);
+                if (!sameLab) {
+                  const ci = conf[i] || 0, ck = conf[k] || 0;
+                  const cMax = ci > ck ? ci : ck;
+                  // If confident of different labels, nearly block; otherwise allow reduced smoothing
+                  wgt *= cMax >= 0.3 ? 0.03 : 0.3;
+                }
+              }
               ws += wgt;
               a0 += wgt * outLin0[k * 3 + 0];
               a1 += wgt * outLin0[k * 3 + 1];
@@ -528,8 +540,9 @@ export function useRecolor({ threshold = 80, strength = 1, feather = 0, gamma = 
           out.data[p + 2] = Math.round(Math.max(0, Math.min(1, lin2srgb(bl))) * 255);
           // alpha keep
         }
+        }
       }
-    }
+      }
     octx.putImageData(out, 0, 0);
   }
   return { draw };

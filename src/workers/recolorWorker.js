@@ -441,13 +441,17 @@ function render({ base, mask, w, h, slots, params }) {
   }
 
   // Optional edge-aware smoothing (joint bilateral guided by base luminance)
+  // Adjusted to avoid "watery glue" blending across different mask labels
   if (edgeSmooth && edgeSmooth > 0.001) {
     const sAmt = Math.max(0, Math.min(1, edgeSmooth));
-    const radius = sAmt < 0.5 ? 1 : 2; // 3x3 or 5x5
-    const sigmaS = 0.6 + 1.2 * sAmt;
-    const sigmaR = 0.05 + 0.15 * sAmt; // luminance range in linear space
-    const inv2sS = 1 / (2 * sigmaS * sigmaS);
-    const inv2sR = 1 / (2 * sigmaR * sigmaR);
+    // Deadzone: very low settings do nothing to avoid unintended blur
+    if (sAmt > 0.12) {
+      const sNorm = (sAmt - 0.12) / 0.88; // remap 0.12..1 -> 0..1
+      const radius = sNorm < 0.4 ? 1 : 2; // 3x3 or 5x5
+      const sigmaS = 0.2 + 1.0 * sNorm;
+      const sigmaR = 0.03 + 0.12 * sNorm; // luminance range in linear space
+      const inv2sS = 1 / (2 * sigmaS * sigmaS);
+      const inv2sR = 1 / (2 * sigmaR * sigmaR);
     const W = w,
       H = h;
     const outLin0 = new Float32Array(W * H * 3);
@@ -470,38 +474,50 @@ function render({ base, mask, w, h, slots, params }) {
         bbl = srgb2lin(bb);
       baseLum[i] = 0.2126 * brl + 0.7152 * bgl + 0.0722 * bbl;
     }
-    for (let y = 0; y < H; y++) {
-      for (let x = 0; x < W; x++) {
-        const i = y * W + x;
-        const Lc = baseLum[i];
-        let ws = 0,
-          a0 = 0,
-          a1 = 0,
-          a2 = 0;
-        for (let dy = -radius; dy <= radius; dy++) {
-          const yy = Math.min(H - 1, Math.max(0, y + dy));
-          for (let dx = -radius; dx <= radius; dx++) {
-            const xx = Math.min(W - 1, Math.max(0, x + dx));
-            const k = yy * W + xx;
-            const ds2 = dx * dx + dy * dy;
-            const wS = Math.exp(-ds2 * inv2sS);
-            const dL = baseLum[k] - Lc;
-            const wR = Math.exp(-(dL * dL) * inv2sR);
-            const wgt = wS * wR;
-            ws += wgt;
-            a0 += wgt * outLin0[k * 3 + 0];
-            a1 += wgt * outLin0[k * 3 + 1];
-            a2 += wgt * outLin0[k * 3 + 2];
+      for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+          const i = y * W + x;
+          const Lc = baseLum[i];
+          let ws = 0,
+            a0 = 0,
+            a1 = 0,
+            a2 = 0;
+          for (let dy = -radius; dy <= radius; dy++) {
+            const yy = Math.min(H - 1, Math.max(0, y + dy));
+            for (let dx = -radius; dx <= radius; dx++) {
+              const xx = Math.min(W - 1, Math.max(0, x + dx));
+              const k = yy * W + xx;
+              const ds2 = dx * dx + dy * dy;
+              const wS = Math.exp(-ds2 * inv2sS);
+              const dL = baseLum[k] - Lc;
+              const wR = Math.exp(-(dL * dL) * inv2sR);
+              let wgt = wS * wR;
+              // Label-aware gating: drastically reduce mixing across different mask labels
+              if (lab && conf) {
+                const sameLab = (lab[k] >= 0 && lab[i] >= 0 && lab[k] === lab[i]);
+                if (!sameLab) {
+                  const ci = conf[i] || 0, ck = conf[k] || 0;
+                  const cMax = ci > ck ? ci : ck;
+                  // If either pixel is reasonably confident, almost block cross-label smoothing
+                  // Allow a bit when both are low confidence (edge/ambiguous zones)
+                  wgt *= cMax >= 0.3 ? 0.03 : 0.3;
+                }
+              }
+              ws += wgt;
+              a0 += wgt * outLin0[k * 3 + 0];
+              a1 += wgt * outLin0[k * 3 + 1];
+              a2 += wgt * outLin0[k * 3 + 2];
+            }
           }
+          const inv = ws > 1e-8 ? 1 / ws : 1;
+          const rl = a0 * inv,
+            gl = a1 * inv,
+            bl = a2 * inv;
+          const p = i * 4;
+          out[p] = Math.round(Math.max(0, Math.min(1, lin2srgb(rl))) * 255);
+          out[p + 1] = Math.round(Math.max(0, Math.min(1, lin2srgb(gl))) * 255);
+          out[p + 2] = Math.round(Math.max(0, Math.min(1, lin2srgb(bl))) * 255);
         }
-        const inv = ws > 1e-8 ? 1 / ws : 1;
-        const rl = a0 * inv,
-          gl = a1 * inv,
-          bl = a2 * inv;
-        const p = i * 4;
-        out[p] = Math.round(Math.max(0, Math.min(1, lin2srgb(rl))) * 255);
-        out[p + 1] = Math.round(Math.max(0, Math.min(1, lin2srgb(gl))) * 255);
-        out[p + 2] = Math.round(Math.max(0, Math.min(1, lin2srgb(bl))) * 255);
       }
     }
   }
