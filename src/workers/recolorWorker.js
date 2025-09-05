@@ -375,12 +375,22 @@ function render({ base, mask, w, h, slots, params }) {
         const rl = srgb2lin(bL), gl = srgb2lin(bG), bl = srgb2lin(bB);
         const kBase = Math.max(0, Math.min(1, strength)) * wMask;
         let o0, o1, o2;
-        if (blendMode === 'overlayRGB') {
+        if (blendMode !== 'oklab') {
           const ov = (B, T) => (B <= 0.5 ? 2 * B * T : 1 - 2 * (1 - B) * (1 - T));
-          const oR = ov(bL, tR);
-          const oG = ov(bG, tG);
-          const oB = ov(bB, tB);
-          const tl0 = srgb2lin(oR), tl1 = srgb2lin(oG), tl2 = srgb2lin(oB);
+          const mul = (B, T) => B * T;
+          let rMix, gMix, bMix;
+          if (blendMode === 'multiplyRGB') {
+            rMix = mul(bL, tR); gMix = mul(bG, tG); bMix = mul(bB, tB);
+          } else if (blendMode === 'autoRGB') {
+            const baseLum = 0.2126 * rl + 0.7152 * gl + 0.0722 * bl; // linear luminance
+            const useMul = baseLum > 0.80; // very bright base -> multiply to avoid whiteout
+            if (useMul) { rMix = mul(bL, tR); gMix = mul(bG, tG); bMix = mul(bB, tB); }
+            else { rMix = ov(bL, tR); gMix = ov(bG, tG); bMix = ov(bB, tB); }
+          } else {
+            rMix = ov(bL, tR); gMix = ov(bG, tG); bMix = ov(bB, tB);
+          }
+            // convert to linear and mix
+            const tl0 = srgb2lin(rMix), tl1 = srgb2lin(gMix), tl2 = srgb2lin(bMix);
           o0 = rl * (1 - kBase) + tl0 * kBase;
           o1 = gl * (1 - kBase) + tl1 * kBase;
           o2 = bl * (1 - kBase) + tl2 * kBase;

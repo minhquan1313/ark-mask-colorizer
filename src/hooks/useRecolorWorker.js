@@ -213,7 +213,7 @@ export function useRecolorWorker({ threshold = 80, strength = 1, feather = 0, ga
             feather: 0,
             // use the same light/chroma settings as user to avoid unintended dulling
             strength: 1,
-            blendMode: 'overlayRGB',
+            blendMode: 'autoRGB',
           };
           out = await recolorOnce(out, maskN, overlaySlots, overlayParams);
         }
