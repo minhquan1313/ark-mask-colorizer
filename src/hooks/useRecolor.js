@@ -1,4 +1,4 @@
-﻿// src/hooks/useRecolor.js
+// src/hooks/useRecolor.js
 const srgb2lin = (v) => (v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)),
   lin2srgb = (v) => (v <= 0.0031308 ? v * 12.92 : 1.055 * Math.pow(v, 1 / 2.4) - 0.055);
 function rgb2oklab(r, g, b) {
@@ -101,26 +101,8 @@ export function useRecolor({ threshold = 80, strength = 1, feather = 0, gamma = 
       out = octx.createImageData(w, h),
       pal = new Array(6);
     for (let s = 0; s < 6; s++) pal[s] = coerceRGB(slots?.[s]);
-    // Detect if all selected target colors are the same, and if that color is achromatic
-    let sameTarget = true;
-    let t0 = null;
-    for (let s = 0; s < 6; s++) {
-      const p = pal[s];
-      if (!p) continue;
-      if (!t0) t0 = p;
-      else if (p[0] !== t0[0] || p[1] !== t0[1] || p[2] !== t0[2]) {
-        sameTarget = false;
-        break;
-      }
-    }
-    let sameTargetAchroma = false;
-    if (sameTarget && t0) {
-      const tOK0 = rgb2oklab(t0[0] / 255, t0[1] / 255, t0[2] / 255);
-      const tLCH0 = oklabToLch(tOK0.L, tOK0.a, tOK0.b);
-      sameTargetAchroma = tLCH0.C <= 0.03; // grayscaleish target
-    }
-    const seedChr = 8 + Math.round((threshold / 150) * 96), // ngÆ°á»¡ng chroma Ä‘á»ƒ thÃ nh seed (threshold cao â†’ cáº§n Ä‘áº­m hÆ¡n)
-      spreadPx = 2 + feather * 6, // bÃ¡n kÃ­nh má»m (px) cho lan
+    const seedChr = 8 + Math.round((threshold / 150) * 96), // ngÃ†Â°Ã¡Â»Â¡ng chroma Ã„â€˜Ã¡Â»Æ’ thÃƒÂ nh seed (threshold cao Ã¢â€ â€™ cÃ¡ÂºÂ§n Ã„â€˜Ã¡ÂºÂ­m hÃ†Â¡n)
+      spreadPx = 2 + feather * 6, // bÃƒÂ¡n kÃƒÂ­nh mÃ¡Â»Âm (px) cho lan
       INF = 1e9,
       dist = new Float32Array(w * h);
     dist.fill(INF);
@@ -273,45 +255,17 @@ export function useRecolor({ threshold = 80, strength = 1, feather = 0, gamma = 
         continue;
       }
       const d = dist[i],
-        ws = Math.exp(-(d / (spreadPx + 0.0001)) * (d / (spreadPx + 0.0001))); // lan theo khoáº£ng cÃ¡ch
-      const wc = 0.5 * conf[i] + 0.5 * val; // trá»ng sá»‘ theo Ä‘áº­m/nháº¡t & sÃ¡ng cá»§a chÃ­nh pixel
-      let wMask = (d <= tolPix ? ws : 0) * wc;
-      // Reweight toward chroma confidence to make slots separate better
-      wMask = (d <= tolPix ? ws : 0) * (0.7 * conf[i] + 0.3 * val);
-      // Hard/soft gates to control bleed without killing saturated colors
-      // Whiteness: bright + low chroma => near white areas should be suppressed
+        ws = Math.exp(-(d / (spreadPx + 0.0001)) * (d / (spreadPx + 0.0001)));
+      const wc = 0.5 * conf[i] + 0.5 * val;
+      let wMask = (d <= tolPix ? ws : 0) * (0.7 * conf[i] + 0.3 * val);
       const whiteness = val * (1 - conf[i]);
       let whiteClip = smoothstep(0.2, 0.55, whiteness);
-      // Blackness: very low value (dark) => suppress strongly
       const blackness = 1 - val;
       let blackClip = smoothstep(0.8, 0.98, blackness);
-      // Low chroma: softly reduce influence but keep some tint
       const chromaSoft = smoothstep(0.05, 0.25, 1 - conf[i]);
       let hardCut = (1 - whiteClip) * (1 - blackClip);
       let softCut = 1 - 0.4 * chromaSoft;
-      // If all targets equal and achromatic (e.g., fill all black/grey/white), be less aggressive
-      if (sameTargetAchroma) {
-        const scRaw = Math.max(0, Math.min(2, speckleClean));
-        const sc1 = Math.min(scRaw, 1);
-        const sc2 = Math.max(0, scRaw - 1);
-        // be less aggressive on clips when cleaning speckles; stronger beyond 1.0
-        whiteClip *= (1 - 0.6 * sc1) * (1 - 0.25 * sc2);
-        blackClip *= (1 - 0.3 * sc1) * (1 - 0.2 * sc2);
-        hardCut = (1 - whiteClip) * (1 - blackClip);
-        softCut = 1 - (0.25 + 0.35 * sc1 + 0.25 * sc2) * chromaSoft;
-      }
       wMask *= hardCut * softCut;
-      if (sameTargetAchroma) {
-        // Ensure a floor in uncertain pixels so small speckles get filled
-        const scRaw = Math.max(0, Math.min(2, speckleClean));
-        const sc1 = Math.min(scRaw, 1);
-        const sc2 = Math.max(0, scRaw - 1);
-        const floorConf = (0.2 + 0.6 * sc1 + 0.5 * sc2) * conf[i];
-        const floorDark = (0.15 * sc1 + 0.2 * sc2) * (1 - val); // darker base → allow more fill
-        const floorBase = 0.05 * sc1 + 0.1 * sc2; // baseline rises beyond 1.0
-        const floor = Math.min(1, floorBase + floorConf + floorDark);
-        if (wMask < floor) wMask = floor;
-      }
       if (wMask > 1) wMask = 1;
       if (wMask < 0) wMask = 0;
       if (wMask <= 1e-5) {
@@ -455,68 +409,30 @@ export function useRecolor({ threshold = 80, strength = 1, feather = 0, gamma = 
         baseOK = rgb2oklab(bL, bG, bB),
         tOK = rgb2oklab(tR, tG, tB),
         tLC = oklabToLch(tOK.L, tOK.a, tOK.b);
-      // Compute target mix in OKLCH with special handling for achromatic palette colors
-      const isAchroma = tLC.C <= 0.03; // treat very low-chroma targets as grayscale band
-      let Lmix, Cmix, Hmix;
-      if (isAchroma) {
-        // Revert to older, stronger achromatic behavior
-        const A_KEEP = 0.35;
-        const A_PWR = 1.35;
-        Lmix = baseOK.L * A_KEEP + tOK.L * (1 - A_KEEP);
-        if (tOK.L >= 0.5) {
-          Lmix = 1 - Math.pow(1 - Math.max(0, Math.min(1, Lmix)), A_PWR);
-        } else {
-          Lmix = Math.pow(Math.max(0, Math.min(1, Lmix)), A_PWR);
-        }
-        Cmix = 0;
-        Hmix = 0;
-      } else {
-        // Chromatic path: respect tuning
-        let Cx = Math.pow(tLC.C, chromaCurve) * chromaBoost;
-        const C_REF = 0.3; // typical OKLCH chroma scale in sRGB gamut
-        const Cn = Math.max(0, Math.min(1, Cx / C_REF));
-        const keepLightDrop = 0.15; // slightly relax keepLight when chroma is small
-        const keepL = Math.max(0, Math.min(1, keepLight - (1 - Cn) * keepLightDrop));
-        Lmix = baseOK.L * keepL + tLC.L * (1 - keepL);
-        Cmix = Cx;
-        Hmix = tLC.h;
-      }
+      // Compute target mix in OKLCH
+      const Cx = Math.pow(tLC.C, chromaCurve) * chromaBoost;
+      const C_REF = 0.3; // typical OKLCH chroma scale in sRGB gamut
+      const Cn = Math.max(0, Math.min(1, Cx / C_REF));
+      const keepLightDrop = 0.15; // slightly relax keepLight when chroma is small
+      const keepL = Math.max(0, Math.min(1, keepLight - (1 - Cn) * keepLightDrop));
+      const Lmix = baseOK.L * keepL + tLC.L * (1 - keepL);
+      const Cmix = Cx;
+      const Hmix = tLC.h;
+
       const tint = lchToOklab(Lmix, Cmix, Hmix),
         [rt, gt, bt] = oklab2rgb(tint.L, tint.a, tint.b),
         rl = srgb2lin(bL),
         gl = srgb2lin(bG),
         bl = srgb2lin(bB);
-      let o0;
-      let o1;
-      let o2;
-      let kAdj = k;
-      if (isAchroma) {
-        const cfv = conf[i] || 0;
-        if (cfv < 0.2) kAdj *= 0.3;
-        else if (cfv < 0.35) kAdj *= 0.6;
-        else if (cfv < 0.5) kAdj *= 0.85;
-        else if (tOK.L >= 0.5) { const protect = 0.65 + 0.35 * baseOK.L; kAdj *= protect; }
-        else { const protect = 0.65 + 0.35 * (1 - baseOK.L); kAdj *= protect; }
-        // Neutral handling: blend in OKLab so grayscale targets collapse base chroma instead of leaving tint
-        const sEff = Math.max(0, Math.min(1, strength));
-        const neutralFloor = Math.min(1, sEff * (0.3 + 0.5 * wMask + 0.35 * cfv + 0.2 * (1 - val)));
-        const neutralLift = Math.min(1, Math.max(kAdj, neutralFloor));
-        const desatPull = Math.min(1, Math.max(neutralLift, 0.25 + 0.55 * wMask + 0.25 * cfv));
-        const outL = baseOK.L * (1 - neutralLift) + tint.L * neutralLift;
-        const outA = baseOK.a * (1 - desatPull);
-        const outB = baseOK.b * (1 - desatPull);
-        const [nr, ng, nb] = oklab2rgb(outL, outA, outB);
-        o0 = srgb2lin(nr);
-        o1 = srgb2lin(ng);
-        o2 = srgb2lin(nb);
-      } else {
-        const tl0 = srgb2lin(rt),
-          tl1 = srgb2lin(gt),
-          tl2 = srgb2lin(bt);
-        o0 = rl * (1 - kAdj) + tl0 * kAdj;
-        o1 = gl * (1 - kAdj) + tl1 * kAdj;
+
+      const tl0 = srgb2lin(rt),
+        tl1 = srgb2lin(gt),
+        tl2 = srgb2lin(bt);
+
+      const kAdj = k;
+      let o0 = rl * (1 - kAdj) + tl0 * kAdj,
+        o1 = gl * (1 - kAdj) + tl1 * kAdj,
         o2 = bl * (1 - kAdj) + tl2 * kAdj;
-      }
       const gpow = gamma && gamma !== 1 ? 1 / gamma : 1;
       o0 = Math.pow(o0, gpow);
       o1 = Math.pow(o1, gpow);

@@ -1,4 +1,4 @@
-﻿/* Web Worker: recolor rendering off the main thread */
+/* Web Worker: recolor rendering off the main thread */
 // This mirrors the algorithm from useRecolor.js but operates on raw ImageData buffers.
 
 // Color space helpers (OKLab)
@@ -77,24 +77,6 @@ function render({ base, mask, w, h, slots, params }) {
   const out = new Uint8ClampedArray(w * h * 4);
   const pal = new Array(6);
   for (let s = 0; s < 6; s++) pal[s] = coerceRGB(slots?.[s]);
-
-  let sameTarget = true;
-  let t0 = null;
-  for (let s = 0; s < 6; s++) {
-    const p = pal[s];
-    if (!p) continue;
-    if (!t0) t0 = p;
-    else if (p[0] !== t0[0] || p[1] !== t0[1] || p[2] !== t0[2]) {
-      sameTarget = false;
-      break;
-    }
-  }
-  let sameTargetAchroma = false;
-  if (sameTarget && t0) {
-    const tOK0 = rgb2oklab(t0[0] / 255, t0[1] / 255, t0[2] / 255);
-    const tLCH0 = oklabToLch(tOK0.L, tOK0.a, tOK0.b);
-    sameTargetAchroma = tLCH0.C <= 0.03;
-  }
 
   const seedChr = 8 + Math.round((threshold / 150) * 96);
   const spreadPx = 2 + feather * 6;
@@ -250,8 +232,8 @@ function render({ base, mask, w, h, slots, params }) {
       continue;
     }
     const d = dist[i];
-    // Avoid ** with unary minus for broad parser compatibility
-    let wMask = (d <= tolPix ? Math.exp(-Math.pow(d / (2 + feather * 6 + 0.0001), 2)) : 0) * (0.7 * conf[i] + 0.3 * val);
+    const ws = Math.exp(-(d / (spreadPx + 0.0001)) * (d / (spreadPx + 0.0001)));
+    let wMask = (d <= tolPix ? ws : 0) * (0.7 * conf[i] + 0.3 * val);
     const whiteness = val * (1 - conf[i]);
     let whiteClip = smoothstep(0.2, 0.55, whiteness);
     const blackness = 1 - val;
@@ -259,26 +241,9 @@ function render({ base, mask, w, h, slots, params }) {
     const chromaSoft = smoothstep(0.05, 0.25, 1 - conf[i]);
     let hardCut = (1 - whiteClip) * (1 - blackClip);
     let softCut = 1 - 0.4 * chromaSoft;
-    if (sameTargetAchroma) {
-      const scRaw = Math.max(0, Math.min(2, speckleClean));
-      const sc1 = Math.min(scRaw, 1);
-      const sc2 = Math.max(0, scRaw - 1);
-      whiteClip *= (1 - 0.6 * sc1) * (1 - 0.25 * sc2);
-      blackClip *= (1 - 0.3 * sc1) * (1 - 0.2 * sc2);
-      hardCut = (1 - whiteClip) * (1 - blackClip);
-      softCut = 1 - (0.25 + 0.35 * sc1 + 0.25 * sc2) * chromaSoft;
-    }
     wMask *= hardCut * softCut;
-    if (sameTargetAchroma) {
-      const scRaw = Math.max(0, Math.min(2, speckleClean));
-      const sc1 = Math.min(scRaw, 1);
-      const sc2 = Math.max(0, scRaw - 1);
-      const floorConf = (0.2 + 0.6 * sc1 + 0.5 * sc2) * conf[i];
-      const floorDark = (0.15 * sc1 + 0.2 * sc2) * (1 - val);
-      const floorBase = 0.05 * sc1 + 0.1 * sc2;
-      const floor = Math.min(1, floorBase + floorConf + floorDark);
-      if (wMask < floor) wMask = floor;
-    }
+    if (wMask > 1) wMask = 1;
+    if (wMask < 0) wMask = 0;
     if (wMask <= 1e-5) {
       out[j] = br;
       out[j + 1] = bg;
@@ -421,72 +386,55 @@ function render({ base, mask, w, h, slots, params }) {
           const mul = (B, T) => B * T;
           let rMix, gMix, bMix;
           if (blendMode === 'multiplyRGB') {
-            rMix = mul(bL, tR); gMix = mul(bG, tG); bMix = mul(bB, tB);
+            rMix = mul(bL, tR);
+            gMix = mul(bG, tG);
+            bMix = mul(bB, tB);
           } else if (blendMode === 'autoRGB') {
-            const baseLum = 0.2126 * rl + 0.7152 * gl + 0.0722 * bl; // linear luminance
-            const useMul = baseLum > 0.80; // very bright base -> multiply to avoid whiteout
-            if (useMul) { rMix = mul(bL, tR); gMix = mul(bG, tG); bMix = mul(bB, tB); }
-            else { rMix = ov(bL, tR); gMix = ov(bG, tG); bMix = ov(bB, tB); }
+            const baseLum = 0.2126 * rl + 0.7152 * gl + 0.0722 * bl;
+            const useMul = baseLum > 0.8;
+            if (useMul) {
+              rMix = mul(bL, tR);
+              gMix = mul(bG, tG);
+              bMix = mul(bB, tB);
+            } else {
+              rMix = ov(bL, tR);
+              gMix = ov(bG, tG);
+              bMix = ov(bB, tB);
+            }
           } else {
-            rMix = ov(bL, tR); gMix = ov(bG, tG); bMix = ov(bB, tB);
+            rMix = ov(bL, tR);
+            gMix = ov(bG, tG);
+            bMix = ov(bB, tB);
           }
-            // convert to linear and mix
-            const tl0 = srgb2lin(rMix), tl1 = srgb2lin(gMix), tl2 = srgb2lin(bMix);
-          o0 = rl * (1 - kBase) + tl0 * kBase;
-          o1 = gl * (1 - kBase) + tl1 * kBase;
-          o2 = bl * (1 - kBase) + tl2 * kBase;
+          const tl0 = srgb2lin(Math.max(0, Math.min(1, rMix)));
+          const tl1 = srgb2lin(Math.max(0, Math.min(1, gMix)));
+          const tl2 = srgb2lin(Math.max(0, Math.min(1, bMix)));
+          const kAdj = kBase;
+          o0 = rl * (1 - kAdj) + tl0 * kAdj;
+          o1 = gl * (1 - kAdj) + tl1 * kAdj;
+          o2 = bl * (1 - kAdj) + tl2 * kAdj;
         } else {
-          const baseOK = rgb2oklab(bL, bG, bB), tOK = rgb2oklab(tR, tG, tB), tLC = oklabToLch(tOK.L, tOK.a, tOK.b);
-          const isAchroma = tLC.C <= 0.03;
-          let kAdj = kBase;
-          if (isAchroma) {
-            const cf = conf[i] || 0;
-            if (cf < 0.2) kAdj *= 0.3;
-            else if (cf < 0.35) kAdj *= 0.6;
-            else if (cf < 0.5) kAdj *= 0.85;
-            else if (tOK.L >= 0.5) { const protect = 0.65 + 0.35 * baseOK.L; kAdj *= protect; }
-            else { const protect = 0.65 + 0.35 * (1 - baseOK.L); kAdj *= protect; }
-          }
-          let Lmix, Cmix, Hmix;
-          if (isAchroma && !(minChroma > 0)) {
-            const A_KEEP = 0.35, A_PWR = 1.35;
-            Lmix = baseOK.L * A_KEEP + tOK.L * (1 - A_KEEP);
-            Lmix = tOK.L >= 0.5 ? 1 - Math.pow(1 - Math.max(0, Math.min(1, Lmix)), A_PWR) : Math.pow(Math.max(0, Math.min(1, Lmix)), A_PWR);
-            Cmix = 0;
-            Hmix = 0;
-          } else {
-            const targetC = Math.max(tLC.C, minChroma);
-            let Cx = Math.pow(targetC, chromaCurve) * chromaBoost;
-            const C_REF = 0.3;
-            const Cn = Math.max(0, Math.min(1, Cx / C_REF));
-            const keepLightDrop = 0.15;
-            const keepL = Math.max(0, Math.min(1, keepLight - (1 - Cn) * keepLightDrop));
-            Lmix = baseOK.L * keepL + tLC.L * (1 - keepL);
-            Cmix = Cx;
-            Hmix = tLC.h;
-          }
+          const baseOK = rgb2oklab(bL, bG, bB);
+          const tOK = rgb2oklab(tR, tG, tB);
+          const tLC = oklabToLch(tOK.L, tOK.a, tOK.b);
+          const targetC = Math.max(tLC.C, minChroma);
+          let Cx = Math.pow(targetC, chromaCurve) * chromaBoost;
+          const C_REF = 0.3;
+          const Cn = Math.max(0, Math.min(1, Cx / C_REF));
+          const keepLightDrop = 0.15;
+          let keepL = Math.max(0, Math.min(1, keepLight - (1 - Cn) * keepLightDrop));
+          const Lmix = baseOK.L * keepL + tLC.L * (1 - keepL);
+          const Cmix = Cx;
+          const Hmix = tLC.h;
           const tint = lchToOklab(Lmix, Cmix, Hmix);
           const [rt, gt, bt] = oklab2rgb(tint.L, tint.a, tint.b);
-          if (isAchroma && !(minChroma > 0)) {
-            const cf = conf[i] || 0;
-            // Neutral handling mirrors the sync path: knock down base chroma in OKLab instead of relying on raw sRGB blending
-            const sEff = Math.max(0, Math.min(1, strength));
-            const neutralFloor = Math.min(1, sEff * (0.3 + 0.5 * wMask + 0.35 * cf + 0.2 * (1 - val)));
-            const neutralLift = Math.min(1, Math.max(kAdj, neutralFloor));
-            const desatPull = Math.min(1, Math.max(neutralLift, 0.25 + 0.55 * wMask + 0.25 * cf));
-            const outL = baseOK.L * (1 - neutralLift) + tint.L * neutralLift;
-            const outA = baseOK.a * (1 - desatPull);
-            const outB = baseOK.b * (1 - desatPull);
-            const [nr, ng, nb] = oklab2rgb(outL, outA, outB);
-            o0 = srgb2lin(nr);
-            o1 = srgb2lin(ng);
-            o2 = srgb2lin(nb);
-          } else {
-            const tl0 = srgb2lin(rt), tl1 = srgb2lin(gt), tl2 = srgb2lin(bt);
-            o0 = rl * (1 - kAdj) + tl0 * kAdj;
-            o1 = gl * (1 - kAdj) + tl1 * kAdj;
-            o2 = bl * (1 - kAdj) + tl2 * kAdj;
-          }
+          const tl0 = srgb2lin(rt);
+          const tl1 = srgb2lin(gt);
+          const tl2 = srgb2lin(bt);
+          const kAdj = kBase;
+          o0 = rl * (1 - kAdj) + tl0 * kAdj;
+          o1 = gl * (1 - kAdj) + tl1 * kAdj;
+          o2 = bl * (1 - kAdj) + tl2 * kAdj;
         }
         const gpow = gamma && gamma !== 1 ? 1 / gamma : 1;
         o0 = Math.pow(o0, gpow);

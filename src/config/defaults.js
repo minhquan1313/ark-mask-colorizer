@@ -13,7 +13,7 @@ export const DEFAULTS = {
   // Edge-aware smoothing amount (0..1)
   edgeSmooth: 0.05,
   // Boundary blend between neighboring mask labels (0..1)
-  boundaryBlend: 0.8,
+  boundaryBlend: 0.1,
   // Overlay strength (temporary UI control)
   overlayStrength: 1,
   // Overlay blend mode for mask _m_xy: 'add' (legacy) | 'pastel'
