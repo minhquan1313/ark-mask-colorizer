@@ -438,21 +438,22 @@ function render({ base, mask, w, h, slots, params }) {
         } else {
           const baseOK = rgb2oklab(bL, bG, bB), tOK = rgb2oklab(tR, tG, tB), tLC = oklabToLch(tOK.L, tOK.a, tOK.b);
           const isAchroma = tLC.C <= 0.03;
-          let kLoc = kBase;
+          let kAdj = kBase;
           if (isAchroma) {
-            const cf = conf[i];
-            if (cf < 0.2) kLoc *= 0.3;
-            else if (cf < 0.35) kLoc *= 0.6;
-            else if (cf < 0.5) kLoc *= 0.85;
-            else if (cf >= 0.55) kLoc = Math.max(kLoc, 1);
-            else if (cf >= 0.35) kLoc = Math.max(kLoc, 0.9);
+            const cf = conf[i] || 0;
+            if (cf < 0.2) kAdj *= 0.3;
+            else if (cf < 0.35) kAdj *= 0.6;
+            else if (cf < 0.5) kAdj *= 0.85;
+            else if (tOK.L >= 0.5) { const protect = 0.65 + 0.35 * baseOK.L; kAdj *= protect; }
+            else { const protect = 0.65 + 0.35 * (1 - baseOK.L); kAdj *= protect; }
           }
           let Lmix, Cmix, Hmix;
           if (isAchroma && !(minChroma > 0)) {
             const A_KEEP = 0.35, A_PWR = 1.35;
             Lmix = baseOK.L * A_KEEP + tOK.L * (1 - A_KEEP);
             Lmix = tOK.L >= 0.5 ? 1 - Math.pow(1 - Math.max(0, Math.min(1, Lmix)), A_PWR) : Math.pow(Math.max(0, Math.min(1, Lmix)), A_PWR);
-            Cmix = 0; Hmix = 0;
+            Cmix = 0;
+            Hmix = 0;
           } else {
             const targetC = Math.max(tLC.C, minChroma);
             let Cx = Math.pow(targetC, chromaCurve) * chromaBoost;
@@ -461,19 +462,31 @@ function render({ base, mask, w, h, slots, params }) {
             const keepLightDrop = 0.15;
             const keepL = Math.max(0, Math.min(1, keepLight - (1 - Cn) * keepLightDrop));
             Lmix = baseOK.L * keepL + tLC.L * (1 - keepL);
-            Cmix = Cx; Hmix = tLC.h;
+            Cmix = Cx;
+            Hmix = tLC.h;
           }
           const tint = lchToOklab(Lmix, Cmix, Hmix);
           const [rt, gt, bt] = oklab2rgb(tint.L, tint.a, tint.b);
-          const tl0 = srgb2lin(rt), tl1 = srgb2lin(gt), tl2 = srgb2lin(bt);
-          let kAdj = kLoc;
-          if (isAchroma && !sameTargetAchroma && conf[i] < 0.35) {
-            if (tOK.L >= 0.5) { const protect = 0.65 + 0.35 * baseOK.L; kAdj *= protect; }
-            else { const protect = 0.65 + 0.35 * (1 - baseOK.L); kAdj *= protect; }
+          if (isAchroma && !(minChroma > 0)) {
+            const cf = conf[i] || 0;
+            // Neutral handling mirrors the sync path: knock down base chroma in OKLab instead of relying on raw sRGB blending
+            const sEff = Math.max(0, Math.min(1, strength));
+            const neutralFloor = Math.min(1, sEff * (0.3 + 0.5 * wMask + 0.35 * cf + 0.2 * (1 - val)));
+            const neutralLift = Math.min(1, Math.max(kAdj, neutralFloor));
+            const desatPull = Math.min(1, Math.max(neutralLift, 0.25 + 0.55 * wMask + 0.25 * cf));
+            const outL = baseOK.L * (1 - neutralLift) + tint.L * neutralLift;
+            const outA = baseOK.a * (1 - desatPull);
+            const outB = baseOK.b * (1 - desatPull);
+            const [nr, ng, nb] = oklab2rgb(outL, outA, outB);
+            o0 = srgb2lin(nr);
+            o1 = srgb2lin(ng);
+            o2 = srgb2lin(nb);
+          } else {
+            const tl0 = srgb2lin(rt), tl1 = srgb2lin(gt), tl2 = srgb2lin(bt);
+            o0 = rl * (1 - kAdj) + tl0 * kAdj;
+            o1 = gl * (1 - kAdj) + tl1 * kAdj;
+            o2 = bl * (1 - kAdj) + tl2 * kAdj;
           }
-          o0 = rl * (1 - kAdj) + tl0 * kAdj;
-          o1 = gl * (1 - kAdj) + tl1 * kAdj;
-          o2 = bl * (1 - kAdj) + tl2 * kAdj;
         }
         const gpow = gamma && gamma !== 1 ? 1 / gamma : 1;
         o0 = Math.pow(o0, gpow);

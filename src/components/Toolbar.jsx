@@ -1,6 +1,7 @@
-// src/components/Toolbar.jsx
-import { useRef } from 'react';
+﻿// src/components/Toolbar.jsx
+import { useEffect, useRef, useState } from 'react';
 import { DEFAULTS } from '../config/defaults.js';
+import { STORAGE_KEYS, loadJSON, saveJSON } from '../utils/storage.js';
 
 export default function Toolbar({
   threshold,
@@ -39,6 +40,28 @@ export default function Toolbar({
 }) {
   const fileRef = useRef(null);
   const isTransparent = exportBg === 'transparent';
+  const [overlayBlendMode, setOverlayBlendMode] = useState(() => {
+    const v = loadJSON(STORAGE_KEYS.overlayBlendMode, DEFAULTS.overlayBlendMode);
+    return v === 'pastel' ? 'add' : v;
+  });
+
+  useEffect(() => {
+    const onChanged = (e) => {
+      if (e?.detail?.mode === 'add') setOverlayBlendMode('add');
+    };
+    window.addEventListener('overlay-blend-mode-changed', onChanged);
+    return () => window.removeEventListener('overlay-blend-mode-changed', onChanged);
+  }, []);
+
+  const toggleOverlayBlend = () => {
+    setOverlayBlendMode('add');
+    try {
+      saveJSON(STORAGE_KEYS.overlayBlendMode, 'add');
+    } catch {}
+    try {
+      window.dispatchEvent(new CustomEvent('overlay-blend-mode-changed', { detail: { mode: 'add' } }));
+    } catch {}
+  };
 
   // Ensure keyframes exist for spinner if not already present
   if (typeof document !== 'undefined' && !document.getElementById('tb-spin-style')) {
@@ -275,6 +298,19 @@ export default function Toolbar({
               style={{ flex: 1 }}
             />
             <span className="small value">{overlayTint.toFixed(2)}</span>
+          </div>
+
+          <div
+            className="row"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
+            <label className="small subtle">Overlay Blend</label>
+            <button
+              className="btn"
+              title={'Overlay blend: Add'}
+              onClick={toggleOverlayBlend}
+              style={{ flex: '0 0 auto' }}>
+              {'Add'}
+            </button>
           </div>
 
           <div

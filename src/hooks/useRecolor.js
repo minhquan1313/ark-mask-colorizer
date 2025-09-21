@@ -485,11 +485,10 @@ export function useRecolor({ threshold = 80, strength = 1, feather = 0, gamma = 
         [rt, gt, bt] = oklab2rgb(tint.L, tint.a, tint.b),
         rl = srgb2lin(bL),
         gl = srgb2lin(bG),
-        bl = srgb2lin(bB),
-        tl0 = srgb2lin(rt),
-        tl1 = srgb2lin(gt),
-        tl2 = srgb2lin(bt);
-      // Confidence-aware attenuation for achromatic targets to avoid speckle
+        bl = srgb2lin(bB);
+      let o0;
+      let o1;
+      let o2;
       let kAdj = k;
       if (isAchroma) {
         const cfv = conf[i] || 0;
@@ -498,8 +497,26 @@ export function useRecolor({ threshold = 80, strength = 1, feather = 0, gamma = 
         else if (cfv < 0.5) kAdj *= 0.85;
         else if (tOK.L >= 0.5) { const protect = 0.65 + 0.35 * baseOK.L; kAdj *= protect; }
         else { const protect = 0.65 + 0.35 * (1 - baseOK.L); kAdj *= protect; }
+        // Neutral handling: blend in OKLab so grayscale targets collapse base chroma instead of leaving tint
+        const sEff = Math.max(0, Math.min(1, strength));
+        const neutralFloor = Math.min(1, sEff * (0.3 + 0.5 * wMask + 0.35 * cfv + 0.2 * (1 - val)));
+        const neutralLift = Math.min(1, Math.max(kAdj, neutralFloor));
+        const desatPull = Math.min(1, Math.max(neutralLift, 0.25 + 0.55 * wMask + 0.25 * cfv));
+        const outL = baseOK.L * (1 - neutralLift) + tint.L * neutralLift;
+        const outA = baseOK.a * (1 - desatPull);
+        const outB = baseOK.b * (1 - desatPull);
+        const [nr, ng, nb] = oklab2rgb(outL, outA, outB);
+        o0 = srgb2lin(nr);
+        o1 = srgb2lin(ng);
+        o2 = srgb2lin(nb);
+      } else {
+        const tl0 = srgb2lin(rt),
+          tl1 = srgb2lin(gt),
+          tl2 = srgb2lin(bt);
+        o0 = rl * (1 - kAdj) + tl0 * kAdj;
+        o1 = gl * (1 - kAdj) + tl1 * kAdj;
+        o2 = bl * (1 - kAdj) + tl2 * kAdj;
       }
-      let o0 = rl * (1 - kAdj) + tl0 * kAdj, o1 = gl * (1 - kAdj) + tl1 * kAdj, o2 = bl * (1 - kAdj) + tl2 * kAdj;
       const gpow = gamma && gamma !== 1 ? 1 / gamma : 1;
       o0 = Math.pow(o0, gpow);
       o1 = Math.pow(o1, gpow);

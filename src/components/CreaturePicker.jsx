@@ -7,7 +7,7 @@ export default function CreaturePicker({ list, currentName, onPick, customMode =
       <label
         className="small subtle"
         style={{ opacity: 0.8 }}>
-        Sinh v&#x1EAD;t
+        Sinh vật
       </label>
       <select
         value={customMode ? '__custom__' : currentName || ''}

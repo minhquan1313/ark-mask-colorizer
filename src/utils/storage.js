@@ -18,6 +18,9 @@ export const STORAGE_KEYS = {
   boundaryBlend: `${NS}:boundaryBlend`,
   overlayStrength: `${NS}:overlayStrength`,
   overlayTint: `${NS}:overlayTint`,
+  overlayBlendMode: `${NS}:overlayBlendMode`, // 'add' | 'pastel'
+  overlayPastelKappa: `${NS}:overlayPastelKappa`, // 0.3..0.8
+  overlayPastelWdeg: `${NS}:overlayPastelWdeg`, // 40..120 degrees
   cmdName: `${NS}:cmd:name`,
   cmdBaseStats: `${NS}:cmd:base`,
   cmdIncStats: `${NS}:cmd:inc`,

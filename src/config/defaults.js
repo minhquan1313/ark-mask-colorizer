@@ -1,4 +1,4 @@
-// src/config/defaults.js
+﻿// src/config/defaults.js
 export const DEFAULTS = {
   threshold: 150,
   strength: 1,
@@ -13,9 +13,11 @@ export const DEFAULTS = {
   // Edge-aware smoothing amount (0..1)
   edgeSmooth: 0.05,
   // Boundary blend between neighboring mask labels (0..1)
-  boundaryBlend: 0.28,
+  boundaryBlend: 0.8,
   // Overlay strength (temporary UI control)
   overlayStrength: 1,
+  // Overlay blend mode for mask _m_xy: 'add' (legacy) | 'pastel'
+  overlayBlendMode: 'add',
   // Overlay tint factor for white-partner case (0..1)
   overlayTint: 0.25,
   slots: [null, null, null, null, null, null],
