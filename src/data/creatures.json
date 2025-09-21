@@ -10,13 +10,21 @@
     "name": "Raptor",
     "maskPath": "Raptor",
     "base": "Raptor_ASA.png",
-    "masks": ["Raptor_ASA_m.png"]
+    "masks": ["Raptor_ASA_m.png"],
+    "noMask": [2]
   },
   {
     "name": "Drakeling (Autumn)",
     "maskPath": "Drakeling (Autumn)",
     "base": "Drakeling (Autumn).png",
-    "masks": ["Drakeling (Autumn)_m.png", "Drakeling (Autumn)_m_05.png", "Drakeling (Autumn)_m_25.png"]
+    "masks": ["Drakeling (Autumn)_m.png", "Drakeling (Autumn)_m_05.png", "Drakeling (Autumn)_m_25.png", "Drakeling (Autumn)_m_13.png"]
+  },
+  {
+    "name": "Carcharodontosaurus",
+    "maskPath": "Carcharodontosaurus",
+    "base": "Carcharodontosaurus_ASA.png",
+    "masks": ["Carcharodontosaurus_ASA_m.png", "Carcharodontosaurus_ASA_m_05.png", "Carcharodontosaurus_ASA_m_04.png"],
+    "noMask": [1]
   },
   {
     "name": "Armadoggo",
