@@ -1,5 +1,498 @@
 [
   {
+    "name": "Aberrant Achatina",
+    "maskPath": "Aberrant Achatina",
+    "base": "Aberrant Achatina_ASA.png",
+    "masks": [
+      "Aberrant Achatina_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Anglerfish",
+    "maskPath": "Aberrant Anglerfish",
+    "base": "Aberrant Anglerfish_ASA.png",
+    "masks": [
+      "Aberrant Anglerfish_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Ankylosaurus",
+    "maskPath": "Aberrant Ankylosaurus",
+    "base": "Aberrant Ankylosaurus_ASA.png",
+    "masks": [
+      "Aberrant Ankylosaurus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Araneo",
+    "maskPath": "Aberrant Araneo",
+    "base": "Aberrant Araneo_ASA.png",
+    "masks": [
+      "Aberrant Araneo_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Arthropluera",
+    "maskPath": "Aberrant Arthropluera",
+    "base": "Aberrant Arthropluera_ASA.png",
+    "masks": [
+      "Aberrant Arthropluera_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Baryonyx",
+    "maskPath": "Aberrant Baryonyx",
+    "base": "Aberrant Baryonyx_ASA.png",
+    "masks": [
+      "Aberrant Baryonyx_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Beelzebufo",
+    "maskPath": "Aberrant Beelzebufo",
+    "base": "Aberrant Beelzebufo_ASA.png",
+    "masks": [
+      "Aberrant Beelzebufo_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Carbonemys",
+    "maskPath": "Aberrant Carbonemys",
+    "base": "Aberrant Carbonemys_ASA.png",
+    "masks": [
+      "Aberrant Carbonemys_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Carnotaurus",
+    "maskPath": "Aberrant Carnotaurus",
+    "base": "Aberrant Carnotaurus_ASA.png",
+    "masks": [
+      "Aberrant Carnotaurus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Coelacanth",
+    "maskPath": "Aberrant Coelacanth",
+    "base": "Aberrant Coelacanth_ASA.png",
+    "masks": [
+      "Aberrant Coelacanth_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Dimetrodon",
+    "maskPath": "Aberrant Dimetrodon",
+    "base": "Aberrant Dimetrodon_ASA.png",
+    "masks": [
+      "Aberrant Dimetrodon_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Dimorphodon",
+    "maskPath": "Aberrant Dimorphodon",
+    "base": "Aberrant Dimorphodon_ASA.png",
+    "masks": [
+      "Aberrant Dimorphodon_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Diplocaulus",
+    "maskPath": "Aberrant Diplocaulus",
+    "base": "Aberrant Diplocaulus_ASA.png",
+    "masks": [
+      "Aberrant Diplocaulus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Diplodocus",
+    "maskPath": "Aberrant Diplodocus",
+    "base": "Aberrant Diplodocus_ASA.png",
+    "masks": [
+      "Aberrant Diplodocus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Dire Bear",
+    "maskPath": "Aberrant Dire Bear",
+    "base": "Aberrant Dire Bear_ASA.png",
+    "masks": [
+      "Aberrant Dire Bear_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Dodo",
+    "maskPath": "Aberrant Dodo",
+    "base": "Aberrant Dodo_ASA.png",
+    "masks": [
+      "Aberrant Dodo_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Doedicurus",
+    "maskPath": "Aberrant Doedicurus",
+    "base": "Aberrant Doedicurus_ASA.png",
+    "masks": [
+      "Aberrant Doedicurus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Dung Beetle",
+    "maskPath": "Aberrant Dung Beetle",
+    "base": "Aberrant Dung Beetle_ASA.png",
+    "masks": [
+      "Aberrant Dung Beetle_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Electrophorus",
+    "maskPath": "Aberrant Electrophorus",
+    "base": "Aberrant Electrophorus_ASA.png",
+    "masks": [
+      "Aberrant Electrophorus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Equus",
+    "maskPath": "Aberrant Equus",
+    "base": "Aberrant Equus_ASA.png",
+    "masks": [
+      "Aberrant Equus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Fasolasuchus",
+    "maskPath": "Aberrant Fasolasuchus",
+    "base": "Aberrant Fasolasuchus_ASA.png",
+    "masks": [
+      "Aberrant Fasolasuchus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Gigantopithecus",
+    "maskPath": "Aberrant Gigantopithecus",
+    "base": "Aberrant Gigantopithecus_ASA.png",
+    "masks": [
+      "Aberrant Gigantopithecus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Gigantoraptor",
+    "maskPath": "Aberrant Gigantoraptor",
+    "base": "Aberrant Gigantoraptor_ASA.png",
+    "masks": [
+      "Aberrant Gigantoraptor_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Iguanodon",
+    "maskPath": "Aberrant Iguanodon",
+    "base": "Aberrant Iguanodon_ASA.png",
+    "masks": [
+      "Aberrant Iguanodon_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Lystrosaurus",
+    "maskPath": "Aberrant Lystrosaurus",
+    "base": "Aberrant Lystrosaurus_ASA.png",
+    "masks": [
+      "Aberrant Lystrosaurus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Manta",
+    "maskPath": "Aberrant Manta",
+    "base": "Aberrant Manta_ASA.png",
+    "masks": [
+      "Aberrant Manta_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Megalania",
+    "maskPath": "Aberrant Megalania",
+    "base": "Aberrant Megalania_ASA.png",
+    "masks": [
+      "Aberrant Megalania_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Megalosaurus",
+    "maskPath": "Aberrant Megalosaurus",
+    "base": "Aberrant Megalosaurus_ASA.png",
+    "masks": [
+      "Aberrant Megalosaurus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Meganeura",
+    "maskPath": "Aberrant Meganeura",
+    "base": "Aberrant Meganeura_ASA.png",
+    "masks": [
+      "Aberrant Meganeura_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Moschops",
+    "maskPath": "Aberrant Moschops",
+    "base": "Aberrant Moschops_ASA.png",
+    "masks": [
+      "Aberrant Moschops_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Otter",
+    "maskPath": "Aberrant Otter",
+    "base": "Aberrant Otter_ASA.png",
+    "masks": [
+      "Aberrant Otter_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Oviraptor",
+    "maskPath": "Aberrant Oviraptor",
+    "base": "Aberrant Oviraptor_ASA.png",
+    "masks": [
+      "Aberrant Oviraptor_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Ovis",
+    "maskPath": "Aberrant Ovis",
+    "base": "Aberrant Ovis_ASA.png",
+    "masks": [
+      "Aberrant Ovis_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Ovis (female)",
+    "maskPath": "Aberrant Ovis",
+    "base": "Aberrant Ovis_ASA_sf.png",
+    "masks": [
+      "Aberrant Ovis_ASA_sf_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Paraceratherium",
+    "maskPath": "Aberrant Paraceratherium",
+    "base": "Aberrant Paraceratherium_ASA.png",
+    "masks": [
+      "Aberrant Paraceratherium_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Parasaur",
+    "maskPath": "Aberrant Parasaur",
+    "base": "Aberrant Parasaur_ASA.png",
+    "masks": [
+      "Aberrant Parasaur_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Piranha",
+    "maskPath": "Aberrant Piranha",
+    "base": "Aberrant Piranha_ASA.png",
+    "masks": [
+      "Aberrant Piranha_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Pulmonoscorpius",
+    "maskPath": "Aberrant Pulmonoscorpius",
+    "base": "Aberrant Pulmonoscorpius_ASA.png",
+    "masks": [
+      "Aberrant Pulmonoscorpius_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Purlovia",
+    "maskPath": "Aberrant Purlovia",
+    "base": "Aberrant Purlovia_ASA.png",
+    "masks": [
+      "Aberrant Purlovia_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Raptor",
+    "maskPath": "Aberrant Raptor",
+    "base": "Aberrant Raptor_ASA.png",
+    "masks": [
+      "Aberrant Raptor_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Salmon",
+    "maskPath": "Aberrant Salmon",
+    "base": "Aberrant Salmon_ASA.png",
+    "masks": [
+      "Aberrant Salmon_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Sarco",
+    "maskPath": "Aberrant Sarco",
+    "base": "Aberrant Sarco_ASA.png",
+    "masks": [
+      "Aberrant Sarco_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Spino",
+    "maskPath": "Aberrant Spino",
+    "base": "Aberrant Spino_ASA.png",
+    "masks": [
+      "Aberrant Spino_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Stegosaurus",
+    "maskPath": "Aberrant Stegosaurus",
+    "base": "Aberrant Stegosaurus_ASA.png",
+    "masks": [
+      "Aberrant Stegosaurus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Titanoboa",
+    "maskPath": "Aberrant Titanoboa",
+    "base": "Aberrant Titanoboa_ASA.png",
+    "masks": [
+      "Aberrant Titanoboa_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Triceratops",
+    "maskPath": "Aberrant Triceratops",
+    "base": "Aberrant Triceratops_ASA.png",
+    "masks": [
+      "Aberrant Triceratops_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Aberrant Trilobite",
+    "maskPath": "Aberrant Trilobite",
+    "base": "Aberrant Trilobite_ASA.png",
+    "masks": [],
+    "noMask": []
+  },
+  {
+    "name": "Achatina",
+    "maskPath": "Achatina",
+    "base": "Achatina_ASA.png",
+    "masks": [
+      "Achatina_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Allosaurus",
+    "maskPath": "Allosaurus",
+    "base": "Allosaurus_ASA.png",
+    "masks": [
+      "Allosaurus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Anglerfish",
+    "maskPath": "Anglerfish",
+    "base": "Anglerfish_ASA.png",
+    "masks": [
+      "Anglerfish_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Ankylosaurus",
+    "maskPath": "Ankylosaurus",
+    "base": "Ankylosaurus_ASA.png",
+    "masks": [
+      "Ankylosaurus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Araneo",
+    "maskPath": "Araneo",
+    "base": "Araneo_ASA.png",
+    "masks": [
+      "Araneo_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Archaeopteryx",
+    "maskPath": "Archaeopteryx",
+    "base": "Archaeopteryx_ASA.png",
+    "masks": [
+      "Archaeopteryx_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Archelon",
+    "maskPath": "Archelon",
+    "base": "Archelon_ASA.png",
+    "masks": [
+      "Archelon_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Argentavis",
+    "maskPath": "Argentavis",
+    "base": "Argentavis_ASA.png",
+    "masks": [
+      "Argentavis_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
     "name": "Armadoggo",
     "maskPath": "Armadoggo",
     "base": "Armadoggo_ASA.png",
@@ -11,6 +504,24 @@
     ]
   },
   {
+    "name": "Arthropluera",
+    "maskPath": "Arthropluera",
+    "base": "Arthropluera_ASA.png",
+    "masks": [
+      "Arthropluera_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Baryonyx",
+    "maskPath": "Baryonyx",
+    "base": "Baryonyx_ASA.png",
+    "masks": [
+      "Baryonyx_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
     "name": "Basilisk",
     "maskPath": "Basilisk",
     "base": "Basilisk_ASA.png",
@@ -20,6 +531,60 @@
     "noMask": [
       3
     ]
+  },
+  {
+    "name": "Basilosaurus",
+    "maskPath": "Basilosaurus",
+    "base": "Basilosaurus_ASA.png",
+    "masks": [
+      "Basilosaurus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Beelzebufo",
+    "maskPath": "Beelzebufo",
+    "base": "Beelzebufo_ASA.png",
+    "masks": [
+      "Beelzebufo_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Bison",
+    "maskPath": "Bison",
+    "base": "Bison_ASA.png",
+    "masks": [
+      "Bison_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Brontosaurus",
+    "maskPath": "Brontosaurus",
+    "base": "Brontosaurus_ASA.png",
+    "masks": [
+      "Brontosaurus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Bulbdog",
+    "maskPath": "Bulbdog",
+    "base": "Bulbdog_ASA.png",
+    "masks": [
+      "Bulbdog_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Carbonemys",
+    "maskPath": "Carbonemys",
+    "base": "Carbonemys_ASA.png",
+    "masks": [
+      "Carbonemys_ASA_m.png"
+    ],
+    "noMask": []
   },
   {
     "name": "Carcharodontosaurus",
@@ -35,14 +600,891 @@
     ]
   },
   {
+    "name": "Carnotaurus",
+    "maskPath": "Carnotaurus",
+    "base": "Carnotaurus_ASA.png",
+    "masks": [
+      "Carnotaurus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Castoroides",
+    "maskPath": "Castoroides",
+    "base": "Castoroides_ASA.png",
+    "masks": [
+      "Castoroides_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Cat",
+    "maskPath": "Cat",
+    "base": "Cat_ASA_1.png",
+    "masks": [
+      "Cat_ASA_1_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Cat",
+    "maskPath": "Cat",
+    "base": "Cat_ASA_2.png",
+    "masks": [
+      "Cat_ASA_2_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Cat",
+    "maskPath": "Cat",
+    "base": "Cat_ASA_3.png",
+    "masks": [
+      "Cat_ASA_3_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Cat",
+    "maskPath": "Cat",
+    "base": "Cat_ASA_4.png",
+    "masks": [
+      "Cat_ASA_4_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Ceratosaurus",
+    "maskPath": "Ceratosaurus",
+    "base": "Ceratosaurus_ASA.png",
+    "masks": [
+      "Ceratosaurus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Chalicotherium",
+    "maskPath": "Chalicotherium",
+    "base": "Chalicotherium_ASA.png",
+    "masks": [
+      "Chalicotherium_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Cnidaria",
+    "maskPath": "Cnidaria",
+    "base": "Cnidaria_ASA.png",
+    "masks": [],
+    "noMask": []
+  },
+  {
+    "name": "Coelacanth",
+    "maskPath": "Coelacanth",
+    "base": "Coelacanth_ASA.png",
+    "masks": [
+      "Coelacanth_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Compy",
+    "maskPath": "Compy",
+    "base": "Compy_ASA.png",
+    "masks": [
+      "Compy_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Cosmo",
+    "maskPath": "Cosmo",
+    "base": "Cosmo_ASA.png",
+    "masks": [
+      "Cosmo_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Daeodon",
+    "maskPath": "Daeodon",
+    "base": "Daeodon_ASA.png",
+    "masks": [
+      "Daeodon_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Deinosuchus",
+    "maskPath": "Deinosuchus",
+    "base": "Deinosuchus_ASA.png",
+    "masks": [
+      "Deinosuchus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Deinotherium",
+    "maskPath": "Deinotherium",
+    "base": "Deinotherium_ASA.png",
+    "masks": [
+      "Deinotherium_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Dimetrodon",
+    "maskPath": "Dimetrodon",
+    "base": "Dimetrodon_ASA.png",
+    "masks": [
+      "Dimetrodon_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Dimorphodon",
+    "maskPath": "Dimorphodon",
+    "base": "Dimorphodon_ASA.png",
+    "masks": [
+      "Dimorphodon_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Diplocaulus",
+    "maskPath": "Diplocaulus",
+    "base": "Diplocaulus_ASA.png",
+    "masks": [
+      "Diplocaulus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Diplodocus",
+    "maskPath": "Diplodocus",
+    "base": "Diplodocus_ASA.png",
+    "masks": [
+      "Diplodocus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Dire Bear",
+    "maskPath": "Dire Bear",
+    "base": "Dire Bear_ASA.png",
+    "masks": [
+      "Dire Bear_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Direwolf",
+    "maskPath": "Direwolf",
+    "base": "Direwolf_ASA.png",
+    "masks": [
+      "Direwolf_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Dodo",
+    "maskPath": "Dodo",
+    "base": "Dodo_ASA.png",
+    "masks": [
+      "Dodo_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Doedicurus",
+    "maskPath": "Doedicurus",
+    "base": "Doedicurus_ASA.png",
+    "masks": [
+      "Doedicurus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
     "name": "Drakeling (Autumn)",
     "maskPath": "Drakeling (Autumn)",
-    "base": "Drakeling (Autumn).png",
+    "base": "Drakeling (Autumn)_ASA.png",
     "masks": [
-      "Drakeling (Autumn)_m.png",
-      "Drakeling (Autumn)_m_05.png",
-      "Drakeling (Autumn)_m_13.png",
-      "Drakeling (Autumn)_m_25.png"
+      "Drakeling (Autumn)_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Drakeling (Spring)",
+    "maskPath": "Drakeling (Spring)",
+    "base": "Drakeling (Spring)_ASA.png",
+    "masks": [
+      "Drakeling (Spring)_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Drakeling (Summer)",
+    "maskPath": "Drakeling (Summer)",
+    "base": "Drakeling (Summer)_ASA.png",
+    "masks": [
+      "Drakeling (Summer)_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Drakeling (Winter)",
+    "maskPath": "Drakeling (Winter)",
+    "base": "Drakeling (Winter)_ASA.png",
+    "masks": [
+      "Drakeling (Winter)_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Dreadmare",
+    "maskPath": "Dreadmare",
+    "base": "Dreadmare_ASA.png",
+    "masks": [
+      "Dreadmare_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Dreadnoughtus",
+    "maskPath": "Dreadnoughtus",
+    "base": "Dreadnoughtus_ASA.png",
+    "masks": [
+      "Dreadnoughtus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Dung Beetle",
+    "maskPath": "Dung Beetle",
+    "base": "Dung Beetle_ASA.png",
+    "masks": [
+      "Dung Beetle_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Dunkleosteus",
+    "maskPath": "Dunkleosteus",
+    "base": "Dunkleosteus_ASA.png",
+    "masks": [
+      "Dunkleosteus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Electrophorus",
+    "maskPath": "Electrophorus",
+    "base": "Electrophorus_ASA.png",
+    "masks": [
+      "Electrophorus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Enforcer",
+    "maskPath": "Enforcer",
+    "base": "Enforcer_ASA.png",
+    "masks": [
+      "Enforcer_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Equus",
+    "maskPath": "Equus",
+    "base": "Equus_ASA.png",
+    "masks": [
+      "Equus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Fasolasuchus",
+    "maskPath": "Fasolasuchus",
+    "base": "Fasolasuchus_ASA.png",
+    "masks": [
+      "Fasolasuchus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Featherlight",
+    "maskPath": "Featherlight",
+    "base": "Featherlight_ASA.png",
+    "masks": [
+      "Featherlight_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Fire Wyvern",
+    "maskPath": "Fire Wyvern",
+    "base": "Fire Wyvern_ASA.png",
+    "masks": [
+      "Fire Wyvern_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Gacha",
+    "maskPath": "Gacha",
+    "base": "Gacha_ASA.png",
+    "masks": [
+      "Gacha_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Gallimimus",
+    "maskPath": "Gallimimus",
+    "base": "Gallimimus_ASA.png",
+    "masks": [
+      "Gallimimus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Gasbags",
+    "maskPath": "Gasbags",
+    "base": "Gasbags_ASA.png",
+    "masks": [
+      "Gasbags_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Giganotosaurus",
+    "maskPath": "Giganotosaurus",
+    "base": "Giganotosaurus_ASA.png",
+    "masks": [
+      "Giganotosaurus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Gigantopithecus",
+    "maskPath": "Gigantopithecus",
+    "base": "Gigantopithecus_ASA.png",
+    "masks": [
+      "Gigantopithecus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Gigantoraptor",
+    "maskPath": "Gigantoraptor",
+    "base": "Gigantoraptor_ASA.png",
+    "masks": [
+      "Gigantoraptor_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Glowtail",
+    "maskPath": "Glowtail",
+    "base": "Glowtail_ASA.png",
+    "masks": [
+      "Glowtail_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Griffin",
+    "maskPath": "Griffin",
+    "base": "Griffin_ASA.png",
+    "masks": [
+      "Griffin_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Helicoprion",
+    "maskPath": "Helicoprion",
+    "base": "Helicoprion_ASA.png",
+    "masks": [
+      "Helicoprion_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Hesperornis",
+    "maskPath": "Hesperornis",
+    "base": "Hesperornis_ASA.png",
+    "masks": [
+      "Hesperornis_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Hyaenodon",
+    "maskPath": "Hyaenodon",
+    "base": "Hyaenodon_ASA.png",
+    "masks": [
+      "Hyaenodon_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Ice Wyvern",
+    "maskPath": "Ice Wyvern",
+    "base": "Ice Wyvern_ASA.png",
+    "masks": [
+      "Ice Wyvern_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Ichthyornis",
+    "maskPath": "Ichthyornis",
+    "base": "Ichthyornis_ASA.png",
+    "masks": [
+      "Ichthyornis_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Ichthyosaurus",
+    "maskPath": "Ichthyosaurus",
+    "base": "Ichthyosaurus_ASA.png",
+    "masks": [
+      "Ichthyosaurus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Iguanodon",
+    "maskPath": "Iguanodon",
+    "base": "Iguanodon_ASA.png",
+    "masks": [
+      "Iguanodon_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Jerboa",
+    "maskPath": "Jerboa",
+    "base": "Jerboa_ASA.png",
+    "masks": [
+      "Jerboa_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Kairuku",
+    "maskPath": "Kairuku",
+    "base": "Kairuku_ASA.png",
+    "masks": [
+      "Kairuku_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Kaprosuchus",
+    "maskPath": "Kaprosuchus",
+    "base": "Kaprosuchus_ASA.png",
+    "masks": [
+      "Kaprosuchus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Karkinos",
+    "maskPath": "Karkinos",
+    "base": "Karkinos_ASA.png",
+    "masks": [
+      "Karkinos_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Kentrosaurus",
+    "maskPath": "Kentrosaurus",
+    "base": "Kentrosaurus_ASA.png",
+    "masks": [
+      "Kentrosaurus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Lightning Wyvern",
+    "maskPath": "Lightning Wyvern",
+    "base": "Lightning Wyvern_ASA.png",
+    "masks": [
+      "Lightning Wyvern_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Liopleurodon",
+    "maskPath": "Liopleurodon",
+    "base": "Liopleurodon_ASA.png",
+    "masks": [
+      "Liopleurodon_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Lymantria",
+    "maskPath": "Lymantria",
+    "base": "Lymantria_ASA.png",
+    "masks": [
+      "Lymantria_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Lystrosaurus",
+    "maskPath": "Lystrosaurus",
+    "base": "Lystrosaurus_ASA.png",
+    "masks": [
+      "Lystrosaurus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Maeguana",
+    "maskPath": "Maeguana",
+    "base": "Maeguana_ASA.png",
+    "masks": [
+      "Maeguana_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Mammoth",
+    "maskPath": "Mammoth",
+    "base": "Mammoth_ASA.png",
+    "masks": [
+      "Mammoth_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Managarmr",
+    "maskPath": "Managarmr",
+    "base": "Managarmr_ASA.png",
+    "masks": [
+      "Managarmr_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Manta",
+    "maskPath": "Manta",
+    "base": "Manta_ASA.png",
+    "masks": [
+      "Manta_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Mantis",
+    "maskPath": "Mantis",
+    "base": "Mantis_ASA.png",
+    "masks": [
+      "Mantis_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Megalania",
+    "maskPath": "Megalania",
+    "base": "Megalania_ASA.png",
+    "masks": [
+      "Megalania_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Megaloceros",
+    "maskPath": "Megaloceros",
+    "base": "Megaloceros_ASA.png",
+    "masks": [
+      "Megaloceros_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Megaloceros (female)",
+    "maskPath": "Megaloceros",
+    "base": "Megaloceros_ASA_sf.png",
+    "masks": [
+      "Megaloceros_ASA_sf_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Megalodon",
+    "maskPath": "Megalodon",
+    "base": "Megalodon_ASA.png",
+    "masks": [
+      "Megalodon_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Megalosaurus",
+    "maskPath": "Megalosaurus",
+    "base": "Megalosaurus_ASA.png",
+    "masks": [
+      "Megalosaurus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Meganeura",
+    "maskPath": "Meganeura",
+    "base": "Meganeura_ASA.png",
+    "masks": [
+      "Meganeura_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Megatherium",
+    "maskPath": "Megatherium",
+    "base": "Megatherium_ASA.png",
+    "masks": [
+      "Megatherium_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Morellatops",
+    "maskPath": "Morellatops",
+    "base": "Morellatops_ASA.png",
+    "masks": [
+      "Morellatops_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Mosasaurus",
+    "maskPath": "Mosasaurus",
+    "base": "Mosasaurus_ASA.png",
+    "masks": [
+      "Mosasaurus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Moschops",
+    "maskPath": "Moschops",
+    "base": "Moschops_ASA.png",
+    "masks": [
+      "Moschops_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Oasisaur",
+    "maskPath": "Oasisaur",
+    "base": "Oasisaur_ASA.png",
+    "masks": [
+      "Oasisaur_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Onyc",
+    "maskPath": "Onyc",
+    "base": "Onyc_ASA.png",
+    "masks": [
+      "Onyc_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Otter",
+    "maskPath": "Otter",
+    "base": "Otter_ASA.png",
+    "masks": [
+      "Otter_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Oviraptor",
+    "maskPath": "Oviraptor",
+    "base": "Oviraptor_ASA.png",
+    "masks": [
+      "Oviraptor_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Ovis",
+    "maskPath": "Ovis",
+    "base": "Ovis_ASA.png",
+    "masks": [
+      "Ovis_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Ovis (female)",
+    "maskPath": "Ovis",
+    "base": "Ovis_ASA_sf.png",
+    "masks": [
+      "Ovis_ASA_sf_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Pachyrhinosaurus",
+    "maskPath": "Pachyrhinosaurus",
+    "base": "Pachyrhinosaurus_ASA.png",
+    "masks": [
+      "Pachyrhinosaurus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Paraceratherium",
+    "maskPath": "Paraceratherium",
+    "base": "Paraceratherium_ASA.png",
+    "masks": [
+      "Paraceratherium_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Parasaur",
+    "maskPath": "Parasaur",
+    "base": "Parasaur_ASA.png",
+    "masks": [
+      "Parasaur_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Parasaur",
+    "maskPath": "Parasaur",
+    "base": "Parasaur.png",
+    "masks": [
+      "Parasaur_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Pegomastax",
+    "maskPath": "Pegomastax",
+    "base": "Pegomastax_ASA.png",
+    "masks": [
+      "Pegomastax_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Pelagornis",
+    "maskPath": "Pelagornis",
+    "base": "Pelagornis_ASA.png",
+    "masks": [
+      "Pelagornis_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Phoenix",
+    "maskPath": "Phoenix",
+    "base": "Phoenix_ASA.png",
+    "masks": [
+      "Phoenix_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Piranha",
+    "maskPath": "Piranha",
+    "base": "Piranha_ASA.png",
+    "masks": [
+      "Piranha_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Plesiosaur",
+    "maskPath": "Plesiosaur",
+    "base": "Plesiosaur_ASA.png",
+    "masks": [
+      "Plesiosaur_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Poison Wyvern",
+    "maskPath": "Poison Wyvern",
+    "base": "Poison Wyvern_ASA.png",
+    "masks": [
+      "Poison Wyvern_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Procoptodon",
+    "maskPath": "Procoptodon",
+    "base": "Procoptodon_ASA.png",
+    "masks": [
+      "Procoptodon_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Pteranodon",
+    "maskPath": "Pteranodon",
+    "base": "Pteranodon_ASA.png",
+    "masks": [
+      "Pteranodon_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Pulmonoscorpius",
+    "maskPath": "Pulmonoscorpius",
+    "base": "Pulmonoscorpius_ASA.png",
+    "masks": [
+      "Pulmonoscorpius_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Purlovia",
+    "maskPath": "Purlovia",
+    "base": "Purlovia_ASA.png",
+    "masks": [
+      "Purlovia_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Pyromane",
+    "maskPath": "Pyromane",
+    "base": "Pyromane_ASA.png",
+    "masks": [
+      "Pyromane_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Pyromane (female)",
+    "maskPath": "Pyromane",
+    "base": "Pyromane_ASA_sf.png",
+    "masks": [
+      "Pyromane_ASA_sf_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Quetzal",
+    "maskPath": "Quetzal",
+    "base": "Quetzal_ASA.png",
+    "masks": [
+      "Quetzal_ASA_m.png"
     ],
     "noMask": []
   },
@@ -56,5 +1498,372 @@
     "noMask": [
       2
     ]
+  },
+  {
+    "name": "Ravager",
+    "maskPath": "Ravager",
+    "base": "Ravager_ASA.png",
+    "masks": [
+      "Ravager_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Reaper King",
+    "maskPath": "Reaper King",
+    "base": "Reaper King_ASA.png",
+    "masks": [
+      "Reaper King_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Rex",
+    "maskPath": "Rex",
+    "base": "Rex_ASA.png",
+    "masks": [
+      "Rex_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Rhyniognatha",
+    "maskPath": "Rhyniognatha",
+    "base": "Rhyniognatha_ASA.png",
+    "masks": [
+      "Rhyniognatha_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Rock Drake",
+    "maskPath": "Rock Drake",
+    "base": "Rock Drake_ASA.png",
+    "masks": [
+      "Rock Drake_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Rock Elemental",
+    "maskPath": "Rock Elemental",
+    "base": "Rock Elemental_ASA.png",
+    "masks": [
+      "Rock Elemental_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Roll Rat",
+    "maskPath": "Roll Rat",
+    "base": "Roll Rat_ASA.png",
+    "masks": [
+      "Roll Rat_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Sabertooth",
+    "maskPath": "Sabertooth",
+    "base": "Sabertooth_ASA.png",
+    "masks": [
+      "Sabertooth_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Sabertooth Salmon",
+    "maskPath": "Sabertooth Salmon",
+    "base": "Sabertooth Salmon_ASA.png",
+    "masks": [
+      "Sabertooth Salmon_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Sarco",
+    "maskPath": "Sarco",
+    "base": "Sarco_ASA.png",
+    "masks": [
+      "Sarco_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Shastasaurus",
+    "maskPath": "Shastasaurus",
+    "base": "Shastasaurus_ASA.png",
+    "masks": [
+      "Shastasaurus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Shinehorn",
+    "maskPath": "Shinehorn",
+    "base": "Shinehorn_ASA.png",
+    "masks": [
+      "Shinehorn_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Snow Owl",
+    "maskPath": "Snow Owl",
+    "base": "Snow Owl_ASA.png",
+    "masks": [
+      "Snow Owl_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Spino",
+    "maskPath": "Spino",
+    "base": "Spino_ASA.png",
+    "masks": [
+      "Spino_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Stegosaurus",
+    "maskPath": "Stegosaurus",
+    "base": "Stegosaurus_ASA.png",
+    "masks": [
+      "Stegosaurus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Tapejara",
+    "maskPath": "Tapejara",
+    "base": "Tapejara_ASA.png",
+    "masks": [
+      "Tapejara_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Tek Giganotosaurus",
+    "maskPath": "Tek Giganotosaurus",
+    "base": "Tek Giganotosaurus_ASA.png",
+    "masks": [
+      "Tek Giganotosaurus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Tek Parasaur",
+    "maskPath": "Tek Parasaur",
+    "base": "Tek Parasaur_ASA.png",
+    "masks": [
+      "Tek Parasaur_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Tek Quetzal",
+    "maskPath": "Tek Quetzal",
+    "base": "Tek Quetzal_ASA.png",
+    "masks": [
+      "Tek Quetzal_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Tek Raptor",
+    "maskPath": "Tek Raptor",
+    "base": "Tek Raptor_ASA.png",
+    "masks": [
+      "Tek Raptor_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Tek Rex",
+    "maskPath": "Tek Rex",
+    "base": "Tek Rex_ASA.png",
+    "masks": [
+      "Tek Rex_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Tek Stegosaurus",
+    "maskPath": "Tek Stegosaurus",
+    "base": "Tek Stegosaurus_ASA.png",
+    "masks": [
+      "Tek Stegosaurus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Tek Triceratops",
+    "maskPath": "Tek Triceratops",
+    "base": "Tek Triceratops_ASA.png",
+    "masks": [
+      "Tek Triceratops_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Terror Bird",
+    "maskPath": "Terror Bird",
+    "base": "Terror Bird_ASA.png",
+    "masks": [
+      "Terror Bird_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Therizinosaur",
+    "maskPath": "Therizinosaur",
+    "base": "Therizinosaur_ASA.png",
+    "masks": [
+      "Therizinosaur_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Thylacoleo",
+    "maskPath": "Thylacoleo",
+    "base": "Thylacoleo_ASA.png",
+    "masks": [
+      "Thylacoleo_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Titanoboa",
+    "maskPath": "Titanoboa",
+    "base": "Titanoboa_ASA.png",
+    "masks": [
+      "Titanoboa_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Triceratops",
+    "maskPath": "Triceratops",
+    "base": "Triceratops_ASA.png",
+    "masks": [
+      "Triceratops_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Trilobite",
+    "maskPath": "Trilobite",
+    "base": "Trilobite_ASA.png",
+    "masks": [],
+    "noMask": []
+  },
+  {
+    "name": "Troodon",
+    "maskPath": "Troodon",
+    "base": "Troodon_ASA.png",
+    "masks": [
+      "Troodon_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Tusoteuthis",
+    "maskPath": "Tusoteuthis",
+    "base": "Tusoteuthis_ASA.png",
+    "masks": [
+      "Tusoteuthis_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Veilwyn",
+    "maskPath": "Veilwyn",
+    "base": "Veilwyn_ASA.png",
+    "masks": [
+      "Veilwyn_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Velonasaur",
+    "maskPath": "Velonasaur",
+    "base": "Velonasaur_ASA.png",
+    "masks": [
+      "Velonasaur_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Vulture",
+    "maskPath": "Vulture",
+    "base": "Vulture_ASA.png",
+    "masks": [
+      "Vulture_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Woolly Rhino",
+    "maskPath": "Woolly Rhino",
+    "base": "Woolly Rhino_ASA.png",
+    "masks": [
+      "Woolly Rhino_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Xiphactinus",
+    "maskPath": "Xiphactinus",
+    "base": "Xiphactinus_ASA.png",
+    "masks": [
+      "Xiphactinus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Yi Ling",
+    "maskPath": "Yi Ling",
+    "base": "Yi Ling_ASA.png",
+    "masks": [
+      "Yi Ling_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Yutyrannus",
+    "maskPath": "Yutyrannus",
+    "base": "Yutyrannus_ASA.png",
+    "masks": [
+      "Yutyrannus_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Zombie Fire Wyvern",
+    "maskPath": "Zombie Fire Wyvern",
+    "base": "Zombie Fire Wyvern_ASA.png",
+    "masks": [
+      "Zombie Fire Wyvern_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Zombie Lightning Wyvern",
+    "maskPath": "Zombie Lightning Wyvern",
+    "base": "Zombie Lightning Wyvern_ASA.png",
+    "masks": [
+      "Zombie Lightning Wyvern_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
+    "name": "Zombie Poison Wyvern",
+    "maskPath": "Zombie Poison Wyvern",
+    "base": "Zombie Poison Wyvern_ASA.png",
+    "masks": [
+      "Zombie Poison Wyvern_ASA_m.png"
+    ],
+    "noMask": []
   }
 ]
