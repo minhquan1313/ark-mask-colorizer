@@ -39,10 +39,10 @@
     "maskPath": "Drakeling (Autumn)",
     "base": "Drakeling (Autumn).png",
     "masks": [
+      "Drakeling (Autumn)_m.png",
       "Drakeling (Autumn)_m_05.png",
       "Drakeling (Autumn)_m_13.png",
-      "Drakeling (Autumn)_m_25.png",
-      "Drakeling (Autumn)_m.png"
+      "Drakeling (Autumn)_m_25.png"
     ],
     "noMask": []
   },

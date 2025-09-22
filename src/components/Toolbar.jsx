@@ -1,4 +1,4 @@
-﻿// src/components/Toolbar.jsx
+// src/components/Toolbar.jsx
 import { useEffect, useRef, useState } from 'react';
 import { DEFAULTS } from '../config/defaults.js';
 import { STORAGE_KEYS, loadJSON, saveJSON } from '../utils/storage.js';
@@ -8,6 +8,8 @@ export default function Toolbar({
   setThreshold,
   strength,
   setStrength,
+  neutralStrength,
+  setNeutralStrength,
   feather,
   setFeather,
   gamma,
@@ -133,6 +135,22 @@ export default function Toolbar({
               style={{ flex: 1 }}
             />
             <span className="small value">{strength.toFixed(2)}</span>
+          </div>
+          <div
+            className="row"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
+            <label className="small subtle">Neutral Strength</label>
+            <input
+              className="form-range"
+              type="range"
+              min="0"
+              max="5"
+              step="0.05"
+              value={neutralStrength}
+              onChange={(e) => setNeutralStrength(+e.target.value)}
+              style={{ flex: 1 }}
+            />
+            <span className="small value">{neutralStrength.toFixed(2)}</span>
           </div>
           <div
             className="row"
@@ -328,7 +346,7 @@ export default function Toolbar({
               />
               <button
                 className="btn"
-                title="Nền trong suốt"
+                title="N?n trong su?t"
                 onClick={() => setExportBg('transparent')}
                 style={{
                   padding: '4px 8px',
@@ -336,7 +354,7 @@ export default function Toolbar({
                   borderColor: isTransparent ? '#5cc8ff' : undefined,
                   boxShadow: isTransparent ? '0 0 0 2px rgba(92,200,255,0.25) inset' : undefined,
                 }}>
-                Trong suốt
+                Trong su?t
               </button>
             </div>
             <div
@@ -394,7 +412,7 @@ export default function Toolbar({
               className="btn"
               onClick={onDownloadImage}
               disabled={downloadingType === 'image' || downloadingType === 'palette'}
-              title="Tải ảnh"
+              title="T?i ?nh"
               style={{ flex: 1, display: 'inline-flex', justifyContent: 'center' }}>
               {downloadingType === 'image' ? (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
@@ -402,11 +420,11 @@ export default function Toolbar({
                     aria-busy
                     style={{ width: 14, height: 14, border: '2px solid var(--border)', borderTopColor: 'var(--text)', borderRadius: '50%', animation: 'spin 0.9s linear infinite' }}
                   />
-                  Ảnh
+                  ?nh
                 </span>
               ) : (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <IconDownload /> Ảnh
+                  <IconDownload /> ?nh
                 </span>
               )}
             </button>
@@ -414,7 +432,7 @@ export default function Toolbar({
               className="btn"
               onClick={onDownloadWithPalette}
               disabled={downloadingType === 'image' || downloadingType === 'palette'}
-              title="Tải ảnh kèm palette"
+              title="T?i ?nh k�m palette"
               style={{ flex: 1, display: 'inline-flex', justifyContent: 'center', whiteSpace: 'nowrap' }}>
               {downloadingType === 'palette' ? (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
@@ -422,11 +440,11 @@ export default function Toolbar({
                     aria-busy
                     style={{ width: 14, height: 14, border: '2px solid var(--border)', borderTopColor: 'var(--text)', borderRadius: '50%', animation: 'spin 0.9s linear infinite' }}
                   />
-                  Ảnh + màu
+                  ?nh + m�u
                 </span>
               ) : (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <IconDownload /> Ảnh + màu
+                  <IconDownload /> ?nh + m�u
                 </span>
               )}
             </button>

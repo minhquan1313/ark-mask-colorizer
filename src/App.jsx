@@ -19,6 +19,7 @@ const initialText = loadJSON(STORAGE_KEYS.exportTx, DEFAULTS.exportText);
 // Load persisted slider states (fallback to defaults)
 const initialThreshold = loadJSON(STORAGE_KEYS.threshold, DEFAULTS.threshold);
 const initialStrength = loadJSON(STORAGE_KEYS.strength, DEFAULTS.strength);
+const initialNeutralStrength = loadJSON(STORAGE_KEYS.neutralStrength, DEFAULTS.neutralStrength);
 const initialFeather = loadJSON(STORAGE_KEYS.feather, DEFAULTS.feather);
 const initialGamma = loadJSON(STORAGE_KEYS.gamma, DEFAULTS.gamma);
 const initialKeepLight = loadJSON(STORAGE_KEYS.keepLight, DEFAULTS.keepLight);
@@ -49,6 +50,7 @@ export default function App() {
   const [slots, setSlots] = useState(Array.isArray(initialSlots) && initialSlots.length === 6 ? initialSlots : DEFAULTS.slots);
   const [threshold, setThreshold] = useState(initialThreshold);
   const [strength, setStrength] = useState(initialStrength);
+  const [neutralStrength, setNeutralStrength] = useState(initialNeutralStrength);
   const [feather, setFeather] = useState(initialFeather);
   const [gamma, setGamma] = useState(initialGamma);
   const [speckleClean, setSpeckleClean] = useState(initialSpeckleClean);
@@ -72,7 +74,7 @@ export default function App() {
   const disabledSet = customMode ? new Set() : new Set(current?.noMask || []);
 
   const { baseImg, maskImg, extraMasks, loadPairFromFiles, loadFromEntry } = useImages();
-  const { draw, busy } = useRecolorWorker({ threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, overlayStrength, overlayTint });
+  const { draw, busy } = useRecolorWorker({ threshold, strength, neutralStrength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, overlayStrength, overlayTint });
   const rafRef = useRef(0);
   const pendingArgsRef = useRef(null);
 
@@ -115,6 +117,7 @@ export default function App() {
   useEffect(() => { saveJSON(STORAGE_KEYS.slots, slots); }, [slots]);
   useEffect(() => { saveJSON(STORAGE_KEYS.threshold, threshold); }, [threshold]);
   useEffect(() => { saveJSON(STORAGE_KEYS.strength, strength); }, [strength]);
+  useEffect(() => { saveJSON(STORAGE_KEYS.neutralStrength, neutralStrength); }, [neutralStrength]);
   useEffect(() => { saveJSON(STORAGE_KEYS.feather, feather); }, [feather]);
   useEffect(() => { saveJSON(STORAGE_KEYS.gamma, gamma); }, [gamma]);
   useEffect(() => { saveJSON(STORAGE_KEYS.keepLight, keepLight); }, [keepLight]);
@@ -389,6 +392,7 @@ export default function App() {
   const reset = () => {
     setThreshold(DEFAULTS.threshold);
     setStrength(DEFAULTS.strength);
+    setNeutralStrength(DEFAULTS.neutralStrength);
     setFeather(DEFAULTS.feather);
     setGamma(DEFAULTS.gamma);
     setKeepLight(DEFAULTS.keepLight);
@@ -449,6 +453,8 @@ export default function App() {
           setThreshold={setThreshold}
           strength={strength}
           setStrength={setStrength}
+          neutralStrength={neutralStrength}
+          setNeutralStrength={setNeutralStrength}
           feather={feather}
           setFeather={setFeather}
           gamma={gamma}

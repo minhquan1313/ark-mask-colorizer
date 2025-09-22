@@ -67,7 +67,7 @@ function coerceRGB(v) {
   }
   return null;
 }
-export function useRecolor({ threshold = 80, strength = 1, feather = 0, gamma = 1, keepLight = 0.98, chromaBoost = 1.18, chromaCurve = 0.9, speckleClean = 0.35, edgeSmooth = 0, boundaryBlend = 0.28 } = {}) {
+export function useRecolor({ threshold = 80, strength = 1, neutralStrength = 1, feather = 0, gamma = 1, keepLight = 0.98, chromaBoost = 1.18, chromaCurve = 0.9, speckleClean = 0.35, edgeSmooth = 0, boundaryBlend = 0.28 } = {}) {
   function draw({ baseImg, maskImg, baseCanvasRef, maskCanvasRef, outCanvasRef, slots }) {
     const src = baseImg || maskImg;
     if (!src) return;
@@ -393,46 +393,74 @@ export function useRecolor({ threshold = 80, strength = 1, feather = 0, gamma = 
     }
 
       // Achromatic edge damping: cap mixing near uncertain edges to avoid speckle when using white/black
-      (() => {
-        const tOKp = rgb2oklab(tR || 0, tG || 0, tB || 0);
-        const tLCp = oklabToLch(tOKp.L, tOKp.a, tOKp.b);
-        if (tLCp.C <= 0.03 && wMask < 0.999) {
-          const cf = conf[i] || 0;
-          const cap = 0.65 + 0.30 * cf; // 0.65..0.95
-          if (wMask > cap) wMask = cap;
-        }
-      })();
-      const k = Math.max(0, Math.min(1, strength)) * wMask,
+      const targetOK = rgb2oklab(tR || 0, tG || 0, tB || 0);
+      const targetLCH = oklabToLch(targetOK.L, targetOK.a, targetOK.b);
+      if (targetLCH.C <= 0.03 && wMask < 0.999) {
+        const cf = conf[i] || 0;
+        const cap = 0.65 + 0.30 * cf; // 0.65..0.95
+        if (wMask > cap) wMask = cap;
+      }
+      const baseMix = Math.max(0, Math.min(1, strength)) * wMask;
+      const neutralAmt = Math.max(0, Math.min(5, Number.isFinite(neutralStrength) ? neutralStrength : 1));
+      const neutralWeight = neutralAmt === 1 ? 0 : Math.max(0, Math.min(1, 1 - Math.min(1, targetLCH.C / 0.12)));
+      const neutralScale = neutralAmt === 1 ? 1 : 1 + (neutralAmt - 1) * neutralWeight;
+      const k = Math.max(0, Math.min(1, baseMix * neutralScale)),
         bL = br / 255,
         bG = bg / 255,
         bB = bb / 255,
         baseOK = rgb2oklab(bL, bG, bB),
-        tOK = rgb2oklab(tR, tG, tB),
-        tLC = oklabToLch(tOK.L, tOK.a, tOK.b);
+        tOK = targetOK,
+        tLC = targetLCH;
       // Compute target mix in OKLCH
+
       const Cx = Math.pow(tLC.C, chromaCurve) * chromaBoost;
+
       const C_REF = 0.3; // typical OKLCH chroma scale in sRGB gamut
+
       const Cn = Math.max(0, Math.min(1, Cx / C_REF));
-      const keepLightDrop = 0.15; // slightly relax keepLight when chroma is small
+
+      const neutralPull = neutralWeight * Math.max(0, neutralAmt - 1);
+      const keepLightDropBase = 0.15; // baseline relaxation for low chroma
+      const keepLightDrop = Math.min(0.75, keepLightDropBase + 0.3 * neutralPull);
+
       const keepL = Math.max(0, Math.min(1, keepLight - (1 - Cn) * keepLightDrop));
+
       const Lmix = baseOK.L * keepL + tLC.L * (1 - keepL);
+
       const Cmix = Cx;
+
       const Hmix = tLC.h;
 
+
+
       const tint = lchToOklab(Lmix, Cmix, Hmix),
+
         [rt, gt, bt] = oklab2rgb(tint.L, tint.a, tint.b),
+
         rl = srgb2lin(bL),
+
         gl = srgb2lin(bG),
+
         bl = srgb2lin(bB);
 
+
+
       const tl0 = srgb2lin(rt),
+
         tl1 = srgb2lin(gt),
+
         tl2 = srgb2lin(bt);
 
+
+
       const kAdj = k;
+
       let o0 = rl * (1 - kAdj) + tl0 * kAdj,
+
         o1 = gl * (1 - kAdj) + tl1 * kAdj,
+
         o2 = bl * (1 - kAdj) + tl2 * kAdj;
+
       const gpow = gamma && gamma !== 1 ? 1 / gamma : 1;
       o0 = Math.pow(o0, gpow);
       o1 = Math.pow(o1, gpow);
@@ -526,4 +554,5 @@ export function useRecolor({ threshold = 80, strength = 1, feather = 0, gamma = 
   }
   return { draw };
 }
+
 

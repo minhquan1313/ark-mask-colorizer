@@ -1,9 +1,9 @@
-﻿// Worker-based recolor to avoid blocking the main thread
+// Worker-based recolor to avoid blocking the main thread
 import { useMemo, useRef, useState, useCallback, useEffect } from 'react';
 import { useRecolor as useRecolorSync } from './useRecolor.js';
 import { STORAGE_KEYS, loadJSON } from '../utils/storage.js';
 
-export function useRecolorWorker({ threshold = 80, strength = 1, feather = 0, gamma = 1, keepLight = 0.98, chromaBoost = 1.18, chromaCurve = 0.9, speckleClean = 0.35, edgeSmooth = 0, boundaryBlend = 0.28, overlayStrength = 1, overlayTint = 0.25, overlayBlendMode = 'add' } = {}) {
+export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength = 1, feather = 0, gamma = 1, keepLight = 0.98, chromaBoost = 1.18, chromaCurve = 0.9, speckleClean = 0.35, edgeSmooth = 0, boundaryBlend = 0.28, overlayStrength = 1, overlayTint = 0.25, overlayBlendMode = 'add' } = {}) {
   const workerRef = useRef(null);
   const jobRef = useRef(0);
   const [busy, setBusy] = useState(false);
@@ -20,7 +20,7 @@ export function useRecolorWorker({ threshold = 80, strength = 1, feather = 0, ga
     return () => window.removeEventListener('overlay-blend-mode-changed', onChanged);
   }, []);
 
-  const params = useMemo(() => ({ threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, overlayBlendMode: overlayBlendModeLocal }), [threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, overlayBlendModeLocal]);
+  const params = useMemo(() => ({ threshold, strength, neutralStrength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, overlayBlendMode: overlayBlendModeLocal }), [threshold, strength, neutralStrength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, overlayBlendModeLocal]);
   const sync = useMemo(() => useRecolorSync(params), [params]);
   const debounceRef = useRef(0);
   const pendingArgsRef = useRef(null);

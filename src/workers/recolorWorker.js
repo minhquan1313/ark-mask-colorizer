@@ -72,7 +72,7 @@ function coerceRGB(v) {
 }
 
 function render({ base, mask, w, h, slots, params }) {
-  const { threshold = 80, strength = 1, feather = 0, gamma = 1, keepLight = 0.98, chromaBoost = 1.18, chromaCurve = 0.9, speckleClean = 0.35, edgeSmooth = 0, boundaryBlend = 0.28, minChroma = 0, blendMode = 'oklab' } = params || {};
+  const { threshold = 80, strength = 1, neutralStrength = 1, feather = 0, gamma = 1, keepLight = 0.98, chromaBoost = 1.18, chromaCurve = 0.9, speckleClean = 0.35, edgeSmooth = 0, boundaryBlend = 0.28, minChroma = 0, blendMode = 'oklab' } = params || {};
 
   const out = new Uint8ClampedArray(w * h * 4);
   const pal = new Array(6);
@@ -363,24 +363,25 @@ function render({ base, mask, w, h, slots, params }) {
       }
     }
 
+      const targetOK = rgb2oklab(tR || 0, tG || 0, tB || 0);
+      const targetLCH = oklabToLch(targetOK.L, targetOK.a, targetOK.b);
+      if (targetLCH.C <= 0.03 && wMask < 0.999) {
+        const cf = conf[i] || 0;
+        // Lower cap when confidence is low
+        const cap = 0.65 + 0.30 * cf; // 0.65..0.95
+        if (wMask > cap) wMask = cap;
+      }
       const bL = br / 255,
         bG = bg / 255,
         bB = bb / 255;
-        // Achromatic edge damping: cap mixing near uncertain edges to avoid speckle/banding
-        {
-          const tOKp = rgb2oklab(tR || 0, tG || 0, tB || 0);
-          const tLCp = oklabToLch(tOKp.L, tOKp.a, tOKp.b);
-          if (tLCp.C <= 0.03 && wMask < 0.999) {
-            const cf = conf[i] || 0;
-            // Lower cap when confidence is low
-            const cap = 0.65 + 0.30 * cf; // 0.65..0.95
-            if (wMask > cap) wMask = cap;
-          }
-        }
-        // sRGB values for base and target
-        const rl = srgb2lin(bL), gl = srgb2lin(bG), bl = srgb2lin(bB);
-        const kBase = Math.max(0, Math.min(1, strength)) * wMask;
-        let o0, o1, o2;
+      // sRGB values for base and target
+      const rl = srgb2lin(bL), gl = srgb2lin(bG), bl = srgb2lin(bB);
+      const baseMix = Math.max(0, Math.min(1, strength)) * wMask;
+      const neutralAmt = Math.max(0, Math.min(5, Number.isFinite(neutralStrength) ? neutralStrength : 1));
+      const neutralWeight = neutralAmt === 1 ? 0 : Math.max(0, Math.min(1, 1 - Math.min(1, targetLCH.C / 0.12)));
+      const neutralScale = neutralAmt === 1 ? 1 : 1 + (neutralAmt - 1) * neutralWeight;
+      const kBase = Math.max(0, Math.min(1, baseMix * neutralScale));
+      let o0, o1, o2;
         if (blendMode !== 'oklab') {
           const ov = (B, T) => (B <= 0.5 ? 2 * B * T : 1 - 2 * (1 - B) * (1 - T));
           const mul = (B, T) => B * T;
@@ -415,13 +416,15 @@ function render({ base, mask, w, h, slots, params }) {
           o2 = bl * (1 - kAdj) + tl2 * kAdj;
         } else {
           const baseOK = rgb2oklab(bL, bG, bB);
-          const tOK = rgb2oklab(tR, tG, tB);
-          const tLC = oklabToLch(tOK.L, tOK.a, tOK.b);
+          const tOK = targetOK;
+          const tLC = targetLCH;
           const targetC = Math.max(tLC.C, minChroma);
           let Cx = Math.pow(targetC, chromaCurve) * chromaBoost;
           const C_REF = 0.3;
           const Cn = Math.max(0, Math.min(1, Cx / C_REF));
-          const keepLightDrop = 0.15;
+          const neutralPull = neutralWeight * Math.max(0, neutralAmt - 1);
+          const keepLightDropBase = 0.15;
+          const keepLightDrop = Math.min(0.75, keepLightDropBase + 0.3 * neutralPull);
           let keepL = Math.max(0, Math.min(1, keepLight - (1 - Cn) * keepLightDrop));
           const Lmix = baseOK.L * keepL + tLC.L * (1 - keepL);
           const Cmix = Cx;
@@ -548,4 +551,5 @@ self.onmessage = async (ev) => {
     self.postMessage({ type: 'recolor:error', jobId: jid, error: String(e && e.message ? e.message : e) });
   }
 };
+
 

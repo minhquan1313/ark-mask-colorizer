@@ -8,6 +8,7 @@ export const STORAGE_KEYS = {
   exportTx: `${NS}:exportTx`,
   threshold: `${NS}:threshold`,
   strength: `${NS}:strength`,
+  neutralStrength: `${NS}:neutralStrength`,
   feather: `${NS}:feather`,
   gamma: `${NS}:gamma`,
   keepLight: `${NS}:keepLight`,

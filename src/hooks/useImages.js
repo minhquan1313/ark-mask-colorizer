@@ -108,16 +108,20 @@ export function useImages() {
       return null;
     };
 
+    const maskFiles = Array.isArray(entry.masks) ? entry.masks.filter(Boolean) : [];
+
     // Primary mask
+    let primaryMaskIndex = maskFiles.findIndex((mf) => mf.toLowerCase().endsWith('_m.png'));
+    if (primaryMaskIndex === -1 && maskFiles.length) primaryMaskIndex = 0;
+    const primaryMaskFile = primaryMaskIndex >= 0 ? maskFiles[primaryMaskIndex] : null;
     const mask0Candidates = [];
-    const maskFile0 = entry.masks && entry.masks[0];
-    if (maskFile0) {
-      if (prefix) mask0Candidates.push(prefix + maskFile0);
-      mask0Candidates.push(maskFile0);
+    if (primaryMaskFile) {
+      if (prefix) mask0Candidates.push(prefix + primaryMaskFile);
+      mask0Candidates.push(primaryMaskFile);
     }
 
-    // Overlay masks in order
-    const overlayList = Array.isArray(entry.masks) ? entry.masks.slice(1) : [];
+    // Overlay masks treat the rest as alternates
+    const overlayList = primaryMaskIndex >= 0 ? maskFiles.filter((_, idx) => idx !== primaryMaskIndex) : maskFiles;
     const overlayLoads = overlayList.map(async (mf) => {
       const cands = [];
       if (prefix) cands.push(prefix + mf);

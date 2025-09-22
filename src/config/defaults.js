@@ -1,7 +1,8 @@
-﻿// src/config/defaults.js
+// src/config/defaults.js
 export const DEFAULTS = {
   threshold: 150,
   strength: 1,
+  neutralStrength: 1,
   feather: 0,
   gamma: 1,
   // Advanced OKLab tuning
@@ -25,3 +26,4 @@ export const DEFAULTS = {
   exportBg: '#0f1115', // background when export/copy
   exportText: '#e5e7eb', // text color for palette strip
 };
+
