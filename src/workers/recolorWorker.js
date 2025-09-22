@@ -374,13 +374,18 @@ function render({ base, mask, w, h, slots, params }) {
       const bL = br / 255,
         bG = bg / 255,
         bB = bb / 255;
-      // sRGB values for base and target
       const rl = srgb2lin(bL), gl = srgb2lin(bG), bl = srgb2lin(bB);
       const baseMix = Math.max(0, Math.min(1, strength)) * wMask;
       const neutralAmt = Math.max(0, Math.min(5, Number.isFinite(neutralStrength) ? neutralStrength : 1));
       const neutralWeight = neutralAmt === 1 ? 0 : Math.max(0, Math.min(1, 1 - Math.min(1, targetLCH.C / 0.12)));
+      const baseLum = Math.max(0, Math.min(1, 0.2126 * bL + 0.7152 * bG + 0.0722 * bB));
+      const highlight = baseLum <= 0.5 ? 0 : Math.pow((baseLum - 0.5) / 0.5, 1.25);
+      const shadow = baseLum >= 0.45 ? 0 : Math.pow((0.45 - baseLum) / 0.45, 1.15);
+      const highlightGuard = Math.max(0.45, 1 - 0.4 * neutralWeight * Math.min(1, highlight * neutralAmt));
+      const shadowBoost = 1 + 0.25 * neutralWeight * Math.min(1.2, shadow * Math.max(0, neutralAmt - 1));
       const neutralScale = neutralAmt === 1 ? 1 : 1 + (neutralAmt - 1) * neutralWeight;
-      const kBase = Math.max(0, Math.min(1, baseMix * neutralScale));
+      const mixScale = Math.max(0, Math.min(1.2, neutralScale * highlightGuard * shadowBoost));
+      const kBase = Math.max(0, Math.min(1, baseMix * mixScale));
       let o0, o1, o2;
         if (blendMode !== 'oklab') {
           const ov = (B, T) => (B <= 0.5 ? 2 * B * T : 1 - 2 * (1 - B) * (1 - T));
@@ -426,6 +431,7 @@ function render({ base, mask, w, h, slots, params }) {
           const keepLightDropBase = 0.15;
           const keepLightDrop = Math.min(0.75, keepLightDropBase + 0.3 * neutralPull);
           let keepL = Math.max(0, Math.min(1, keepLight - (1 - Cn) * keepLightDrop));
+          keepL = Math.min(1, keepL + 0.2 * neutralWeight * highlight);
           const Lmix = baseOK.L * keepL + tLC.L * (1 - keepL);
           const Cmix = Cx;
           const Hmix = tLC.h;

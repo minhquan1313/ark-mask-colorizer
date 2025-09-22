@@ -404,10 +404,16 @@ export function useRecolor({ threshold = 80, strength = 1, neutralStrength = 1, 
       const neutralAmt = Math.max(0, Math.min(5, Number.isFinite(neutralStrength) ? neutralStrength : 1));
       const neutralWeight = neutralAmt === 1 ? 0 : Math.max(0, Math.min(1, 1 - Math.min(1, targetLCH.C / 0.12)));
       const neutralScale = neutralAmt === 1 ? 1 : 1 + (neutralAmt - 1) * neutralWeight;
-      const k = Math.max(0, Math.min(1, baseMix * neutralScale)),
-        bL = br / 255,
+      const bL = br / 255,
         bG = bg / 255,
-        bB = bb / 255,
+        bB = bb / 255;
+      const baseLum = Math.max(0, Math.min(1, 0.2126 * bL + 0.7152 * bG + 0.0722 * bB));
+      const highlight = baseLum <= 0.5 ? 0 : Math.pow((baseLum - 0.5) / 0.5, 1.25);
+      const shadow = baseLum >= 0.45 ? 0 : Math.pow((0.45 - baseLum) / 0.45, 1.15);
+      const highlightGuard = Math.max(0.45, 1 - 0.4 * neutralWeight * Math.min(1, highlight * neutralAmt));
+      const shadowBoost = 1 + 0.25 * neutralWeight * Math.min(1.2, shadow * Math.max(0, neutralAmt - 1));
+      const mixScale = Math.max(0, Math.min(1.2, neutralScale * highlightGuard * shadowBoost));
+      const k = Math.max(0, Math.min(1, baseMix * mixScale)),
         baseOK = rgb2oklab(bL, bG, bB),
         tOK = targetOK,
         tLC = targetLCH;
@@ -423,7 +429,8 @@ export function useRecolor({ threshold = 80, strength = 1, neutralStrength = 1, 
       const keepLightDropBase = 0.15; // baseline relaxation for low chroma
       const keepLightDrop = Math.min(0.75, keepLightDropBase + 0.3 * neutralPull);
 
-      const keepL = Math.max(0, Math.min(1, keepLight - (1 - Cn) * keepLightDrop));
+      let keepL = Math.max(0, Math.min(1, keepLight - (1 - Cn) * keepLightDrop));
+      keepL = Math.min(1, keepL + 0.2 * neutralWeight * highlight);
 
       const Lmix = baseOK.L * keepL + tLC.L * (1 - keepL);
 
