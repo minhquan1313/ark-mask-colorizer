@@ -1,52 +1,76 @@
-# ARK Mask Colorizer (Vite + React)
+﻿# ARK Mask Colorizer
 
-App mẫu cho phép chọn 6 slot màu (0–5) theo **bảng màu ARK (1..254, 255 = undefined)**, sau đó tô màu lại ảnh đầu ra dựa trên **ảnh base** và **ảnh mask** (mask mã hoá bằng 6 màu: Red, Green, Blue, Cyan, Yellow, Magenta).
+ARK Mask Colorizer is a Vite + React tool for previewing dinosaur palettes before applying them in ARK: Survival Ascended/Evolved. It takes a base render and up to six slot masks, applies palette colors, and exports ready-to-share images.
 
-## Chạy thử
+## Highlights
+- 6-slot color workflow using the official ARK palette (`src/utils/arkPalette.js`) with slot 255 reserved for "skip".
+- Real-time recolor powered by a Web Worker pipeline and OKLab based blending controls (keep light, chroma boost/curve, overlay tinting, etc.).
+- Mask overlays: drop extra files named `_m_xy.png` to mix slot pairs (e.g. `Raptor_m_04.png` mixes slots 0 and 4).
+- Persistent state: chosen creature, colors, and slider tweaks survive page reloads via `localStorage`.
+- Fast clipboard and export helpers: click the preview to copy the current image, right click to copy an image with a palette strip, or use the toolbar buttons to download.
+- Asset automation scripts for keeping `public/assets/dino` and `src/data/creatures.json` in sync.
 
-```bash
-npm i
+## Quick start
+
+```sh
+npm install
 npm run dev
 ```
 
-Mặc định dùng ảnh mẫu trong `public/assets`:
-- `base.png` – Drakeling
-- `mask.png` – mask màu 6 vùng
+Open the Vite dev server (default `http://localhost:5173`) and pick a creature from the list. `npm run build` and `npm run preview` follow the standard Vite workflow.
 
-Bạn có thể **Tải Base…** / **Tải Mask…** để thay ảnh của riêng bạn.
+## Working with creature assets
 
-## Cách hoạt động
-
-- `src/utils/colorize.js`: xử lý pixel bằng Canvas API. Với mỗi pixel, kiểm tra pixel của **mask** thuộc slot nào (so sánh màu gần nhất với 6 màu khóa). Nếu thuộc slot X, lấy màu ARK đã chọn cho slot X và **nhuộm** lên pixel gốc, giữ nguyên độ sáng (luminance) để bảo toàn shading.
-- `src/components/PaletteGrid.jsx`: hiển thị lưới 1..254 từ `src/utils/arkPalette.js` (được trích tự động từ ảnh bảng màu).
-- `src/components/SlotPicker.jsx`: chọn nhanh chỉ số (1..255). 255 = undefined (bỏ qua slot).
-
-## Tham số
-
-- **Threshold**: độ “chặt” khi khớp màu mask (mặc định 80). Tăng nếu mask bị rò sang vùng lân cận.
-- **Strength**: mức pha trộn màu mới với ảnh gốc (0..1).
-
-## Thư mục
+Place art under `public/assets/dino/<CreatureName>/`:
 
 ```
-ark-mask-colorizer/
-  public/assets/
-    base.png
-    mask.png
-  src/
-    components/
-      PaletteGrid.jsx
-      SlotPicker.jsx
-    utils/
-      arkPalette.js
-      colorize.js
-      color.js
-    App.jsx
-    main.jsx
-  index.html
-  package.json
+public/assets/dino/<CreatureName>/
+  <CreatureName>.png        # base render
+  <CreatureName>_m.png      # primary 6-channel mask (RGB + CMY)
+  <CreatureName>_m_01.png   # optional overlay mask mixing slots 0 and 1
+  <CreatureName>_sf.png     # optional female variant base
 ```
 
-## Ghi chú
-- Bảng màu ARK trong `arkPalette.js` gồm 254 màu đầu, màu 255 là `undefined`.
-- Nếu muốn đổi blend, bạn có thể thay đoạn trong `colorize.js` (ví dụ chuyển qua chế độ Multiply/Overlay/HSL).
+Rules of thumb:
+
+- Base images and masks must have matching dimensions and transparent backgrounds.
+- Mask colors map to slots: red=slot0, green=slot1, blue=slot2, cyan=slot3, yellow=slot4, magenta=slot5.
+- Extra masks ending in `_m_xy.png` blend slot pairs (e.g. `_m_45` combines slots 4 and 5). They are applied after the primary mask for additive and pastel overlays.
+- Use `_sf` in the filename for female variants; both the script and the UI treat them as separate entries.
+
+If you have raw PNGs in `./temp`, run `npm run organize:dino-assets` to bucket them per creature folder. The script removes pre-existing folders before moving files, so ensure the source set is complete.
+
+## Updating `creatures.json`
+
+`src/data/creatures.json` drives the picker. Each entry references the base image, mask files, and optional `noMask` slot list. Regenerate it after adding or removing assets:
+
+```sh
+npm run generate:creatures
+```
+
+The generator preserves existing `noMask` entries by matching on folder, base name, and display name. Commit the refreshed JSON together with the asset changes.
+
+## Using the app
+
+- Pick a creature from the dropdown or drop a matching `base.png` + `*_m.png` pair on the "Custom mask" button.
+- Slot controls let you assign colors, randomize all slots, reset, or fill every unlocked slot with a palette pick. The "Paste Color" button reads ARK admin commands from the clipboard, selects the matching creature, and applies the six color IDs automatically. "Copy Color" writes a `setTargetDinoColor` sequence for the current slots.
+- The toolbar exposes the recolor pipeline: threshold, strength, feathering, gamma, speckle cleanup, edge smoothing, boundary blending, and overlay tint/strength. Advanced OKLab controls (keep light, chroma boost, chroma curve) help preserve shading.
+- Adjust export background/text colors; choose "transparent" to export without a background fill.
+
+## Exporting and clipboard helpers
+
+- Click the canvas to copy the recolored image to the clipboard.
+- Right-click the canvas to copy an image extended with a palette strip (slot colors + IDs).
+- Toolbar buttons download the current image or the palette variant as PNGs. Progress spinners appear while the worker renders.
+
+## Persistence
+
+UI state (creature selection, slot colors, slider values, export styles) lives in `localStorage` under the `ark-mask-colorizer:v1` namespace. Use the Reset button to revert the sliders to defaults; clearing browser storage fully resets the app.
+
+## Development notes
+
+- Source lives in `src/`. Color math and palette data are in `src/utils`.
+- Recoloring runs inside `src/workers/recolorWorker.js`; during development it is loaded as a classic worker for compatibility with Vite.
+- The project targets modern Chromium-based browsers; clipboard features require clipboard-write permissions.
+
+Feel free to open issues or PRs when new assets or workflow tweaks are needed.
