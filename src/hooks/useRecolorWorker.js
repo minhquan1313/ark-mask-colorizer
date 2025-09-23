@@ -60,6 +60,10 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
   const sync = useRecolorSync(params);
   const debounceRef = useRef(0);
   const pendingArgsRef = useRef(null);
+  const lastJobKeyRef = useRef(null);
+  const imageIdentityRef = useRef(new WeakMap());
+  const imageIdentitySeqRef = useRef(0);
+
 
   const getWorker = () => {
     if (workerRef.current && workerRef.current._alive) return workerRef.current;
@@ -71,7 +75,7 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
   };
 
   // Coerce slot entry -> [r,g,b] or null
-  const coerceRGB = (v) => {
+  const coerceRGB = useCallback((v) => {
     if (!v) return null;
     if (Array.isArray(v)) return v;
     if (typeof v === 'string') {
@@ -87,8 +91,48 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
       return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
     }
     return null;
-  };
+  }, []);
 
+  const getImageSignature = useCallback((img) => {
+    if (!img) return 'null';
+    const map = imageIdentityRef.current;
+    let id = map.get(img);
+    if (!id) {
+      id = `img${++imageIdentitySeqRef.current}`;
+      map.set(img, id);
+    }
+    const src = typeof img.src === 'string' ? img.src : '';
+    const size = `${img.naturalWidth || 0}x${img.naturalHeight || 0}`;
+    return `${id}:${src}:${size}`;
+  }, []);
+
+  const getOverlaySignature = useCallback((extraMasks = []) => {
+    if (!Array.isArray(extraMasks) || extraMasks.length === 0) {
+      return '';
+    }
+    return extraMasks
+      .map((item, idx) => {
+        if (!item) return `null:${idx}`;
+        const imgSig = getImageSignature(item.img);
+        const pair = Array.isArray(item.pair) ? item.pair.join(',') : 'x';
+        const name = item.name || '';
+        return `${imgSig}:${name}:${pair}`;
+      })
+      .join(';');
+  }, [getImageSignature]);
+
+  const getSlotsSignature = useCallback((slots = []) => {
+    if (!Array.isArray(slots) || slots.length === 0) {
+      return '';
+    }
+    return slots
+      .map((slot) => {
+        const rgb = coerceRGB(slot);
+        if (!rgb) return 'x';
+        return `${rgb[0]},${rgb[1]},${rgb[2]}`;
+      })
+      .join('|');
+  }, [coerceRGB]);
 
   const pastelBlendRGB = useCallback((aRGB, bRGB, opts) => {
     if (!aRGB || !bRGB) return aRGB || bRGB;
@@ -130,6 +174,21 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
   const runDraw = useCallback(({ baseImg, maskImg, extraMasks = [], baseCanvasRef, maskCanvasRef, outCanvasRef, slots }) => {
     const src = baseImg || maskImg;
     if (!src) return;
+
+    const jobKeyParts = [
+      getImageSignature(baseImg),
+      getImageSignature(maskImg),
+      getOverlaySignature(extraMasks),
+      getSlotsSignature(slots),
+      JSON.stringify(params),
+      String(overlayStrength ?? ''),
+      String(overlayTint ?? '')
+    ];
+    const jobKey = jobKeyParts.join('||');
+    if (jobKey && jobKey === lastJobKeyRef.current) {
+      return;
+    }
+
     const w = src.naturalWidth, h = src.naturalHeight;
     const B = baseCanvasRef?.current, M = maskCanvasRef?.current, O = outCanvasRef?.current;
     if (!B || !M || !O) return;
@@ -141,23 +200,31 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
     const octx = O.getContext('2d');
     bctx.imageSmoothingEnabled = mctx.imageSmoothingEnabled = octx.imageSmoothingEnabled = !1;
     bctx.clearRect(0, 0, w, h); mctx.clearRect(0, 0, w, h);
-    // Do not clear the output canvas if size unchanged to avoid flicker
     if (!sameSize) octx.clearRect(0, 0, w, h);
     if (baseImg) bctx.drawImage(baseImg, 0, 0, w, h);
     if (maskImg) mctx.drawImage(maskImg, 0, 0, w, h);
-    if (!maskImg) { octx.drawImage(B, 0, 0); return; }
-    // Keep previous recolored image on screen; only show spinner overlay
+    if (!maskImg) {
+      octx.drawImage(B, 0, 0);
+      lastJobKeyRef.current = jobKey;
+      return;
+    }
 
     const base0 = bctx.getImageData(0, 0, w, h);
     const mask0 = mctx.getImageData(0, 0, w, h);
 
-    // Fallback path if worker init fails (single mask only)
+    lastJobKeyRef.current = jobKey;
+
     let worker;
     try {
       worker = getWorker();
     } catch (e) {
       console.warn('Worker init failed, using main thread:', e);
-      try { sync.draw({ baseImg, maskImg, baseCanvasRef, maskCanvasRef, outCanvasRef, slots }); } catch { /* ignore fallback draw errors */ }
+      try {
+        sync.draw({ baseImg, maskImg, baseCanvasRef, maskCanvasRef, outCanvasRef, slots });
+      } catch {
+        /* ignore fallback draw errors */
+      }
+      lastJobKeyRef.current = null;
       return;
     }
 
@@ -205,19 +272,15 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
     (async () => {
       setBusy(true);
       try {
-        // Pass 1: primary mask with user-selected slots
         let out = await recolorOnce(base0, mask0, slots, params);
 
-        // Pass 2+: overlay masks in order; overlays are RED-only masks now
         const overlaysArr = extraMasks || [];
         for (let idx = 0; idx < overlaysArr.length; idx++) {
           const item = overlaysArr[idx];
           if (!item?.img) continue;
-          // Prepare mask image data (red + black only, no hue gating needed)
           mctx.clearRect(0, 0, w, h);
           mctx.drawImage(item.img, 0, 0, w, h);
           const maskN = mctx.getImageData(0, 0, w, h);
-          // Overlays are red-only masks: fill RED channel with additive mix of two slots from filename (_m_xy)
           const overlaySlots = [null, null, null, null, null, null];
           const [ia, ib] = Array.isArray(item.pair) ? item.pair : [];
           if (ia == null || ib == null) continue;
@@ -232,24 +295,17 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
           let mix = null;
           const usePastel = (params && params.overlayBlendMode === 'pastel');
           if (hasWhitePartner) {
-            // Tint of the non-white color (pastel handled by params below)
             mix = isWhite(ca) ? cb : ca;
           } else if (hasBlackPartner) {
-            // Dark tint toward the non-black color: keep hue, reduce chroma
             const col = isBlack(ca) ? cb : ca;
-            // Use mild pastel to desaturate a bit
             mix = pastelBlendRGB(col, col, { kappa: 0.4, Wdeg: 80, beta: 0.0, cmin: 0.0 });
           } else if (sameColor) {
             mix = ca;
           } else if (ca && cb) {
-            // Choose blend mode
             if (usePastel) {
               mix = pastelBlendRGB(ca, cb, { kappa: 0.45, Wdeg: 80, beta: 0.06, cmin: 0.02 });
             } else {
-              // Legacy: additive RGB (clamped)
               mix = addMix(ca, cb);
-              // Heuristic: when colors are channel-like (near RGB/CYM), prefer channel union
-              // so that R + CYAN => WHITE, G + MAGENTA => WHITE, B + YELLOW => WHITE
               const T = 200;
               const ua = [+(ca[0] >= T), +(ca[1] >= T), +(ca[2] >= T)];
               const ub = [+(cb[0] >= T), +(cb[1] >= T), +(cb[2] >= T)];
@@ -263,26 +319,20 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
             mix = ca || cb;
           }
           let isNearWhite = false;
-          // Only treat as near-white when it's a true additive combination of two different colors
           if (!sameColor && ca && cb && mix) {
             const M = Math.max(mix[0], mix[1], mix[2]);
             const m = Math.min(mix[0], mix[1], mix[2]);
-            isNearWhite = M >= 245 && (M - m) <= 20; // very bright, low chroma
+            isNearWhite = M >= 245 && (M - m) <= 20;
           }
           if (!mix) continue;
-          // If additive result is effectively near white, lock the mix to white
-          // and force neutral overlay params to avoid yellow/other hue drift.
           if (!usePastel && isNearWhite) {
             mix = [255, 255, 255];
           }
-          overlaySlots[0] = mix; // only RED channel active
+          overlaySlots[0] = mix;
 
-          // Overlays: avoid cumulative smoothing/cleaning which causes haze and blur
           const sOV = Math.max(0, Math.min(3, overlayStrength));
-          // Same-color no longer forces zero; always use slider-derived strength
           const sEff = Math.min(1, sOV);
-          // Overlay-specific softening: use non-zero feather to smooth red/black stripe patterns
-          const F_OV = 0.6; // moderate feathering for natural blend without hazy bleed
+          const F_OV = 0.6;
           const overlayParams = hasWhitePartner
             ? {
                 ...params,
@@ -291,7 +341,6 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
                 feather: F_OV,
                 strength: Math.min(1, Math.max(0, overlayTint) * Math.min(1, sOV)),
                 blendMode: 'oklab',
-                // White partner: make it a very light tint of the other color
                 keepLight: 0.96,
                 minChroma: 0.0,
                 chromaBoost: 0.85,
@@ -304,7 +353,6 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
                 feather: F_OV,
                 strength: sEff,
                 blendMode: 'oklab',
-                // do NOT override keepLight/minChroma/chromaBoost when colors are identical
               }
             : isNearWhite && !usePastel
             ? {
@@ -312,10 +360,8 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
                 speckleClean: 0,
                 edgeSmooth: 0,
                 feather: F_OV,
-                // Slightly reduce intensity when the overlay mix is white
                 strength: Math.min(1, 0.8 * sEff),
                 blendMode: 'oklab',
-                // Near-white additive combo: keep neutral, avoid chroma drift
                 keepLight: 0.98,
                 minChroma: 0.0,
                 chromaBoost: 0.85,
@@ -323,12 +369,9 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
             : {
                 ...params,
                 speckleClean: 0,
-                // disable smoothing on overlays to avoid global haze
                 edgeSmooth: 0,
                 feather: F_OV,
-                // intensity control (kBase uses 0..1); keep within 0..1 for stability
                 strength: sEff,
-                // Overlay blend tuning: pastel vs legacy
                 blendMode: 'oklab',
                 ...(usePastel
                   ? { keepLight: Math.max(0.7, 0.92 - 0.08 * sOV), minChroma: 0.0, chromaBoost: 0.9 }
@@ -337,16 +380,20 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
           out = await recolorOnce(out, maskN, overlaySlots, overlayParams);
         }
 
-        // Draw final image
         octx.putImageData(out, 0, 0);
       } catch (err) {
         console.error('Recolor pipeline error:', err);
-        try { sync.draw({ baseImg, maskImg, baseCanvasRef, maskCanvasRef, outCanvasRef, slots }); } catch { /* ignore fallback draw errors */ }
+        lastJobKeyRef.current = null;
+        try {
+          sync.draw({ baseImg, maskImg, baseCanvasRef, maskCanvasRef, outCanvasRef, slots });
+        } catch {
+          /* ignore fallback draw errors */
+        }
       } finally {
         setBusy(false);
       }
     })();
-  }, [params, sync, overlayStrength, overlayTint, pastelBlendRGB]);
+  }, [params, sync, overlayStrength, overlayTint, pastelBlendRGB, getImageSignature, getOverlaySignature, getSlotsSignature, coerceRGB]);
 
   const draw = useCallback((args) => {
     pendingArgsRef.current = args;

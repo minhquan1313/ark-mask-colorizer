@@ -42,6 +42,8 @@ export default function Toolbar({
 }) {
   const fileRef = useRef(null);
   const isTransparent = exportBg === 'transparent';
+  const lastSolidBgRef = useRef(isTransparent ? DEFAULTS.exportBg : exportBg);
+  const bgInputValue = isTransparent ? lastSolidBgRef.current || DEFAULTS.exportBg : exportBg;
   const [, setOverlayBlendMode] = useState(() => {
     const v = loadJSON(STORAGE_KEYS.overlayBlendMode, DEFAULTS.overlayBlendMode);
     return v === 'pastel' ? 'add' : v;
@@ -54,6 +56,22 @@ export default function Toolbar({
     window.addEventListener('overlay-blend-mode-changed', onChanged);
     return () => window.removeEventListener('overlay-blend-mode-changed', onChanged);
   }, []);
+  useEffect(() => {
+    if (!isTransparent && typeof exportBg === 'string' && exportBg.startsWith('#') && exportBg.length === 7) {
+      lastSolidBgRef.current = exportBg;
+    }
+  }, [exportBg, isTransparent]);
+
+  const handleExportBgChange = (value) => {
+    setExportBg(value);
+  };
+
+  const handleTransparentBg = () => {
+    if (!isTransparent && typeof exportBg === 'string' && exportBg.startsWith('#') && exportBg.length === 7) {
+      lastSolidBgRef.current = exportBg;
+    }
+    setExportBg('transparent');
+  };
 
   const toggleOverlayBlend = () => {
     setOverlayBlendMode('add');
@@ -345,13 +363,13 @@ export default function Toolbar({
               <span className="small subtle">BG</span>
               <input
                 type="color"
-                value={exportBg}
-                onChange={(e) => setExportBg(e.target.value)}
+                value={bgInputValue}
+                onChange={(e) => handleExportBgChange(e.target.value)}
               />
               <button
                 className="btn"
                 title="N?n trong su?t"
-                onClick={() => setExportBg('transparent')}
+                onClick={handleTransparentBg}
                 style={{
                   padding: '4px 8px',
                   borderWidth: isTransparent ? 2 : 1,

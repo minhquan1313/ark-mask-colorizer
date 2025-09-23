@@ -36,6 +36,60 @@ const QIDX_BASE = 2; // "103,53,0,0,100,105,0,0"
 const QIDX_INC = 3; // "0,0,0,0,0,0,0,0"
 const QIDX_NAME = 4; // "Tên dino do user đặt"
 const QIDX_COLORS = 8; // "76,83,83,0,83,70"
+function toVariantColorId(slotValue) {
+  if (slotValue == null) {
+    return null;
+  }
+  if (typeof slotValue === 'number' || typeof slotValue === 'string') {
+    const parsed = Number(slotValue);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  if (typeof slotValue === 'object') {
+    if (slotValue.index != null) {
+      const parsed = Number(slotValue.index);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+    if (slotValue.id != null) {
+      const parsed = Number(slotValue.id);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+    if (slotValue.value != null) {
+      const parsed = Number(slotValue.value);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+  }
+  return null;
+}
+
+function buildVariantKey(entry, slots) {
+  if (!entry?.variantSlots) {
+    return '';
+  }
+  return Object.keys(entry.variantSlots)
+    .map((slot) => {
+      const idx = Number(slot);
+      const colorId = toVariantColorId(slots?.[idx]);
+      return `${slot}:${colorId == null ? 'x' : colorId}`;
+    })
+    .sort((a, b) => Number(a.split(':')[0]) - Number(b.split(':')[0]))
+    .join('|');
+}
+
+function buildSlotsColorSignature(slots) {
+  if (!Array.isArray(slots)) {
+    return '';
+  }
+  return slots
+    .map((slot) => {
+      if (!slot) return 'x';
+      if (typeof slot === 'string') return slot;
+      if (slot.hex) return slot.hex;
+      const id = toVariantColorId(slot);
+      return id == null ? 'x' : `id:${id}`;
+    })
+    .join('|');
+}
+
 
 export default function App() {
   const baseCanvasRef = useRef(null);
@@ -73,15 +127,19 @@ export default function App() {
   const disabledSet = customMode ? new Set() : new Set(current?.noMask || []);
 
   const { baseImg, maskImg, extraMasks, loadPairFromFiles, loadFromEntry } = useImages();
+  const variantKey = useMemo(() => buildVariantKey(current, slots), [current, slots]);
+  const slotsColorSignature = useMemo(() => buildSlotsColorSignature(slots), [slots]);
   const { draw, busy } = useRecolorWorker({ threshold, strength, neutralStrength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, overlayStrength, overlayTint });
   const rafRef = useRef(0);
   const pendingArgsRef = useRef(null);
+  const slotsRef = useRef(slots);
+  slotsRef.current = slots;
 
   // Khi current thay đổi → load ảnh đúng con, KHÔNG dùng base.png mặc định
   useEffect(() => {
     if (!current) return;
-    loadFromEntry(current, slots);
-  }, [current, slots, loadFromEntry]);
+    loadFromEntry(current, slotsRef.current);
+  }, [current, variantKey, loadFromEntry]);
 
   // Khi đổi creature → set null cho các slot bị disable
   useEffect(() => {
@@ -106,16 +164,20 @@ export default function App() {
   // Vẽ khi đã có ảnh
   useEffect(() => {
     if (!baseImg || !maskImg) return;
-    const args = { baseImg, maskImg, extraMasks, baseCanvasRef, maskCanvasRef, outCanvasRef, slots };
+    const args = { baseImg, maskImg, extraMasks, baseCanvasRef, maskCanvasRef, outCanvasRef, slots: slotsRef.current };
     pendingArgsRef.current = args;
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => {
       draw(pendingArgsRef.current);
       rafRef.current = 0;
     });
-  }, [baseImg, maskImg, extraMasks, slots, threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, overlayStrength, overlayTint, draw]);
+  }, [baseImg, maskImg, extraMasks, slotsColorSignature, threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, overlayStrength, overlayTint, draw]);
 
   // ✅ Lưu slots mỗi khi đổi (đã an toàn vì init từ storage)
+  useEffect(() => {
+    slotsRef.current = slots;
+  }, [slots]);
+
   useEffect(() => {
     saveJSON(STORAGE_KEYS.slots, slots);
   }, [slots]);
