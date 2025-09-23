@@ -436,7 +436,10 @@
     "masks": [
       "Allosaurus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2
+    ]
   },
   {
     "name": "Anglerfish",
@@ -445,7 +448,11 @@
     "masks": [
       "Anglerfish_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Ankylosaurus",
@@ -463,7 +470,9 @@
     "masks": [
       "Araneo_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1
+    ]
   },
   {
     "name": "Archaeopteryx",
@@ -472,7 +481,10 @@
     "masks": [
       "Archaeopteryx_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      3
+    ]
   },
   {
     "name": "Archelon",
@@ -481,7 +493,10 @@
     "masks": [
       "Archelon_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      5
+    ]
   },
   {
     "name": "Argentavis",
@@ -490,7 +505,9 @@
     "masks": [
       "Argentavis_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1
+    ]
   },
   {
     "name": "Armadoggo",
@@ -519,7 +536,10 @@
     "masks": [
       "Baryonyx_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Basilisk",
@@ -539,7 +559,12 @@
     "masks": [
       "Basilosaurus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3,
+      4
+    ]
   },
   {
     "name": "Beelzebufo",
@@ -548,7 +573,10 @@
     "masks": [
       "Beelzebufo_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Bison",
@@ -557,7 +585,9 @@
     "masks": [
       "Bison_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      5
+    ]
   },
   {
     "name": "Brontosaurus",
@@ -566,7 +596,10 @@
     "masks": [
       "Brontosaurus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Bulbdog",
@@ -575,7 +608,9 @@
     "masks": [
       "Bulbdog_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1
+    ]
   },
   {
     "name": "Carbonemys",
@@ -584,7 +619,10 @@
     "masks": [
       "Carbonemys_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Carcharodontosaurus",
@@ -606,7 +644,10 @@
     "masks": [
       "Carnotaurus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Castoroides",
@@ -615,7 +656,10 @@
     "masks": [
       "Castoroides_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Cat",
@@ -659,7 +703,9 @@
         ]
       }
     },
-    "noMask": []
+    "noMask": [
+      3
+    ]
   },
   {
     "name": "Ceratosaurus",
@@ -668,7 +714,11 @@
     "masks": [
       "Ceratosaurus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Chalicotherium",
@@ -677,14 +727,25 @@
     "masks": [
       "Chalicotherium_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Cnidaria",
     "maskPath": "Cnidaria",
     "base": "Cnidaria_ASA.png",
     "masks": [],
-    "noMask": []
+    "noMask": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
   },
   {
     "name": "Coelacanth",
@@ -693,7 +754,11 @@
     "masks": [
       "Coelacanth_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Compy",
@@ -702,7 +767,10 @@
     "masks": [
       "Compy_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2
+    ]
   },
   {
     "name": "Cosmo",
@@ -720,7 +788,11 @@
     "masks": [
       "Daeodon_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      3,
+      4
+    ]
   },
   {
     "name": "Deinosuchus",
@@ -729,7 +801,11 @@
     "masks": [
       "Deinosuchus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Deinotherium",
@@ -738,7 +814,10 @@
     "masks": [
       "Deinotherium_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Dimetrodon",
@@ -747,7 +826,9 @@
     "masks": [
       "Dimetrodon_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      5
+    ]
   },
   {
     "name": "Dimorphodon",
@@ -756,7 +837,11 @@
     "masks": [
       "Dimorphodon_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Diplocaulus",
@@ -765,7 +850,10 @@
     "masks": [
       "Diplocaulus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Diplodocus",
@@ -774,7 +862,10 @@
     "masks": [
       "Diplodocus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Dire Bear",
@@ -783,7 +874,12 @@
     "masks": [
       "Dire Bear_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3,
+      4
+    ]
   },
   {
     "name": "Direwolf",
@@ -792,7 +888,11 @@
     "masks": [
       "Direwolf_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Dodo",
@@ -810,13 +910,19 @@
     "masks": [
       "Doedicurus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Drakeling (Autumn)",
     "maskPath": "Drakeling (Autumn)",
     "base": "Drakeling (Autumn)_ASA.png",
     "masks": [
+      "Drakeling (Autumn)_ASA_m_05.png",
+      "Drakeling (Autumn)_ASA_m_13.png",
+      "Drakeling (Autumn)_ASA_m_25.png",
       "Drakeling (Autumn)_ASA_m.png"
     ],
     "noMask": []
@@ -826,6 +932,9 @@
     "maskPath": "Drakeling (Spring)",
     "base": "Drakeling (Spring)_ASA.png",
     "masks": [
+      "Drakeling (Spring)_ASA_m_05.png",
+      "Drakeling (Spring)_ASA_m_13.png",
+      "Drakeling (Spring)_ASA_m_25.png",
       "Drakeling (Spring)_ASA_m.png"
     ],
     "noMask": []
@@ -846,7 +955,9 @@
     "masks": [
       "Drakeling (Winter)_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2
+    ]
   },
   {
     "name": "Dreadmare",
@@ -864,7 +975,10 @@
     "masks": [
       "Dreadnoughtus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Dung Beetle",
@@ -873,7 +987,9 @@
     "masks": [
       "Dung Beetle_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2
+    ]
   },
   {
     "name": "Dunkleosteus",
@@ -882,7 +998,11 @@
     "masks": [
       "Dunkleosteus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Electrophorus",
@@ -891,7 +1011,9 @@
     "masks": [
       "Electrophorus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      4
+    ]
   },
   {
     "name": "Enforcer",
@@ -900,7 +1022,11 @@
     "masks": [
       "Enforcer_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Equus",
@@ -909,7 +1035,11 @@
     "masks": [
       "Equus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Fasolasuchus",
@@ -918,7 +1048,9 @@
     "masks": [
       "Fasolasuchus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      3
+    ]
   },
   {
     "name": "Featherlight",
@@ -927,7 +1059,9 @@
     "masks": [
       "Featherlight_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2
+    ]
   },
   {
     "name": "Fire Wyvern",
@@ -936,7 +1070,10 @@
     "masks": [
       "Fire Wyvern_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      3
+    ]
   },
   {
     "name": "Gacha",
@@ -945,7 +1082,9 @@
     "masks": [
       "Gacha_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1
+    ]
   },
   {
     "name": "Gallimimus",
@@ -954,7 +1093,9 @@
     "masks": [
       "Gallimimus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2
+    ]
   },
   {
     "name": "Gasbags",
@@ -963,7 +1104,10 @@
     "masks": [
       "Gasbags_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      3
+    ]
   },
   {
     "name": "Giganotosaurus",
@@ -972,7 +1116,11 @@
     "masks": [
       "Giganotosaurus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Gigantopithecus",
@@ -981,7 +1129,11 @@
     "masks": [
       "Gigantopithecus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Gigantoraptor",
@@ -999,7 +1151,9 @@
     "masks": [
       "Glowtail_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1
+    ]
   },
   {
     "name": "Griffin",
@@ -1008,7 +1162,11 @@
     "masks": [
       "Griffin_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Helicoprion",
@@ -1017,7 +1175,11 @@
     "masks": [
       "Helicoprion_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Hesperornis",
@@ -1026,7 +1188,10 @@
     "masks": [
       "Hesperornis_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      3
+    ]
   },
   {
     "name": "Hyaenodon",
@@ -1035,7 +1200,11 @@
     "masks": [
       "Hyaenodon_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Ice Wyvern",
@@ -1044,7 +1213,11 @@
     "masks": [
       "Ice Wyvern_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Ichthyornis",
@@ -1053,7 +1226,9 @@
     "masks": [
       "Ichthyornis_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      3
+    ]
   },
   {
     "name": "Ichthyosaurus",
@@ -1062,7 +1237,11 @@
     "masks": [
       "Ichthyosaurus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Iguanodon",
@@ -1071,7 +1250,11 @@
     "masks": [
       "Iguanodon_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Jerboa",
@@ -1080,7 +1263,9 @@
     "masks": [
       "Jerboa_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1
+    ]
   },
   {
     "name": "Kairuku",
@@ -1089,7 +1274,9 @@
     "masks": [
       "Kairuku_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      3
+    ]
   },
   {
     "name": "Kaprosuchus",
@@ -1098,7 +1285,10 @@
     "masks": [
       "Kaprosuchus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Karkinos",
@@ -1107,7 +1297,11 @@
     "masks": [
       "Karkinos_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Kentrosaurus",
@@ -1125,7 +1319,9 @@
     "masks": [
       "Lightning Wyvern_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1
+    ]
   },
   {
     "name": "Liopleurodon",
@@ -1134,7 +1330,11 @@
     "masks": [
       "Liopleurodon_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Lymantria",
@@ -1152,7 +1352,11 @@
     "masks": [
       "Lystrosaurus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Maeguana",
@@ -1161,7 +1365,9 @@
     "masks": [
       "Maeguana_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1
+    ]
   },
   {
     "name": "Mammoth",
@@ -1170,7 +1376,9 @@
     "masks": [
       "Mammoth_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      3
+    ]
   },
   {
     "name": "Managarmr",
@@ -1188,7 +1396,11 @@
     "masks": [
       "Manta_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Mantis",
@@ -1197,7 +1409,11 @@
     "masks": [
       "Mantis_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Megalania",
@@ -1206,7 +1422,11 @@
     "masks": [
       "Megalania_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Megaloceros",
@@ -1215,7 +1435,11 @@
     "masks": [
       "Megaloceros_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      3,
+      5
+    ]
   },
   {
     "name": "Megaloceros (female)",
@@ -1224,7 +1448,11 @@
     "masks": [
       "Megaloceros_ASA_sf_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      5,
+      3
+    ]
   },
   {
     "name": "Megalodon",
@@ -1233,7 +1461,11 @@
     "masks": [
       "Megalodon_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Megalosaurus",
@@ -1242,7 +1474,11 @@
     "masks": [
       "Megalosaurus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Meganeura",
@@ -1251,7 +1487,9 @@
     "masks": [
       "Meganeura_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1
+    ]
   },
   {
     "name": "Megatherium",
@@ -1260,7 +1498,12 @@
     "masks": [
       "Megatherium_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3,
+      4
+    ]
   },
   {
     "name": "Morellatops",
@@ -1269,7 +1512,9 @@
     "masks": [
       "Morellatops_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2
+    ]
   },
   {
     "name": "Mosasaurus",
@@ -1278,7 +1523,10 @@
     "masks": [
       "Mosasaurus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      3
+    ]
   },
   {
     "name": "Moschops",
@@ -1287,7 +1535,10 @@
     "masks": [
       "Moschops_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Oasisaur",
@@ -1305,7 +1556,9 @@
     "masks": [
       "Onyc_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      3
+    ]
   },
   {
     "name": "Otter",
@@ -1314,7 +1567,11 @@
     "masks": [
       "Otter_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Oviraptor",
@@ -1323,7 +1580,9 @@
     "masks": [
       "Oviraptor_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      3
+    ]
   },
   {
     "name": "Ovis",
@@ -1332,7 +1591,11 @@
     "masks": [
       "Ovis_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Ovis (female)",
@@ -1341,7 +1604,11 @@
     "masks": [
       "Ovis_ASA_sf_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Pachyrhinosaurus",
@@ -1350,7 +1617,10 @@
     "masks": [
       "Pachyrhinosaurus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      3
+    ]
   },
   {
     "name": "Paraceratherium",
@@ -1359,7 +1629,11 @@
     "masks": [
       "Paraceratherium_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Parasaur",
@@ -1377,7 +1651,10 @@
     "masks": [
       "Pegomastax_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      3
+    ]
   },
   {
     "name": "Pelagornis",
@@ -1386,7 +1663,12 @@
     "masks": [
       "Pelagornis_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3,
+      4
+    ]
   },
   {
     "name": "Phoenix",
@@ -1395,7 +1677,9 @@
     "masks": [
       "Phoenix_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2
+    ]
   },
   {
     "name": "Piranha",
@@ -1404,7 +1688,9 @@
     "masks": [
       "Piranha_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      3
+    ]
   },
   {
     "name": "Plesiosaur",
@@ -1413,7 +1699,9 @@
     "masks": [
       "Plesiosaur_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      3
+    ]
   },
   {
     "name": "Poison Wyvern",
@@ -1431,7 +1719,11 @@
     "masks": [
       "Procoptodon_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Pteranodon",
@@ -1458,7 +1750,11 @@
     "masks": [
       "Purlovia_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Pyromane",
@@ -1467,7 +1763,11 @@
     "masks": [
       "Pyromane_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      0,
+      1,
+      4
+    ]
   },
   {
     "name": "Pyromane (female)",
@@ -1505,7 +1805,11 @@
     "masks": [
       "Ravager_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Reaper King",
@@ -1514,7 +1818,10 @@
     "masks": [
       "Reaper King_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      3
+    ]
   },
   {
     "name": "Rex",
@@ -1523,7 +1830,10 @@
     "masks": [
       "Rex_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Rhyniognatha",
@@ -1550,7 +1860,13 @@
     "masks": [
       "Rock Elemental_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      0,
+      2,
+      3,
+      4,
+      5
+    ]
   },
   {
     "name": "Roll Rat",
@@ -1559,7 +1875,10 @@
     "masks": [
       "Roll Rat_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Sabertooth",
@@ -1568,7 +1887,11 @@
     "masks": [
       "Sabertooth_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Sabertooth Salmon",
@@ -1577,7 +1900,11 @@
     "masks": [
       "Sabertooth Salmon_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Sarco",
@@ -1586,7 +1913,9 @@
     "masks": [
       "Sarco_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1
+    ]
   },
   {
     "name": "Shastasaurus",
@@ -1595,7 +1924,10 @@
     "masks": [
       "Shastasaurus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      3
+    ]
   },
   {
     "name": "Shinehorn",
@@ -1604,7 +1936,9 @@
     "masks": [
       "Shinehorn_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1
+    ]
   },
   {
     "name": "Snow Owl",
@@ -1613,7 +1947,10 @@
     "masks": [
       "Snow Owl_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      3
+    ]
   },
   {
     "name": "Spino",
@@ -1622,7 +1959,10 @@
     "masks": [
       "Spino_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Stegosaurus",
@@ -1640,7 +1980,9 @@
     "masks": [
       "Tapejara_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2
+    ]
   },
   {
     "name": "Tek Giganotosaurus",
@@ -1712,7 +2054,11 @@
     "masks": [
       "Terror Bird_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Therizinosaur",
@@ -1721,7 +2067,10 @@
     "masks": [
       "Therizinosaur_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      3
+    ]
   },
   {
     "name": "Thylacoleo",
@@ -1730,7 +2079,11 @@
     "masks": [
       "Thylacoleo_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Titanoboa",
@@ -1748,14 +2101,23 @@
     "masks": [
       "Triceratops_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2
+    ]
   },
   {
     "name": "Trilobite",
     "maskPath": "Trilobite",
     "base": "Trilobite_ASA.png",
     "masks": [],
-    "noMask": []
+    "noMask": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
   },
   {
     "name": "Troodon",
@@ -1764,7 +2126,11 @@
     "masks": [
       "Troodon_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Tusoteuthis",
@@ -1773,7 +2139,10 @@
     "masks": [
       "Tusoteuthis_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Veilwyn",
@@ -1782,7 +2151,9 @@
     "masks": [
       "Veilwyn_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2
+    ]
   },
   {
     "name": "Velonasaur",
@@ -1800,7 +2171,10 @@
     "masks": [
       "Vulture_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Woolly Rhino",
@@ -1809,7 +2183,10 @@
     "masks": [
       "Woolly Rhino_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Xiphactinus",
@@ -1818,7 +2195,11 @@
     "masks": [
       "Xiphactinus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Yi Ling",
@@ -1827,7 +2208,9 @@
     "masks": [
       "Yi Ling_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2
+    ]
   },
   {
     "name": "Yutyrannus",
@@ -1836,7 +2219,10 @@
     "masks": [
       "Yutyrannus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Zombie Fire Wyvern",
@@ -1845,7 +2231,10 @@
     "masks": [
       "Zombie Fire Wyvern_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      4
+    ]
   },
   {
     "name": "Zombie Lightning Wyvern",
@@ -1854,7 +2243,10 @@
     "masks": [
       "Zombie Lightning Wyvern_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      4
+    ]
   },
   {
     "name": "Zombie Poison Wyvern",
@@ -1863,6 +2255,9 @@
     "masks": [
       "Zombie Poison Wyvern_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      4
+    ]
   }
 ]
