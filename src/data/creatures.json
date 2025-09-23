@@ -944,6 +944,9 @@
     "maskPath": "Drakeling (Summer)",
     "base": "Drakeling (Summer)_ASA.png",
     "masks": [
+      "Drakeling (Summer)_ASA_m_05.png",
+      "Drakeling (Summer)_ASA_m_13.png",
+      "Drakeling (Summer)_ASA_m_23.png",
       "Drakeling (Summer)_ASA_m.png"
     ],
     "noMask": []
