@@ -28,6 +28,12 @@ export default function Toolbar({
   setBoundaryBlend,
   overlayStrength,
   setOverlayStrength,
+  overlayColorStrength,
+  setOverlayColorStrength,
+  overlayColorMixBoost,
+  setOverlayColorMixBoost,
+  colorMixBoost,
+  setColorMixBoost,
   overlayTint,
   setOverlayTint,
   exportBg,
@@ -227,6 +233,22 @@ export default function Toolbar({
           <div
             className="row"
             style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
+            <label className="small subtle">Color Mix Boost</label>
+            <input
+              className="form-range"
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={colorMixBoost}
+              onChange={(e) => setColorMixBoost(+e.target.value)}
+              style={{ flex: 1 }}
+            />
+            <span className="small value">{colorMixBoost.toFixed(2)}</span>
+          </div>
+          <div
+            className="row"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
             <label className="small subtle">Chroma Boost</label>
             <input
               className="form-range"
@@ -326,6 +348,40 @@ export default function Toolbar({
           <div
             className="row"
             style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
+            <label className="small subtle">Overlay Color Strength</label>
+            <input
+              className="form-range"
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={overlayColorStrength}
+              onChange={(e) => setOverlayColorStrength(+e.target.value)}
+              style={{ flex: 1 }}
+            />
+            <span className="small value">{overlayColorStrength.toFixed(2)}</span>
+          </div>
+
+          <div
+            className="row"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
+            <label className="small subtle">Overlay Color Mix Boost</label>
+            <input
+              className="form-range"
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={overlayColorMixBoost}
+              onChange={(e) => setOverlayColorMixBoost(+e.target.value)}
+              style={{ flex: 1 }}
+            />
+            <span className="small value">{overlayColorMixBoost.toFixed(2)}</span>
+          </div>
+
+          <div
+            className="row"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
             <label className="small subtle">Overlay Tint (white+color)</label>
             <input
               className="form-range"
@@ -420,6 +476,9 @@ export default function Toolbar({
               try {
                 typeof setBoundaryBlend === 'function' && setBoundaryBlend(DEFAULTS.boundaryBlend);
                 typeof setOverlayStrength === 'function' && setOverlayStrength(DEFAULTS.overlayStrength);
+                typeof setOverlayColorStrength === 'function' && setOverlayColorStrength(DEFAULTS.overlayColorStrength);
+                typeof setOverlayColorMixBoost === 'function' && setOverlayColorMixBoost(DEFAULTS.overlayColorMixBoost);
+                typeof setColorMixBoost === 'function' && setColorMixBoost(DEFAULTS.colorMixBoost);
                 typeof setOverlayTint === 'function' && setOverlayTint(DEFAULTS.overlayTint);
               } catch {
                 /* empty */
@@ -478,3 +537,5 @@ export default function Toolbar({
     </>
   );
 }
+
+

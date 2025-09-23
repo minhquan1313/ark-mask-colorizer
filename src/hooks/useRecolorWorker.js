@@ -39,7 +39,7 @@ const wrapPi = (a) => {
   return a;
 };
 
-export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength = 1, feather = 0, gamma = 1, keepLight = 0.98, chromaBoost = 1.18, chromaCurve = 0.9, speckleClean = 0.35, edgeSmooth = 0, boundaryBlend = 0.28, overlayStrength = 1, overlayTint = 0.25, overlayBlendMode = 'add' } = {}) {
+export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength = 1, feather = 0, gamma = 1, keepLight = 0.98, chromaBoost = 1.18, chromaCurve = 0.9, speckleClean = 0.35, edgeSmooth = 0, boundaryBlend = 0.28, overlayStrength = 1, overlayColorStrength = 1, overlayColorMixBoost = 0, colorMixBoost = 0.6, overlayTint = 0.25, overlayBlendMode = 'add' } = {}) {
   const workerRef = useRef(null);
   const jobRef = useRef(0);
   const [busy, setBusy] = useState(false);
@@ -56,7 +56,7 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
     return () => window.removeEventListener('overlay-blend-mode-changed', onChanged);
   }, []);
 
-  const params = useMemo(() => ({ threshold, strength, neutralStrength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, overlayBlendMode: overlayBlendModeLocal }), [threshold, strength, neutralStrength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, overlayBlendModeLocal]);
+  const params = useMemo(() => ({ threshold, strength, neutralStrength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, colorMixBoost, overlayBlendMode: overlayBlendModeLocal }), [threshold, strength, neutralStrength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, colorMixBoost, overlayBlendModeLocal]);
   const sync = useRecolorSync(params);
   const debounceRef = useRef(0);
   const pendingArgsRef = useRef(null);
@@ -182,6 +182,9 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
       getSlotsSignature(slots),
       JSON.stringify(params),
       String(overlayStrength ?? ''),
+      String(overlayColorStrength ?? ''),
+      String(overlayColorMixBoost ?? ''),
+      String(colorMixBoost ?? ''),
       String(overlayTint ?? '')
     ];
     const jobKey = jobKeyParts.join('||');
@@ -275,6 +278,8 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
         let out = await recolorOnce(base0, mask0, slots, params);
 
         const overlaysArr = extraMasks || [];
+        const overlayStrengthScale = Math.max(0, Math.min(1, overlayColorStrength ?? 1));
+        const overlayMixBoost = Math.max(0, Math.min(1.5, Number.isFinite(overlayColorMixBoost) ? overlayColorMixBoost : 0));
         for (let idx = 0; idx < overlaysArr.length; idx++) {
           const item = overlaysArr[idx];
           if (!item?.img) continue;
@@ -333,51 +338,64 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
           const sOV = Math.max(0, Math.min(3, overlayStrength));
           const sEff = Math.min(1, sOV);
           const F_OV = 0.6;
-          const overlayParams = hasWhitePartner
-            ? {
-                ...params,
-                speckleClean: 0,
-                edgeSmooth: 0,
-                feather: F_OV,
-                strength: Math.min(1, Math.max(0, overlayTint) * Math.min(1, sOV)),
-                blendMode: 'oklab',
-                keepLight: 0.96,
-                minChroma: 0.0,
-                chromaBoost: 0.85,
-              }
-            : sameColor
-            ? {
-                ...params,
-                speckleClean: 0,
-                edgeSmooth: 0,
-                feather: F_OV,
-                strength: sEff,
-                blendMode: 'oklab',
-              }
-            : isNearWhite && !usePastel
-            ? {
-                ...params,
-                speckleClean: 0,
-                edgeSmooth: 0,
-                feather: F_OV,
-                strength: Math.min(1, 0.8 * sEff),
-                blendMode: 'oklab',
-                keepLight: 0.98,
-                minChroma: 0.0,
-                chromaBoost: 0.85,
-              }
-            : {
-                ...params,
-                speckleClean: 0,
-                edgeSmooth: 0,
-                feather: F_OV,
-                strength: sEff,
-                blendMode: 'oklab',
-                ...(usePastel
-                  ? { keepLight: Math.max(0.7, 0.92 - 0.08 * sOV), minChroma: 0.0, chromaBoost: 0.9 }
-                  : { keepLight: Math.max(0.6, 0.9 - 0.1 * sOV), minChroma: 0.02 + 0.08 * sOV, chromaBoost: 1.0 + 0.6 * sOV }),
-              };
-          out = await recolorOnce(out, maskN, overlaySlots, overlayParams);
+          let overlayParams;
+          if (hasWhitePartner) {
+            overlayParams = {
+              ...params,
+              speckleClean: 0,
+              edgeSmooth: 0,
+              feather: F_OV,
+              strength: Math.min(1, Math.max(0, overlayTint) * Math.min(1, sOV)),
+              blendMode: 'oklab',
+              keepLight: 0.96,
+              minChroma: 0.0,
+              chromaBoost: 0.85,
+            };
+          } else if (sameColor) {
+            overlayParams = {
+              ...params,
+              speckleClean: 0,
+              edgeSmooth: 0,
+              feather: F_OV,
+              strength: sEff,
+              blendMode: 'oklab',
+            };
+          } else if (isNearWhite && !usePastel) {
+            overlayParams = {
+              ...params,
+              speckleClean: 0,
+              edgeSmooth: 0,
+              feather: F_OV,
+              strength: Math.min(1, 0.8 * sEff),
+              blendMode: 'oklab',
+              keepLight: 0.98,
+              minChroma: 0.0,
+              chromaBoost: 0.85,
+            };
+          } else {
+            overlayParams = {
+              ...params,
+              speckleClean: 0,
+              edgeSmooth: 0,
+              feather: F_OV,
+              strength: sEff,
+              blendMode: 'oklab',
+              ...(usePastel
+                ? { keepLight: Math.max(0.7, 0.92 - 0.08 * sOV), minChroma: 0.0, chromaBoost: 0.9 }
+                : { keepLight: Math.max(0.6, 0.9 - 0.1 * sOV), minChroma: 0.02 + 0.08 * sOV, chromaBoost: 1.0 + 0.6 * sOV }),
+            };
+          }
+
+          overlayParams = { ...overlayParams, colorMixBoost: overlayMixBoost };
+
+          const rawStrength = Math.max(0, Math.min(1, overlayParams.strength ?? 0));
+          const adjustedStrength = Math.min(1, rawStrength * overlayStrengthScale);
+          if (adjustedStrength <= 0.0001) {
+            continue;
+          }
+
+          const overlayParamsFinal = { ...overlayParams, strength: adjustedStrength };
+          out = await recolorOnce(out, maskN, overlaySlots, overlayParamsFinal);
         }
 
         octx.putImageData(out, 0, 0);
@@ -393,7 +411,7 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
         setBusy(false);
       }
     })();
-  }, [params, sync, overlayStrength, overlayTint, pastelBlendRGB, getImageSignature, getOverlaySignature, getSlotsSignature, coerceRGB]);
+  }, [params, sync, overlayStrength, overlayColorStrength, overlayColorMixBoost, colorMixBoost, overlayTint, pastelBlendRGB, getImageSignature, getOverlaySignature, getSlotsSignature, coerceRGB]);
 
   const draw = useCallback((args) => {
     pendingArgsRef.current = args;
@@ -415,3 +433,4 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
 
   return { draw, busy };
 }
+

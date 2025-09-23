@@ -72,11 +72,13 @@ function coerceRGB(v) {
 }
 
 function render({ base, mask, w, h, slots, params }) {
-  const { threshold = 80, strength = 1, neutralStrength = 1, feather = 0, gamma = 1, keepLight = 0.98, chromaBoost = 1.18, chromaCurve = 0.9, speckleClean = 0.35, edgeSmooth = 0, boundaryBlend = 0.28, minChroma = 0, blendMode = 'oklab' } = params || {};
+  const { threshold = 80, strength = 1, neutralStrength = 1, feather = 0, gamma = 1, keepLight = 0.98, chromaBoost = 1.18, chromaCurve = 0.9, speckleClean = 0.35, edgeSmooth = 0, boundaryBlend = 0.28, colorMixBoost = 0, minChroma = 0, blendMode = 'oklab' } = params || {};
 
   const out = new Uint8ClampedArray(w * h * 4);
   const pal = new Array(6);
   for (let s = 0; s < 6; s++) pal[s] = coerceRGB(slots?.[s]);
+
+  const mixBoostClamped = Math.max(0, Math.min(1.5, Number.isFinite(colorMixBoost) ? colorMixBoost : 0));
 
   const seedChr = 8 + Math.round((threshold / 150) * 96);
   const spreadPx = 2 + feather * 6;
@@ -389,6 +391,11 @@ function render({ base, mask, w, h, slots, params }) {
       const neutralScale = neutralAmt === 1 ? 1 : 1 + (neutralAmt - 1) * neutralWeight;
       const mixScale = Math.max(0, Math.min(1.2, neutralScale * highlightGuard * shadowBoost));
       const kBase = Math.max(0, Math.min(1, baseMix * mixScale));
+      const vivid = Math.max(0, Math.min(1, (targetLCH.C - 0.06) / 0.24));
+      const vividWeight = vivid > 0 ? Math.pow(vivid, 0.65) : 0;
+      const coverageBoost = mixBoostClamped > 0 && vividWeight > 0 ? Math.min(1, (0.35 + 0.65 * vividWeight) * mixBoostClamped * vividWeight) : 0;
+      const vividLift = mixBoostClamped > 0 ? mixBoostClamped * vividWeight : 0;
+      let kAdj = coverageBoost > 0 ? Math.min(1, kBase + (1 - kBase) * coverageBoost) : kBase;
       let o0, o1, o2;
         if (blendMode !== 'oklab') {
           const ov = (B, T) => (B <= 0.5 ? 2 * B * T : 1 - 2 * (1 - B) * (1 - T));
@@ -418,7 +425,6 @@ function render({ base, mask, w, h, slots, params }) {
           const tl0 = srgb2lin(Math.max(0, Math.min(1, rMix)));
           const tl1 = srgb2lin(Math.max(0, Math.min(1, gMix)));
           const tl2 = srgb2lin(Math.max(0, Math.min(1, bMix)));
-          const kAdj = kBase;
           o0 = rl * (1 - kAdj) + tl0 * kAdj;
           o1 = gl * (1 - kAdj) + tl1 * kAdj;
           o2 = bl * (1 - kAdj) + tl2 * kAdj;
@@ -427,6 +433,9 @@ function render({ base, mask, w, h, slots, params }) {
           const tLC = targetLCH;
           const targetC = Math.max(tLC.C, minChroma);
           let Cx = Math.pow(targetC, chromaCurve) * chromaBoost;
+          if (vividLift > 0) {
+            Cx *= 1 + 0.3 * vividLift;
+          }
           const C_REF = 0.3;
           const Cn = Math.max(0, Math.min(1, Cx / C_REF));
           const neutralPull = neutralWeight * Math.max(0, neutralAmt - 1);
@@ -434,6 +443,10 @@ function render({ base, mask, w, h, slots, params }) {
           const keepLightDrop = Math.min(0.75, keepLightDropBase + 0.3 * neutralPull);
           let keepL = Math.max(0, Math.min(1, keepLight - (1 - Cn) * keepLightDrop));
           keepL = Math.min(1, keepL + 0.2 * neutralWeight * highlight);
+          if (vividLift > 0) {
+            const lightDrop = 0.25 * vividLift;
+            keepL = Math.max(0, Math.min(1, keepL - lightDrop));
+          }
           const Lmix = baseOK.L * keepL + tLC.L * (1 - keepL);
           const Cmix = Cx;
           const Hmix = tLC.h;
@@ -442,7 +455,6 @@ function render({ base, mask, w, h, slots, params }) {
           const tl0 = srgb2lin(rt);
           const tl1 = srgb2lin(gt);
           const tl2 = srgb2lin(bt);
-          const kAdj = kBase;
           o0 = rl * (1 - kAdj) + tl0 * kAdj;
           o1 = gl * (1 - kAdj) + tl1 * kAdj;
           o2 = bl * (1 - kAdj) + tl2 * kAdj;

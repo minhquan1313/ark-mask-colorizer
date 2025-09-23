@@ -18,6 +18,9 @@ export const STORAGE_KEYS = {
   edgeSmooth: `${NS}:edgeSmooth`,
   boundaryBlend: `${NS}:boundaryBlend`,
   overlayStrength: `${NS}:overlayStrength`,
+  overlayColorStrength: `${NS}:overlayColorStrength`,
+  colorMixBoost: `${NS}:colorMixBoost`,
+  overlayColorMixBoost: `${NS}:overlayColorMixBoost`,
   overlayTint: `${NS}:overlayTint`,
   overlayBlendMode: `${NS}:overlayBlendMode`, // 'add' | 'pastel'
   overlayPastelKappa: `${NS}:overlayPastelKappa`, // 0.3..0.8
@@ -45,3 +48,4 @@ export function remove(key) {
     localStorage.removeItem(key);
   } catch { /* ignore storage errors */ }
 }
+

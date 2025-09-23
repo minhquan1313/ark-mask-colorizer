@@ -67,7 +67,7 @@ function coerceRGB(v) {
   }
   return null;
 }
-export function useRecolor({ threshold = 80, strength = 1, neutralStrength = 1, feather = 0, gamma = 1, keepLight = 0.98, chromaBoost = 1.18, chromaCurve = 0.9, speckleClean = 0.35, edgeSmooth = 0, boundaryBlend = 0.28 } = {}) {
+export function useRecolor({ threshold = 80, strength = 1, neutralStrength = 1, feather = 0, gamma = 1, keepLight = 0.98, chromaBoost = 1.18, chromaCurve = 0.9, speckleClean = 0.35, edgeSmooth = 0, boundaryBlend = 0.28, colorMixBoost = 0.6 } = {}) {
   function draw({ baseImg, maskImg, baseCanvasRef, maskCanvasRef, outCanvasRef, slots }) {
     const src = baseImg || maskImg;
     if (!src) return;
@@ -101,6 +101,7 @@ export function useRecolor({ threshold = 80, strength = 1, neutralStrength = 1, 
       out = octx.createImageData(w, h),
       pal = new Array(6);
     for (let s = 0; s < 6; s++) pal[s] = coerceRGB(slots?.[s]);
+    const mixBoostClamped = Math.max(0, Math.min(1.5, Number.isFinite(colorMixBoost) ? colorMixBoost : 0));
     const seedChr = 8 + Math.round((threshold / 150) * 96), // nguong chroma de thanh seed (threshold cao => can dam hon)
       spreadPx = 2 + feather * 6, // ban kinh mem (px) cho lan
       INF = 1e9,
@@ -426,12 +427,20 @@ export function useRecolor({ threshold = 80, strength = 1, neutralStrength = 1, 
       const whiteTone = baseLum <= 0.58 ? 0 : Math.pow((baseLum - 0.58) / 0.42, 1.1);
       const fadeHighlights = Math.max(0.3, 1 - 0.55 * neutralWeight * Math.min(1, whiteTone * neutralAmt));
       const mixScale = Math.max(0, Math.min(1.2, neutralScale * highlightGuard * shadowBoost * fadeHighlights));
-      const k = Math.max(0, Math.min(1, baseMix * mixScale)),
+      const kBase = Math.max(0, Math.min(1, baseMix * mixScale)),
         baseOK = rgb2oklab(bL, bG, bB),
         tLC = targetLCH;
+      const vivid = Math.max(0, Math.min(1, (tLC.C - 0.06) / 0.24));
+      const vividWeight = vivid > 0 ? Math.pow(vivid, 0.65) : 0;
+      const coverageBoost = mixBoostClamped > 0 && vividWeight > 0 ? Math.min(1, (0.35 + 0.65 * vividWeight) * mixBoostClamped * vividWeight) : 0;
+      const vividLift = mixBoostClamped > 0 ? mixBoostClamped * vividWeight : 0;
+      const kAdj = coverageBoost > 0 ? Math.min(1, kBase + (1 - kBase) * coverageBoost) : kBase;
       // Compute target mix in OKLCH
 
-      const Cx = Math.pow(tLC.C, chromaCurve) * chromaBoost;
+      let Cx = Math.pow(tLC.C, chromaCurve) * chromaBoost;
+      if (vividLift > 0) {
+        Cx *= 1 + 0.3 * vividLift;
+      }
 
       const C_REF = 0.3; // typical OKLCH chroma scale in sRGB gamut
 
@@ -444,6 +453,10 @@ export function useRecolor({ threshold = 80, strength = 1, neutralStrength = 1, 
       let keepL = Math.max(0, Math.min(1, keepLight - (1 - Cn) * keepLightDrop));
       const highlightLift = Math.max(0, Math.min(1, highlight * (1 - 0.6 * whiteTone)));
       keepL = Math.min(1, keepL + 0.12 * neutralWeight * highlightLift);
+      if (vividLift > 0) {
+        const lightDrop = 0.25 * vividLift;
+        keepL = Math.max(0, Math.min(1, keepL - lightDrop));
+      }
 
       const Lmix = baseOK.L * keepL + tLC.L * (1 - keepL);
 
@@ -461,7 +474,6 @@ export function useRecolor({ threshold = 80, strength = 1, neutralStrength = 1, 
         tl1 = srgb2lin(gt),
         tl2 = srgb2lin(bt);
 
-      const kAdj = k;
 
       let o0 = rl * (1 - kAdj) + tl0 * kAdj,
         o1 = gl * (1 - kAdj) + tl1 * kAdj,
