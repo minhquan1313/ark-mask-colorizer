@@ -1,4 +1,4 @@
-// src/App.jsx
+﻿// src/App.jsx
 import { useEffect, useMemo, useRef, useState } from 'react';
 import CanvasView from './components/CanvasView.jsx';
 import CreaturePicker from './components/CreaturePicker.jsx';
@@ -27,7 +27,6 @@ const initialChromaBoost = loadJSON(STORAGE_KEYS.chromaBoost, DEFAULTS.chromaBoo
 const initialChromaCurve = loadJSON(STORAGE_KEYS.chromaCurve, DEFAULTS.chromaCurve);
 const initialSpeckleClean = loadJSON(STORAGE_KEYS.speckleClean, DEFAULTS.speckleClean);
 const initialEdgeSmooth = loadJSON(STORAGE_KEYS.edgeSmooth, DEFAULTS.edgeSmooth);
-const initialOverlayStrength = loadJSON(STORAGE_KEYS.overlayStrength, DEFAULTS.overlayStrength);
 const initialBoundaryBlend = loadJSON(STORAGE_KEYS.boundaryBlend, DEFAULTS.boundaryBlend);
 const initialOverlayTint = loadJSON(STORAGE_KEYS.overlayTint, DEFAULTS.overlayTint);
 
@@ -70,7 +69,7 @@ export default function App() {
   const { list, current, selectByName, setCurrent } = useCreatures(preferredCreature);
   const [tempCreatureName, setTempCreatureName] = useState(null);
   const [customMode, setCustomMode] = useState(false);
-  const creatureName = tempCreatureName ?? (current?.name || '�');
+  const creatureName = tempCreatureName ?? (current?.name || '�');
   const disabledSet = customMode ? new Set() : new Set(current?.noMask || []);
 
   const { baseImg, maskImg, extraMasks, loadPairFromFiles, loadFromEntry } = useImages();
@@ -80,8 +79,9 @@ export default function App() {
 
   // Khi current thay đổi → load ảnh đúng con, KHÔNG dùng base.png mặc định
   useEffect(() => {
-    if (current) loadFromEntry(current);
-  }, [current, loadFromEntry]);
+    if (!current) return;
+    loadFromEntry(current, slots);
+  }, [current, slots, loadFromEntry]);
 
   // Khi đổi creature → set null cho các slot bị disable
   useEffect(() => {
@@ -90,14 +90,16 @@ export default function App() {
     setSlots((prev) => prev.map((v, i) => (disabled.has(i) ? null : v)));
   }, [current, customMode]);
 
-  // Khi b?t customMode, clear current d? l?n ch?n creature k? ti?p lu�n t?i d�ng ?nh
+  // Khi b?t customMode, clear current d? l?n ch?n creature k? ti?p lu�n t?i d�ng ?nh
   useEffect(() => {
     if (customMode) {
       try {
-        // setCurrent c� trong hook useCreatures
-        // eslint-disable-next-line no-unused-expressions
+        // setCurrent c� trong hook useCreatures
+
         setCurrent && setCurrent(null);
-      } catch {}
+      } catch {
+        /* empty */
+      }
     }
   }, [customMode, setCurrent]);
 
@@ -114,20 +116,48 @@ export default function App() {
   }, [baseImg, maskImg, extraMasks, slots, threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, overlayStrength, overlayTint, draw]);
 
   // ✅ Lưu slots mỗi khi đổi (đã an toàn vì init từ storage)
-  useEffect(() => { saveJSON(STORAGE_KEYS.slots, slots); }, [slots]);
-  useEffect(() => { saveJSON(STORAGE_KEYS.threshold, threshold); }, [threshold]);
-  useEffect(() => { saveJSON(STORAGE_KEYS.strength, strength); }, [strength]);
-  useEffect(() => { saveJSON(STORAGE_KEYS.neutralStrength, neutralStrength); }, [neutralStrength]);
-  useEffect(() => { saveJSON(STORAGE_KEYS.feather, feather); }, [feather]);
-  useEffect(() => { saveJSON(STORAGE_KEYS.gamma, gamma); }, [gamma]);
-  useEffect(() => { saveJSON(STORAGE_KEYS.keepLight, keepLight); }, [keepLight]);
-  useEffect(() => { saveJSON(STORAGE_KEYS.chromaBoost, chromaBoost); }, [chromaBoost]);
-  useEffect(() => { saveJSON(STORAGE_KEYS.chromaCurve, chromaCurve); }, [chromaCurve]);
-  useEffect(() => { saveJSON(STORAGE_KEYS.speckleClean, speckleClean); }, [speckleClean]);
-  useEffect(() => { saveJSON(STORAGE_KEYS.edgeSmooth, edgeSmooth); }, [edgeSmooth]);
-  useEffect(() => { saveJSON(STORAGE_KEYS.boundaryBlend, boundaryBlend); }, [boundaryBlend]);
-  useEffect(() => { saveJSON(STORAGE_KEYS.overlayTint, overlayTint); }, [overlayTint]);
-  useEffect(() => { saveJSON(STORAGE_KEYS.overlayStrength, overlayStrength); }, [overlayStrength]);
+  useEffect(() => {
+    saveJSON(STORAGE_KEYS.slots, slots);
+  }, [slots]);
+  useEffect(() => {
+    saveJSON(STORAGE_KEYS.threshold, threshold);
+  }, [threshold]);
+  useEffect(() => {
+    saveJSON(STORAGE_KEYS.strength, strength);
+  }, [strength]);
+  useEffect(() => {
+    saveJSON(STORAGE_KEYS.neutralStrength, neutralStrength);
+  }, [neutralStrength]);
+  useEffect(() => {
+    saveJSON(STORAGE_KEYS.feather, feather);
+  }, [feather]);
+  useEffect(() => {
+    saveJSON(STORAGE_KEYS.gamma, gamma);
+  }, [gamma]);
+  useEffect(() => {
+    saveJSON(STORAGE_KEYS.keepLight, keepLight);
+  }, [keepLight]);
+  useEffect(() => {
+    saveJSON(STORAGE_KEYS.chromaBoost, chromaBoost);
+  }, [chromaBoost]);
+  useEffect(() => {
+    saveJSON(STORAGE_KEYS.chromaCurve, chromaCurve);
+  }, [chromaCurve]);
+  useEffect(() => {
+    saveJSON(STORAGE_KEYS.speckleClean, speckleClean);
+  }, [speckleClean]);
+  useEffect(() => {
+    saveJSON(STORAGE_KEYS.edgeSmooth, edgeSmooth);
+  }, [edgeSmooth]);
+  useEffect(() => {
+    saveJSON(STORAGE_KEYS.boundaryBlend, boundaryBlend);
+  }, [boundaryBlend]);
+  useEffect(() => {
+    saveJSON(STORAGE_KEYS.overlayTint, overlayTint);
+  }, [overlayTint]);
+  useEffect(() => {
+    saveJSON(STORAGE_KEYS.overlayStrength, overlayStrength);
+  }, [overlayStrength]);
 
   useEffect(() => {
     saveJSON(STORAGE_KEYS.exportBg, exportBg);
@@ -360,7 +390,9 @@ export default function App() {
         }
         // Other mid colors: do nothing to avoid jitter while dragging
       }
-    } catch {}
+    } catch {
+      /* empty */
+    }
   }
   function roundRect(c, x, y, w, h, r) {
     c.beginPath();
@@ -421,11 +453,13 @@ export default function App() {
     setTempCreatureName(baseName);
     try {
       setCurrent && setCurrent(null);
-    } catch {}
+    } catch {
+      /* empty */
+    }
     saveJSON(STORAGE_KEYS.creature, baseName);
   }
   const resetSlotsOnly = () => {
-    setSlots(Array.from({ length: 6 }, (_, i) => null));
+    setSlots(Array.from({ length: 6 }, () => null));
   };
 
   return (
@@ -537,9 +571,9 @@ export default function App() {
 
         <hr />
         <div className="subtle small">
-          Luu �: Index <b>255</b> l� undefined (b? qua slot). C?p t�n: <code>name.png</code> & <code>name_m.png</code>.
+          Luu �: Index <b>255</b> l� undefined (b? qua slot). C?p t�n: <code>name.png</code> & <code>name_m.png</code>.
         </div>
-        
+
         {/* working canvases */}
         <canvas
           ref={baseCanvasRef}
@@ -553,4 +587,3 @@ export default function App() {
     </div>
   );
 }
-

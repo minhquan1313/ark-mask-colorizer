@@ -3,6 +3,42 @@ import { useMemo, useRef, useState, useCallback, useEffect } from 'react';
 import { useRecolor as useRecolorSync } from './useRecolor.js';
 import { STORAGE_KEYS, loadJSON } from '../utils/storage.js';
 
+// --- OKLab helpers for pastel mixing on overlays ---
+const srgb2lin = (v) => (v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+const lin2srgb = (v) => (v <= 0.0031308 ? v * 12.92 : 1.055 * Math.pow(v, 1 / 2.4) - 0.055);
+function rgb2oklab01(r, g, b) {
+  const rl = srgb2lin(r), gl = srgb2lin(g), bl = srgb2lin(b);
+  const L = 0.4122214708 * rl + 0.5363325363 * gl + 0.0514459929 * bl;
+  const M = 0.2119034982 * rl + 0.6806995451 * gl + 0.1073969566 * bl;
+  const S = 0.0883024619 * rl + 0.2817188376 * gl + 0.6299787005 * bl;
+  const l = Math.cbrt(L), m = Math.cbrt(M), s = Math.cbrt(S);
+  return { L: 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s, a: 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s, b: 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s };
+}
+function oklabToLch(L, a, b) {
+  const C = Math.hypot(a, b), h = Math.atan2(b, a);
+  return { L, C, h };
+}
+function lchToOklab(L, C, h) {
+  return { L, a: C * Math.cos(h), b: C * Math.sin(h) };
+}
+function oklab2rgb01(L, a, b) {
+  const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+  const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+  const s_ = L - 0.0894841775 * a - 1.291485548 * b;
+  const l = l_ * l_ * l_;
+  const m = m_ * m_ * m_;
+  const s = s_ * s_ * s_;
+  const rl = 4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
+  const gl = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
+  const bl = 0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s;
+  return [Math.max(0, Math.min(1, lin2srgb(rl))), Math.max(0, Math.min(1, lin2srgb(gl))), Math.max(0, Math.min(1, lin2srgb(bl)))];
+}
+const wrapPi = (a) => {
+  while (a > Math.PI) a -= 2 * Math.PI;
+  while (a < -Math.PI) a += 2 * Math.PI;
+  return a;
+};
+
 export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength = 1, feather = 0, gamma = 1, keepLight = 0.98, chromaBoost = 1.18, chromaCurve = 0.9, speckleClean = 0.35, edgeSmooth = 0, boundaryBlend = 0.28, overlayStrength = 1, overlayTint = 0.25, overlayBlendMode = 'add' } = {}) {
   const workerRef = useRef(null);
   const jobRef = useRef(0);
@@ -21,7 +57,7 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
   }, []);
 
   const params = useMemo(() => ({ threshold, strength, neutralStrength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, overlayBlendMode: overlayBlendModeLocal }), [threshold, strength, neutralStrength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, overlayBlendModeLocal]);
-  const sync = useMemo(() => useRecolorSync(params), [params]);
+  const sync = useRecolorSync(params);
   const debounceRef = useRef(0);
   const pendingArgsRef = useRef(null);
 
@@ -53,42 +89,8 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
     return null;
   };
 
-  // --- OKLab helpers for pastel mixing on overlays ---
-  const srgb2lin = (v) => (v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
-  const lin2srgb = (v) => (v <= 0.0031308 ? v * 12.92 : 1.055 * Math.pow(v, 1 / 2.4) - 0.055);
-  function rgb2oklab01(r, g, b) {
-    const rl = srgb2lin(r), gl = srgb2lin(g), bl = srgb2lin(b);
-    const L = 0.4122214708 * rl + 0.5363325363 * gl + 0.0514459929 * bl;
-    const M = 0.2119034982 * rl + 0.6806995451 * gl + 0.1073969566 * bl;
-    const S = 0.0883024619 * rl + 0.2817188376 * gl + 0.6299787005 * bl;
-    const l = Math.cbrt(L), m = Math.cbrt(M), s = Math.cbrt(S);
-    return { L: 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s, a: 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s, b: 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s };
-  }
-  function oklabToLch(L, a, b) {
-    const C = Math.hypot(a, b), h = Math.atan2(b, a);
-    return { L, C, h };
-  }
-  function lchToOklab(L, C, h) {
-    return { L, a: C * Math.cos(h), b: C * Math.sin(h) };
-  }
-  function oklab2rgb01(L, a, b) {
-    const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
-    const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
-    const s_ = L - 0.0894841775 * a - 1.291485548 * b;
-    const l = l_ * l_ * l_;
-    const m = m_ * m_ * m_;
-    const s = s_ * s_ * s_;
-    const rl = 4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
-    const gl = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
-    const bl = 0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s;
-    return [Math.max(0, Math.min(1, lin2srgb(rl))), Math.max(0, Math.min(1, lin2srgb(gl))), Math.max(0, Math.min(1, lin2srgb(bl)))];
-  }
-  const wrapPi = (a) => {
-    while (a > Math.PI) a -= 2 * Math.PI;
-    while (a < -Math.PI) a += 2 * Math.PI;
-    return a;
-  };
-  function pastelBlendRGB(aRGB, bRGB, opts) {
+
+  const pastelBlendRGB = useCallback((aRGB, bRGB, opts) => {
     if (!aRGB || !bRGB) return aRGB || bRGB;
     const rA = (aRGB[0] | 0) / 255, gA = (aRGB[1] | 0) / 255, bA = (aRGB[2] | 0) / 255;
     const rB = (bRGB[0] | 0) / 255, gB = (bRGB[1] | 0) / 255, bB = (bRGB[2] | 0) / 255;
@@ -114,7 +116,7 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
     const O = lchToOklab(Lmix, Cmix, Hmix);
     const [r, g, b] = oklab2rgb01(O.L, O.a, O.b);
     return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
-  }
+  }, []);
 
   const addMix = (a, b) => {
     if (!a || !b) return null;
@@ -154,9 +156,8 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
     try {
       worker = getWorker();
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.warn('Worker init failed, using main thread:', e);
-      try { sync.draw({ baseImg, maskImg, baseCanvasRef, maskCanvasRef, outCanvasRef, slots }); } catch {}
+      try { sync.draw({ baseImg, maskImg, baseCanvasRef, maskCanvasRef, outCanvasRef, slots }); } catch { /* ignore fallback draw errors */ }
       return;
     }
 
@@ -339,14 +340,13 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
         // Draw final image
         octx.putImageData(out, 0, 0);
       } catch (err) {
-        // eslint-disable-next-line no-console
         console.error('Recolor pipeline error:', err);
-        try { sync.draw({ baseImg, maskImg, baseCanvasRef, maskCanvasRef, outCanvasRef, slots }); } catch {}
+        try { sync.draw({ baseImg, maskImg, baseCanvasRef, maskCanvasRef, outCanvasRef, slots }); } catch { /* ignore fallback draw errors */ }
       } finally {
         setBusy(false);
       }
     })();
-  }, [params, sync, overlayStrength, overlayTint]);
+  }, [params, sync, overlayStrength, overlayTint, pastelBlendRGB]);
 
   const draw = useCallback((args) => {
     pendingArgsRef.current = args;

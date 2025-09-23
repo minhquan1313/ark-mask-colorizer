@@ -339,7 +339,7 @@ function render({ base, mask, w, h, slots, params }) {
     {
       const y = Math.floor(i / w), x = i - y * w;
       const BSTR = Math.max(0, Math.min(2, boundaryBlend || 0)); // allow up to 2x strength
-      let nb = -1, cntSelf = 0, cntOther = 0, cnt = 0, nbVotes = new Int16Array(6);
+      let nb = -1, cntOther = 0, cnt = 0, nbVotes = new Int16Array(6);
       for (let dy = -1; dy <= 1; dy++) {
         const yy = y + dy; if (yy < 0 || yy >= h) continue;
         for (let dx = -1; dx <= 1; dx++) {
@@ -348,7 +348,10 @@ function render({ base, mask, w, h, slots, params }) {
           const k = yy * w + xx; const lk = lab[k];
           if (lk >= 0) {
             cnt++;
-            if (lk === si) cntSelf++; else { cntOther++; if (++nbVotes[lk] > (nb >= 0 ? nbVotes[nb] : 0)) nb = lk; }
+            if (lk !== si) {
+              cntOther++;
+              if (++nbVotes[lk] > (nb >= 0 ? nbVotes[nb] : 0)) nb = lk;
+            }
           }
         }
       }
@@ -421,7 +424,6 @@ function render({ base, mask, w, h, slots, params }) {
           o2 = bl * (1 - kAdj) + tl2 * kAdj;
         } else {
           const baseOK = rgb2oklab(bL, bG, bB);
-          const tOK = targetOK;
           const tLC = targetLCH;
           const targetC = Math.max(tLC.C, minChroma);
           let Cx = Math.pow(targetC, chromaCurve) * chromaBoost;
@@ -557,5 +559,4 @@ self.onmessage = async (ev) => {
     self.postMessage({ type: 'recolor:error', jobId: jid, error: String(e && e.message ? e.message : e) });
   }
 };
-
 

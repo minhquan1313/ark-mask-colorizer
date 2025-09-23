@@ -101,8 +101,8 @@ export function useRecolor({ threshold = 80, strength = 1, neutralStrength = 1, 
       out = octx.createImageData(w, h),
       pal = new Array(6);
     for (let s = 0; s < 6; s++) pal[s] = coerceRGB(slots?.[s]);
-    const seedChr = 8 + Math.round((threshold / 150) * 96), // ngÃ†Â°Ã¡Â»Â¡ng chroma Ã„â€˜Ã¡Â»Æ’ thÃƒÂ nh seed (threshold cao Ã¢â€ â€™ cÃ¡ÂºÂ§n Ã„â€˜Ã¡ÂºÂ­m hÃ†Â¡n)
-      spreadPx = 2 + feather * 6, // bÃƒÂ¡n kÃƒÂ­nh mÃ¡Â»Âm (px) cho lan
+    const seedChr = 8 + Math.round((threshold / 150) * 96), // nguong chroma de thanh seed (threshold cao => can dam hon)
+      spreadPx = 2 + feather * 6, // ban kinh mem (px) cho lan
       INF = 1e9,
       dist = new Float32Array(w * h);
     dist.fill(INF);
@@ -237,6 +237,8 @@ export function useRecolor({ threshold = 80, strength = 1, neutralStrength = 1, 
     const tolPix = spreadPx * 1.25;
     for (let i = 0; i < w * h; i++) {
       const j = 4 * i,
+        y = Math.floor(i / w),
+        x = i - y * w,
         br = base.data[j],
         bg = base.data[j + 1],
         bb = base.data[j + 2],
@@ -256,7 +258,6 @@ export function useRecolor({ threshold = 80, strength = 1, neutralStrength = 1, 
       }
       const d = dist[i],
         ws = Math.exp(-(d / (spreadPx + 0.0001)) * (d / (spreadPx + 0.0001)));
-      const wc = 0.5 * conf[i] + 0.5 * val;
       let wMask = (d <= tolPix ? ws : 0) * (0.7 * conf[i] + 0.3 * val);
       const whiteness = val * (1 - conf[i]);
       let whiteClip = smoothstep(0.2, 0.55, whiteness);
@@ -350,54 +351,64 @@ export function useRecolor({ threshold = 80, strength = 1, neutralStrength = 1, 
           tB = aB * inv;
         }
       }
-    if (tR === undefined) {
-      const tgt = pal[si];
-      if (!tgt) {
-        out.data[j] = br;
-        out.data[j + 1] = bg;
-        out.data[j + 2] = bb;
-        out.data[j + 3] = ba;
-        continue;
+      if (tR === undefined) {
+        const tgt = pal[si];
+        if (!tgt) {
+          out.data[j] = br;
+          out.data[j + 1] = bg;
+          out.data[j + 2] = bb;
+          out.data[j + 3] = ba;
+          continue;
+        }
+        tR = tgt[0] / 255;
+        tG = tgt[1] / 255;
+        tB = tgt[2] / 255;
       }
-      tR = tgt[0] / 255;
-      tG = tgt[1] / 255;
-      tB = tgt[2] / 255;
-    }
 
-    // Boundary color band (sync path): blend target toward most common different neighbor label
-    {
-      const BSTR = Math.max(0, Math.min(2, boundaryBlend || 0));
-      let nb = -1, cntSelf = 0, cntOther = 0, cnt = 0;
-      const votes = new Int16Array(6);
-      for (let dy = -1; dy <= 1; dy++) {
-        const yy = y + dy; if (yy < 0 || yy >= h) continue;
-        for (let dx = -1; dx <= 1; dx++) {
-          if (dx === 0 && dy === 0) continue;
-          const xx = x + dx; if (xx < 0 || xx >= w) continue;
-          const k = yy * w + xx; const lk = lab[k];
-          if (lk >= 0) {
-            cnt++;
-            if (lk === si) cntSelf++; else { cntOther++; if (++votes[lk] > (nb >= 0 ? votes[nb] : 0)) nb = lk; }
+      // Boundary color band (sync path): blend target toward most common different neighbor label
+      {
+        const BSTR = Math.max(0, Math.min(2, boundaryBlend || 0));
+        let nb = -1,
+          cntOther = 0,
+          cnt = 0;
+        const votes = new Int16Array(6);
+        for (let dy = -1; dy <= 1; dy++) {
+          const yy = y + dy;
+          if (yy < 0 || yy >= h) continue;
+          for (let dx = -1; dx <= 1; dx++) {
+            if (dx === 0 && dy === 0) continue;
+            const xx = x + dx;
+            if (xx < 0 || xx >= w) continue;
+            const k = yy * w + xx;
+            const lk = lab[k];
+            if (lk >= 0) {
+              cnt++;
+              if (lk !== si) {
+                cntOther++;
+                if (++votes[lk] > (nb >= 0 ? votes[nb] : 0)) nb = lk;
+              }
+            }
           }
         }
+        if (nb >= 0 && pal[nb]) {
+          const ratio = cnt > 0 ? cntOther / cnt : 0;
+          const a = Math.max(0, Math.min(1, BSTR * ratio));
+          const nbCol = pal[nb];
+          const nr = nbCol[0] / 255,
+            ng = nbCol[1] / 255,
+            nbv = nbCol[2] / 255;
+          tR = tR * (1 - a) + nr * a;
+          tG = tG * (1 - a) + ng * a;
+          tB = tB * (1 - a) + nbv * a;
+        }
       }
-      if (nb >= 0 && pal[nb]) {
-        const ratio = cnt > 0 ? cntOther / cnt : 0;
-        const a = Math.max(0, Math.min(1, BSTR * ratio));
-        const nbCol = pal[nb];
-        const nr = nbCol[0] / 255, ng = nbCol[1] / 255, nbv = nbCol[2] / 255;
-        tR = tR * (1 - a) + nr * a;
-        tG = tG * (1 - a) + ng * a;
-        tB = tB * (1 - a) + nbv * a;
-      }
-    }
 
       // Achromatic edge damping: cap mixing near uncertain edges to avoid speckle when using white/black
       const targetOK = rgb2oklab(tR || 0, tG || 0, tB || 0);
       const targetLCH = oklabToLch(targetOK.L, targetOK.a, targetOK.b);
       if (targetLCH.C <= 0.03 && wMask < 0.999) {
         const cf = conf[i] || 0;
-        const cap = 0.65 + 0.30 * cf; // 0.65..0.95
+        const cap = 0.65 + 0.3 * cf; // 0.65..0.95
         if (wMask > cap) wMask = cap;
       }
       const baseMix = Math.max(0, Math.min(1, strength)) * wMask;
@@ -412,10 +423,11 @@ export function useRecolor({ threshold = 80, strength = 1, neutralStrength = 1, 
       const shadow = baseLum >= 0.45 ? 0 : Math.pow((0.45 - baseLum) / 0.45, 1.15);
       const highlightGuard = Math.max(0.45, 1 - 0.4 * neutralWeight * Math.min(1, highlight * neutralAmt));
       const shadowBoost = 1 + 0.25 * neutralWeight * Math.min(1.2, shadow * Math.max(0, neutralAmt - 1));
-      const mixScale = Math.max(0, Math.min(1.2, neutralScale * highlightGuard * shadowBoost));
+      const whiteTone = baseLum <= 0.58 ? 0 : Math.pow((baseLum - 0.58) / 0.42, 1.1);
+      const fadeHighlights = Math.max(0.3, 1 - 0.55 * neutralWeight * Math.min(1, whiteTone * neutralAmt));
+      const mixScale = Math.max(0, Math.min(1.2, neutralScale * highlightGuard * shadowBoost * fadeHighlights));
       const k = Math.max(0, Math.min(1, baseMix * mixScale)),
         baseOK = rgb2oklab(bL, bG, bB),
-        tOK = targetOK,
         tLC = targetLCH;
       // Compute target mix in OKLCH
 
@@ -430,7 +442,8 @@ export function useRecolor({ threshold = 80, strength = 1, neutralStrength = 1, 
       const keepLightDrop = Math.min(0.75, keepLightDropBase + 0.3 * neutralPull);
 
       let keepL = Math.max(0, Math.min(1, keepLight - (1 - Cn) * keepLightDrop));
-      keepL = Math.min(1, keepL + 0.2 * neutralWeight * highlight);
+      const highlightLift = Math.max(0, Math.min(1, highlight * (1 - 0.6 * whiteTone)));
+      keepL = Math.min(1, keepL + 0.12 * neutralWeight * highlightLift);
 
       const Lmix = baseOK.L * keepL + tLC.L * (1 - keepL);
 
@@ -438,34 +451,20 @@ export function useRecolor({ threshold = 80, strength = 1, neutralStrength = 1, 
 
       const Hmix = tLC.h;
 
-
-
       const tint = lchToOklab(Lmix, Cmix, Hmix),
-
         [rt, gt, bt] = oklab2rgb(tint.L, tint.a, tint.b),
-
         rl = srgb2lin(bL),
-
         gl = srgb2lin(bG),
-
         bl = srgb2lin(bB);
 
-
-
       const tl0 = srgb2lin(rt),
-
         tl1 = srgb2lin(gt),
-
         tl2 = srgb2lin(bt);
-
-
 
       const kAdj = k;
 
       let o0 = rl * (1 - kAdj) + tl0 * kAdj,
-
         o1 = gl * (1 - kAdj) + tl1 * kAdj,
-
         o2 = bl * (1 - kAdj) + tl2 * kAdj;
 
       const gpow = gamma && gamma !== 1 ? 1 / gamma : 1;
@@ -489,77 +488,75 @@ export function useRecolor({ threshold = 80, strength = 1, neutralStrength = 1, 
         const inv2sR = 1 / (2 * sigmaR * sigmaR);
         const W = w,
           H = h;
-      const outLin0 = new Float32Array(W * H * 3);
-      const baseLum = new Float32Array(W * H);
-      for (let i = 0, p = 0; i < W * H; i++, p += 4) {
-        const r = out.data[p] / 255,
-          g = out.data[p + 1] / 255,
-          b = out.data[p + 2] / 255;
-        const rl = srgb2lin(r),
-          gl = srgb2lin(g),
-          bl = srgb2lin(b);
-        outLin0[i * 3 + 0] = rl;
-        outLin0[i * 3 + 1] = gl;
-        outLin0[i * 3 + 2] = bl;
-        const br = base.data[p] / 255,
-          bg = base.data[p + 1] / 255,
-          bb = base.data[p + 2] / 255;
-        const brl = srgb2lin(br),
-          bgl = srgb2lin(bg),
-          bbl = srgb2lin(bb);
-        baseLum[i] = 0.2126 * brl + 0.7152 * bgl + 0.0722 * bbl;
-      }
-      const outLin1 = new Float32Array(W * H * 3);
-      for (let y = 0; y < H; y++) {
-        for (let x = 0; x < W; x++) {
-          const i = y * W + x;
-          const Lc = baseLum[i];
-          let ws = 0,
-            a0 = 0,
-            a1 = 0,
-            a2 = 0;
-          for (let dy = -radius; dy <= radius; dy++) {
-            const yy = Math.min(H - 1, Math.max(0, y + dy));
-            for (let dx = -radius; dx <= radius; dx++) {
-              const xx = Math.min(W - 1, Math.max(0, x + dx));
-              const k = yy * W + xx;
-              const ds2 = dx * dx + dy * dy;
-              const wS = Math.exp(-ds2 * inv2sS);
-              const dL = baseLum[k] - Lc;
-              const wR = Math.exp(-(dL * dL) * inv2sR);
-              let wgt = wS * wR;
-              // Label-aware gating: reduce smoothing across different mask labels to avoid bleed
-              if (typeof lab !== 'undefined' && typeof conf !== 'undefined') {
-                const sameLab = (lab[k] >= 0 && lab[i] >= 0 && lab[k] === lab[i]);
-                if (!sameLab) {
-                  const ci = conf[i] || 0, ck = conf[k] || 0;
-                  const cMax = ci > ck ? ci : ck;
-                  // If confident of different labels, nearly block; otherwise allow reduced smoothing
-                  wgt *= cMax >= 0.3 ? 0.03 : 0.3;
+        const outLin0 = new Float32Array(W * H * 3);
+        const baseLum = new Float32Array(W * H);
+        for (let i = 0, p = 0; i < W * H; i++, p += 4) {
+          const r = out.data[p] / 255,
+            g = out.data[p + 1] / 255,
+            b = out.data[p + 2] / 255;
+          const rl = srgb2lin(r),
+            gl = srgb2lin(g),
+            bl = srgb2lin(b);
+          outLin0[i * 3 + 0] = rl;
+          outLin0[i * 3 + 1] = gl;
+          outLin0[i * 3 + 2] = bl;
+          const br = base.data[p] / 255,
+            bg = base.data[p + 1] / 255,
+            bb = base.data[p + 2] / 255;
+          const brl = srgb2lin(br),
+            bgl = srgb2lin(bg),
+            bbl = srgb2lin(bb);
+          baseLum[i] = 0.2126 * brl + 0.7152 * bgl + 0.0722 * bbl;
+        }
+        for (let y = 0; y < H; y++) {
+          for (let x = 0; x < W; x++) {
+            const i = y * W + x;
+            const Lc = baseLum[i];
+            let ws = 0,
+              a0 = 0,
+              a1 = 0,
+              a2 = 0;
+            for (let dy = -radius; dy <= radius; dy++) {
+              const yy = Math.min(H - 1, Math.max(0, y + dy));
+              for (let dx = -radius; dx <= radius; dx++) {
+                const xx = Math.min(W - 1, Math.max(0, x + dx));
+                const k = yy * W + xx;
+                const ds2 = dx * dx + dy * dy;
+                const wS = Math.exp(-ds2 * inv2sS);
+                const dL = baseLum[k] - Lc;
+                const wR = Math.exp(-(dL * dL) * inv2sR);
+                let wgt = wS * wR;
+                // Label-aware gating: reduce smoothing across different mask labels to avoid bleed
+                if (typeof lab !== 'undefined' && typeof conf !== 'undefined') {
+                  const sameLab = lab[k] >= 0 && lab[i] >= 0 && lab[k] === lab[i];
+                  if (!sameLab) {
+                    const ci = conf[i] || 0,
+                      ck = conf[k] || 0;
+                    const cMax = ci > ck ? ci : ck;
+                    // If confident of different labels, nearly block; otherwise allow reduced smoothing
+                    wgt *= cMax >= 0.3 ? 0.03 : 0.3;
+                  }
                 }
+                ws += wgt;
+                a0 += wgt * outLin0[k * 3 + 0];
+                a1 += wgt * outLin0[k * 3 + 1];
+                a2 += wgt * outLin0[k * 3 + 2];
               }
-              ws += wgt;
-              a0 += wgt * outLin0[k * 3 + 0];
-              a1 += wgt * outLin0[k * 3 + 1];
-              a2 += wgt * outLin0[k * 3 + 2];
             }
+            const inv = ws > 1e-8 ? 1 / ws : 1;
+            const rl = a0 * inv,
+              gl = a1 * inv,
+              bl = a2 * inv;
+            const p = i * 4;
+            out.data[p] = Math.round(Math.max(0, Math.min(1, lin2srgb(rl))) * 255);
+            out.data[p + 1] = Math.round(Math.max(0, Math.min(1, lin2srgb(gl))) * 255);
+            out.data[p + 2] = Math.round(Math.max(0, Math.min(1, lin2srgb(bl))) * 255);
+            // alpha keep
           }
-          const inv = ws > 1e-8 ? 1 / ws : 1;
-          const rl = a0 * inv,
-            gl = a1 * inv,
-            bl = a2 * inv;
-          const p = i * 4;
-          out.data[p] = Math.round(Math.max(0, Math.min(1, lin2srgb(rl))) * 255);
-          out.data[p + 1] = Math.round(Math.max(0, Math.min(1, lin2srgb(gl))) * 255);
-          out.data[p + 2] = Math.round(Math.max(0, Math.min(1, lin2srgb(bl))) * 255);
-          // alpha keep
-        }
         }
       }
-      }
+    }
     octx.putImageData(out, 0, 0);
   }
   return { draw };
 }
-
-

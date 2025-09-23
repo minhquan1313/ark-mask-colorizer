@@ -1,7 +1,7 @@
 export function extractSpeciesFromBlueprint(bp) {
   if (!bp) return '';
   // tìm chuỗi sau "Dinos/" đến dấu "/" kế tiếp
-  const m = bp.match(/Dinos\/([^\/]+)/i);
+  const m = bp.match(/Dinos\/([^/]+)/i);
   if (!m) return '';
   return m[1] || '';
 }
@@ -9,7 +9,7 @@ export function extractSpeciesFromBlueprint(bp) {
 // Chuẩn hoá để so tên trong creatures.json (bỏ gạch dưới, trim, so không phân biệt hoa thường)
 export function normalizeName(s) {
   return (s || '')
-    .replace(/[_\-]+/g, ' ')
+    .replace(/[_-]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
     .toLowerCase();

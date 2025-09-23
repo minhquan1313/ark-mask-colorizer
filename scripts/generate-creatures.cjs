@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env node
+#!/usr/bin/env node
 // Usage: run "npm run generate:creatures" after updating assets to refresh src/data/creatures.json.
 const fs = require('fs');
 const path = require('path');
@@ -7,6 +7,20 @@ const rootDir = path.resolve(__dirname, '..');
 const dinoDir = path.join(rootDir, 'public', 'assets', 'dino');
 const outputPath = path.join(rootDir, 'src', 'data', 'creatures.json');
 const FEMALE_MARKER = /_sf(?:_|\.|$)/i;
+
+const SPECIAL_VARIANT_RULES = {
+  Cat: {
+    slot: 1,
+    mode: 'colorIdCycle',
+    sortVariants: (entry) => {
+      if (!entry || typeof entry.base !== 'string') {
+        return Number.POSITIVE_INFINITY;
+      }
+      const match = /_(\d+)\.png$/i.exec(entry.base);
+      return match ? Number.parseInt(match[1], 10) : Number.POSITIVE_INFINITY;
+    },
+  },
+};
 
 function loadExistingNoMask() {
   if (!fs.existsSync(outputPath)) {
@@ -112,6 +126,68 @@ function collectCreatureVariants(folderName) {
   });
 }
 
+function applySpecialVariantRule(folderName, variants) {
+  const rule = SPECIAL_VARIANT_RULES[folderName];
+  if (!rule || !Array.isArray(variants) || variants.length === 0) {
+    return variants;
+  }
+
+  const slotIndex = Number.parseInt(rule.slot, 10);
+  if (!Number.isInteger(slotIndex) || slotIndex < 0) {
+    return variants;
+  }
+
+  const sequence = variants
+    .map((variant) => {
+      const base = variant.base;
+      const masks = Array.isArray(variant.masks) ? variant.masks : [];
+      if (!base) {
+        return null;
+      }
+      const entry = { base, masks };
+      if (variant.name && typeof variant.name === 'string') {
+        entry.label = variant.name;
+      }
+      return entry;
+    })
+    .filter(Boolean);
+
+  if (sequence.length === 0) {
+    return variants;
+  }
+
+  const sorter = typeof rule.sortVariants === 'function'
+    ? (a, b) => {
+        const va = Number(rule.sortVariants(a));
+        const vb = Number(rule.sortVariants(b));
+        if (!Number.isNaN(va) && !Number.isNaN(vb) && va !== vb) {
+          return va - vb;
+        }
+        return a.base.localeCompare(b.base, undefined, { sensitivity: 'base' });
+      }
+    : (a, b) => a.base.localeCompare(b.base, undefined, { sensitivity: 'base' });
+
+  sequence.sort(sorter);
+
+  const baseVariant = variants[0] || {};
+  const { variantSlots: existingVariantSlots = {}, ...rest } = baseVariant;
+  const variantSlots = { ...existingVariantSlots };
+  const primaryVariant = sequence[0];
+  variantSlots[String(slotIndex)] = {
+    mode: rule.mode || 'colorIdCycle',
+    sequence,
+  };
+
+  return [
+    {
+      ...rest,
+      base: primaryVariant.base,
+      masks: primaryVariant.masks,
+      variantSlots,
+    },
+  ];
+}
+
 function resolveNoMask(noMaskByKey, variant) {
   const candidates = [];
   if (variant.maskPath && variant.base) {
@@ -149,7 +225,7 @@ function main() {
   const creatures = [];
 
   for (const folderName of creatureFolders) {
-    const variants = collectCreatureVariants(folderName);
+    const variants = applySpecialVariantRule(folderName, collectCreatureVariants(folderName));
     for (const variant of variants) {
       const noMask = resolveNoMask(noMaskByKey, variant);
       creatures.push({
@@ -165,3 +241,4 @@ function main() {
 }
 
 main();
+

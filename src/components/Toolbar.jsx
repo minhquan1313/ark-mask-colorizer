@@ -42,7 +42,7 @@ export default function Toolbar({
 }) {
   const fileRef = useRef(null);
   const isTransparent = exportBg === 'transparent';
-  const [overlayBlendMode, setOverlayBlendMode] = useState(() => {
+  const [, setOverlayBlendMode] = useState(() => {
     const v = loadJSON(STORAGE_KEYS.overlayBlendMode, DEFAULTS.overlayBlendMode);
     return v === 'pastel' ? 'add' : v;
   });
@@ -59,10 +59,14 @@ export default function Toolbar({
     setOverlayBlendMode('add');
     try {
       saveJSON(STORAGE_KEYS.overlayBlendMode, 'add');
-    } catch {}
+    } catch {
+      /* empty */
+    }
     try {
       window.dispatchEvent(new CustomEvent('overlay-blend-mode-changed', { detail: { mode: 'add' } }));
-    } catch {}
+    } catch {
+      /* empty */
+    }
   };
 
   // Ensure keyframes exist for spinner if not already present
@@ -399,7 +403,9 @@ export default function Toolbar({
                 typeof setBoundaryBlend === 'function' && setBoundaryBlend(DEFAULTS.boundaryBlend);
                 typeof setOverlayStrength === 'function' && setOverlayStrength(DEFAULTS.overlayStrength);
                 typeof setOverlayTint === 'function' && setOverlayTint(DEFAULTS.overlayTint);
-              } catch {}
+              } catch {
+                /* empty */
+              }
               onReset && onReset();
             }}>
             Reset
@@ -432,7 +438,7 @@ export default function Toolbar({
               className="btn"
               onClick={onDownloadWithPalette}
               disabled={downloadingType === 'image' || downloadingType === 'palette'}
-              title="T?i ?nh kèm palette"
+              title="T?i ?nh kï¿½m palette"
               style={{ flex: 1, display: 'inline-flex', justifyContent: 'center', whiteSpace: 'nowrap' }}>
               {downloadingType === 'palette' ? (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
@@ -440,11 +446,11 @@ export default function Toolbar({
                     aria-busy
                     style={{ width: 14, height: 14, border: '2px solid var(--border)', borderTopColor: 'var(--text)', borderRadius: '50%', animation: 'spin 0.9s linear infinite' }}
                   />
-                  ?nh + màu
+                  ?nh + mï¿½u
                 </span>
               ) : (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <IconDownload /> ?nh + màu
+                  <IconDownload /> ?nh + mï¿½u
                 </span>
               )}
             </button>

@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env node
+#!/usr/bin/env node
 // Usage: run "npm run organize:dino-assets" to move temp PNGs into public/assets/dino grouped by creature.
 
 const fs = require('fs');
@@ -8,11 +8,36 @@ const ROOT_DIR = path.resolve(__dirname, '..');
 const TEMP_DIR = path.join(ROOT_DIR, 'temp');
 const DEST_DIR = path.join(ROOT_DIR, 'public', 'assets', 'dino');
 
+const SPECIAL_DEST_FOLDERS = [
+  {
+    pattern: /^Cat_ASA_\d+/i,
+    folder: 'Cat',
+  },
+];
+
 async function ensureDirectory(dirPath) {
   await fs.promises.mkdir(dirPath, { recursive: true });
 }
 
+function resolveDestinationFolder(fileName) {
+  const { name } = path.parse(fileName);
+  for (const rule of SPECIAL_DEST_FOLDERS) {
+    if (!rule) continue;
+    if (rule.pattern && rule.pattern.test(name)) {
+      return rule.folder;
+    }
+    if (typeof rule.test === 'function' && rule.test(name)) {
+      return rule.folder;
+    }
+  }
+  return null;
+}
+
 function getBaseFolderName(fileName) {
+  const special = resolveDestinationFolder(fileName);
+  if (special) {
+    return special;
+  }
   const { name } = path.parse(fileName);
   const separatorIndex = name.indexOf('_');
   const base = separatorIndex === -1 ? name : name.slice(0, separatorIndex);
@@ -97,3 +122,4 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
+

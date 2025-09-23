@@ -30,7 +30,7 @@ export const STORAGE_KEYS = {
 export function saveJSON(key, data) {
   try {
     localStorage.setItem(key, JSON.stringify(data));
-  } catch {}
+  } catch { /* ignore storage errors */ }
 }
 export function loadJSON(key, fallback = null) {
   try {
@@ -43,5 +43,5 @@ export function loadJSON(key, fallback = null) {
 export function remove(key) {
   try {
     localStorage.removeItem(key);
-  } catch {}
+  } catch { /* ignore storage errors */ }
 }

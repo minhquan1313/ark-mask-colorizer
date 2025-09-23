@@ -624,33 +624,41 @@
     "masks": [
       "Cat_ASA_1_m.png"
     ],
-    "noMask": []
-  },
-  {
-    "name": "Cat",
-    "maskPath": "Cat",
-    "base": "Cat_ASA_2.png",
-    "masks": [
-      "Cat_ASA_2_m.png"
-    ],
-    "noMask": []
-  },
-  {
-    "name": "Cat",
-    "maskPath": "Cat",
-    "base": "Cat_ASA_3.png",
-    "masks": [
-      "Cat_ASA_3_m.png"
-    ],
-    "noMask": []
-  },
-  {
-    "name": "Cat",
-    "maskPath": "Cat",
-    "base": "Cat_ASA_4.png",
-    "masks": [
-      "Cat_ASA_4_m.png"
-    ],
+    "variantSlots": {
+      "1": {
+        "mode": "colorIdCycle",
+        "sequence": [
+          {
+            "base": "Cat_ASA_1.png",
+            "masks": [
+              "Cat_ASA_1_m.png"
+            ],
+            "label": "Cat"
+          },
+          {
+            "base": "Cat_ASA_2.png",
+            "masks": [
+              "Cat_ASA_2_m.png"
+            ],
+            "label": "Cat"
+          },
+          {
+            "base": "Cat_ASA_3.png",
+            "masks": [
+              "Cat_ASA_3_m.png"
+            ],
+            "label": "Cat"
+          },
+          {
+            "base": "Cat_ASA_4.png",
+            "masks": [
+              "Cat_ASA_4_m.png"
+            ],
+            "label": "Cat"
+          }
+        ]
+      }
+    },
     "noMask": []
   },
   {
@@ -1359,15 +1367,6 @@
     "base": "Parasaur_ASA.png",
     "masks": [
       "Parasaur_ASA_m.png"
-    ],
-    "noMask": []
-  },
-  {
-    "name": "Parasaur",
-    "maskPath": "Parasaur",
-    "base": "Parasaur.png",
-    "masks": [
-      "Parasaur_m.png"
     ],
     "noMask": []
   },
