@@ -956,6 +956,9 @@
     "maskPath": "Drakeling (Winter)",
     "base": "Drakeling (Winter)_ASA.png",
     "masks": [
+      "Drakeling (Winter)_ASA_m_04.png",
+      "Drakeling (Winter)_ASA_m_05.png",
+      "Drakeling (Winter)_ASA_m_14.png",
       "Drakeling (Winter)_ASA_m.png"
     ],
     "noMask": [
