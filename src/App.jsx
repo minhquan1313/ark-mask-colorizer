@@ -1,5 +1,5 @@
 // src/App.jsx
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import CanvasView from './components/CanvasView.jsx';
 import CreaturePicker from './components/CreaturePicker.jsx';
 import PaletteGrid from './components/PaletteGrid.jsx';
@@ -38,7 +38,7 @@ const idToEntry = (id) => ARK_PALETTE.find((p) => String(p.index) === String(id)
 const QIDX_BP = 0; // Blueprint'...'
 const QIDX_BASE = 2; // "103,53,0,0,100,105,0,0"
 const QIDX_INC = 3; // "0,0,0,0,0,0,0,0"
-const QIDX_NAME = 4; // "Tên dino do user d?t"
+const QIDX_NAME = 4; // "Tï¿½n dino do user d?t"
 const QIDX_COLORS = 8; // "76,83,83,0,83,70"
 function toVariantColorId(slotValue) {
   if (slotValue == null) {
@@ -95,14 +95,36 @@ function buildSlotsColorSignature(slots) {
 }
 
 
+function normalizeFavoriteIds(values) {
+  if (!Array.isArray(values)) {
+    return [];
+  }
+  const seen = new Set();
+  const normalized = [];
+  for (const value of values) {
+    if (value == null) continue;
+    const id = String(value);
+    if (seen.has(id)) continue;
+    const entry = ARK_PALETTE.find((p) => String(p.index) === id);
+    if (!entry) continue;
+    seen.add(id);
+    normalized.push(id);
+  }
+  return normalized;
+}
+
 export default function App() {
   const baseCanvasRef = useRef(null);
   const maskCanvasRef = useRef(null);
   const outCanvasRef = useRef(null);
 
-  // ? KH?I T?O t? localStorage ngay l?p t?c (tránh overwrite)
+  // ? KH?I T?O t? localStorage ngay l?p t?c (trï¿½nh overwrite)
   const initialSlots = useMemo(() => loadJSON(STORAGE_KEYS.slots, DEFAULTS.slots), []);
   const preferredCreature = useMemo(() => loadJSON(STORAGE_KEYS.creature, DEFAULTS.defaultCreatureName), []);
+  const initialPaletteFavorites = useMemo(
+    () => normalizeFavoriteIds(loadJSON(STORAGE_KEYS.paletteFavorites, DEFAULTS.paletteFavorites)),
+    []
+  );
 
   const [slots, setSlots] = useState(Array.isArray(initialSlots) && initialSlots.length === 6 ? initialSlots : DEFAULTS.slots);
   const [threshold, setThreshold] = useState(initialThreshold);
@@ -124,6 +146,7 @@ export default function App() {
   const [chromaCurve, setChromaCurve] = useState(initialChromaCurve);
   const [exportBg, setExportBg] = useState(initialBg);
   const [exportText, setExportText] = useState(initialText);
+  const [favoriteColors, setFavoriteColors] = useState(initialPaletteFavorites);
   const [fillOpen, setFillOpen] = useState(false);
   const fillBtnRef = useRef(null);
 
@@ -141,14 +164,30 @@ export default function App() {
   const pendingArgsRef = useRef(null);
   const slotsRef = useRef(slots);
   slotsRef.current = slots;
+  const toggleFavoriteColor = useCallback((entry) => {
+    if (!entry || entry.index == null) return;
+    const id = String(entry.index);
+    setFavoriteColors((prevRaw) => {
+      const prev = Array.isArray(prevRaw) ? prevRaw : [];
+      const hasId = prev.includes(id);
+      const next = hasId ? prev.filter((value) => value !== id) : [id, ...prev];
+      saveJSON(STORAGE_KEYS.paletteFavorites, next);
+      return next;
+    });
+  }, []);
+  const resetFavoriteColors = useCallback(() => {
+    const next = normalizeFavoriteIds(DEFAULTS.paletteFavorites);
+    setFavoriteColors(next);
+    saveJSON(STORAGE_KEYS.paletteFavorites, next);
+  }, []);
 
-  // Khi current thay d?i ? load ?nh dúng con, KHÔNG dùng base.png m?c d?nh
+  // Khi current thay d?i ? load ?nh dï¿½ng con, KHï¿½NG dï¿½ng base.png m?c d?nh
   useEffect(() => {
     if (!current) return;
     loadFromEntry(current, slotsRef.current);
   }, [current, variantKey, loadFromEntry]);
 
-  // Khi d?i creature ? set null cho các slot b? disable
+  // Khi d?i creature ? set null cho cï¿½c slot b? disable
   useEffect(() => {
     if (!current || customMode) return;
     const disabled = new Set(current.noMask || []);
@@ -168,7 +207,7 @@ export default function App() {
     }
   }, [customMode, setCurrent]);
 
-  // V? khi dã có ?nh
+  // V? khi dï¿½ cï¿½ ?nh
   useEffect(() => {
     if (!baseImg || !maskImg) return;
     const args = { baseImg, maskImg, extraMasks, baseCanvasRef, maskCanvasRef, outCanvasRef, slots: slotsRef.current };
@@ -180,7 +219,7 @@ export default function App() {
     });
   }, [baseImg, maskImg, extraMasks, slotsColorSignature, threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, overlayStrength, overlayColorStrength, overlayColorMixBoost, colorMixBoost, overlayTint, draw]);
 
-  // ? Luu slots m?i khi d?i (dã an toàn vì init t? storage)
+  // ? Luu slots m?i khi d?i (dï¿½ an toï¿½n vï¿½ init t? storage)
   useEffect(() => {
     slotsRef.current = slots;
   }, [slots]);
@@ -261,28 +300,28 @@ export default function App() {
       const speciesRaw = extractSpeciesFromBlueprint(bpStr); // "Basilisk"
       const speciesNorm = normalizeName(speciesRaw);
       if (speciesNorm) {
-        // tìm trong creatures.json (so không phân bi?t hoa thu?ng, b? _-)
+        // tï¿½m trong creatures.json (so khï¿½ng phï¿½n bi?t hoa thu?ng, b? _-)
         const found = list.find((c) => normalizeName(c.name) === speciesNorm);
         if (found) {
-          selectByName(found.name); // load dúng base/mask c?a loài
+          selectByName(found.name); // load dï¿½ng base/mask c?a loï¿½i
           saveJSON(STORAGE_KEYS.creature, found.name);
-          // n?u b?n dang có tempCreatureName d? hi?n th? tên t? do, nên clear:
+          // n?u b?n dang cï¿½ tempCreatureName d? hi?n th? tï¿½n t? do, nï¿½n clear:
           setTempCreatureName(null);
         }
       }
 
-      // --- 2) Tên ngu?i dùng d?t (d? hi?n th? ph?): không ch?a ký t? d?c bi?t
+      // --- 2) Tï¿½n ngu?i dï¿½ng d?t (d? hi?n th? ph?): khï¿½ng ch?a kï¿½ t? d?c bi?t
       const rawName = quoted[QIDX_NAME] ?? '';
       const dinoName = sanitizeName(rawName);
       if (dinoName) saveJSON(STORAGE_KEYS.cmdName, dinoName);
 
-      // --- 3) Base/Inc stats (8 s? m?i bên) -> luu l?i cho tuong lai
+      // --- 3) Base/Inc stats (8 s? m?i bï¿½n) -> luu l?i cho tuong lai
       const baseStats = parseNumList(quoted[QIDX_BASE], 8, 8);
       const incStats = parseNumList(quoted[QIDX_INC], 8, 8);
       if (baseStats) saveJSON(STORAGE_KEYS.cmdBaseStats, baseStats);
       if (incStats) saveJSON(STORAGE_KEYS.cmdIncStats, incStats);
 
-      // --- 4) Màu 6 slot -> apply (b? qua slot b? noMask)
+      // --- 4) Mï¿½u 6 slot -> apply (b? qua slot b? noMask)
       const colorIds = parseNumList(quoted[QIDX_COLORS], 6, 6);
       if (colorIds) {
         const disabled = new Set(current?.noMask || []);
@@ -295,7 +334,7 @@ export default function App() {
         );
       }
 
-      // (tu? ch?n) hi?n th? toast: “Ðã dán CMD, auto ch?n Basilisk và áp màu”
+      // (tu? ch?n) hi?n th? toast: ï¿½ï¿½ï¿½ dï¿½n CMD, auto ch?n Basilisk vï¿½ ï¿½p mï¿½uï¿½
     } catch (e) {
       console.error('Paste CMD failed', e);
     }
@@ -518,7 +557,7 @@ export default function App() {
     setOverlayColorMixBoost(DEFAULTS.overlayColorMixBoost);
     setColorMixBoost(DEFAULTS.colorMixBoost);
     setOverlayTint(DEFAULTS.overlayTint);
-    // slots s? du?c luu l?i qua effect ? trên
+    // slots s? du?c luu l?i qua effect ? trï¿½n
   };
   const onPickSlot = (i, entryOrNull) => {
     setSlots((prev) => {
@@ -558,7 +597,7 @@ export default function App() {
         </div>
         <div style={{ textAlign: 'center', marginTop: 4, marginBottom: 8, color: 'var(--muted)' }}>{creatureName}</div>
 
-        {/* ?? truy?n exportBg/exportText xu?ng d? CanvasView copy dúng */}
+        {/* ?? truy?n exportBg/exportText xu?ng d? CanvasView copy dï¿½ng */}
         <CanvasView
           outCanvasRef={outCanvasRef}
           loading={!baseImg || !maskImg}
@@ -635,6 +674,9 @@ export default function App() {
           onPickSlot={onPickSlot}
           onRandomAll={randomAll}
           onResetSlots={resetSlotsOnly}
+          favorites={favoriteColors}
+          onToggleFavorite={toggleFavoriteColor}
+          onResetFavorites={resetFavoriteColors}
           onPasteCmd={handlePasteCmd}
           extraActions={
             <>
@@ -652,7 +694,10 @@ export default function App() {
                     <PaletteGrid
                       big
                       showIndex
+                      favorites={favoriteColors}
                       onPick={(p) => doFillWith(p)}
+                      onToggleFavorite={toggleFavoriteColor}
+                      onResetFavorites={resetFavoriteColors}
                     />
                   </div>
                 </Popover>
@@ -679,10 +724,5 @@ export default function App() {
     </div>
   );
 }
-
-
-
-
-
 
 

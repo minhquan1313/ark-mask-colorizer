@@ -21,6 +21,7 @@ export const STORAGE_KEYS = {
   overlayColorStrength: `${NS}:overlayColorStrength`,
   colorMixBoost: `${NS}:colorMixBoost`,
   overlayColorMixBoost: `${NS}:overlayColorMixBoost`,
+  paletteFavorites: `${NS}:paletteFavorites`,
   overlayTint: `${NS}:overlayTint`,
   overlayBlendMode: `${NS}:overlayBlendMode`, // 'add' | 'pastel'
   overlayPastelKappa: `${NS}:overlayPastelKappa`, // 0.3..0.8

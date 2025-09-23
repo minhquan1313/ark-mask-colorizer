@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import SlotPicker from './SlotPicker.jsx';
 
-export default function SlotControls({ slots, disabledSet, onPickSlot, onRandomAll, onResetSlots, extraActions, onPasteCmd, onCopyCmd }) {
+export default function SlotControls({ slots, disabledSet, onPickSlot, onRandomAll, onResetSlots, extraActions, onPasteCmd, onCopyCmd, favorites = [], onToggleFavorite, onResetFavorites }) {
   const [copied, setCopied] = useState(false);
   const [copyErr, setCopyErr] = useState(false);
   return (
@@ -13,6 +13,9 @@ export default function SlotControls({ slots, disabledSet, onPickSlot, onRandomA
           slotIndex={i}
           value={s}
           disabled={disabledSet?.has(i)} // ⬅️ disable theo noMask
+          favorites={favorites}
+          onToggleFavorite={onToggleFavorite}
+          onResetFavorites={onResetFavorites}
           onChange={(v) => onPickSlot(i, v)}
         />
       ))}
@@ -67,3 +70,4 @@ export default function SlotControls({ slots, disabledSet, onPickSlot, onRandomA
     </div>
   );
 }
+

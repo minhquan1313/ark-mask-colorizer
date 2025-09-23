@@ -1,4 +1,4 @@
-﻿// src/components/SlotPicker.jsx
+// src/components/SlotPicker.jsx
 import { useEffect, useRef, useState } from 'react';
 import { ARK_PALETTE } from '../utils/arkPalette';
 import { hexToRgb, relLuminance } from '../utils/color';
@@ -7,7 +7,7 @@ import Popover from './Popover';
 
 const findByIndex = (idx) => ARK_PALETTE.find((p) => String(p.index) === String(idx)) || null;
 
-export default function SlotPicker({ slotIndex, value, onChange, disabled = false }) {
+export default function SlotPicker({ slotIndex, value, onChange, disabled = false, favorites = [], onToggleFavorite, onResetFavorites }) {
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [idDraft, setIdDraft] = useState(value ? String(value.index) : '');
@@ -141,7 +141,10 @@ export default function SlotPicker({ slotIndex, value, onChange, disabled = fals
             <PaletteGrid
               big
               showIndex
+              favorites={favorites}
               onPick={handlePick}
+              onToggleFavorite={onToggleFavorite}
+              onResetFavorites={onResetFavorites}
             />
           </div>
         </Popover>
