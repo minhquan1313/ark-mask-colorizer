@@ -1,4 +1,4 @@
-// src/App.jsx
+﻿// src/App.jsx
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import CanvasView from './components/CanvasView.jsx';
 import CreaturePicker from './components/CreaturePicker.jsx';
@@ -94,7 +94,6 @@ function buildSlotsColorSignature(slots) {
     .join('|');
 }
 
-
 function normalizeFavoriteIds(values) {
   if (!Array.isArray(values)) {
     return [];
@@ -121,10 +120,7 @@ export default function App() {
   // ? KH?I T?O t? localStorage ngay l?p t?c (tr�nh overwrite)
   const initialSlots = useMemo(() => loadJSON(STORAGE_KEYS.slots, DEFAULTS.slots), []);
   const preferredCreature = useMemo(() => loadJSON(STORAGE_KEYS.creature, DEFAULTS.defaultCreatureName), []);
-  const initialPaletteFavorites = useMemo(
-    () => normalizeFavoriteIds(loadJSON(STORAGE_KEYS.paletteFavorites, DEFAULTS.paletteFavorites)),
-    []
-  );
+  const initialPaletteFavorites = useMemo(() => normalizeFavoriteIds(loadJSON(STORAGE_KEYS.paletteFavorites, DEFAULTS.paletteFavorites)), []);
 
   const [slots, setSlots] = useState(Array.isArray(initialSlots) && initialSlots.length === 6 ? initialSlots : DEFAULTS.slots);
   const [threshold, setThreshold] = useState(initialThreshold);
@@ -707,9 +703,7 @@ export default function App() {
         />
 
         <hr />
-        <div className="subtle small">
-          Luu ?: Index <b>255</b> l? undefined (b? qua slot). C?p t?n: <code>name.png</code> & <code>name_m.png</code>.
-        </div>
+        <div className="subtle small">Last update : 2025/9/24 17:55</div>
 
         {/* working canvases */}
         <canvas
@@ -724,5 +718,3 @@ export default function App() {
     </div>
   );
 }
-
-
