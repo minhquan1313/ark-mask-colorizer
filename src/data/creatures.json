@@ -1166,6 +1166,7 @@
     "maskPath": "Griffin",
     "base": "Griffin_ASA.png",
     "masks": [
+      "Griffin_ASA_m_05.png",
       "Griffin_ASA_m.png"
     ],
     "noMask": [
@@ -1767,6 +1768,8 @@
     "maskPath": "Pyromane",
     "base": "Pyromane_ASA.png",
     "masks": [
+      "Pyromane_ASA_m_23.png",
+      "Pyromane_ASA_m_25.png",
       "Pyromane_ASA_m.png"
     ],
     "noMask": [
@@ -1780,9 +1783,15 @@
     "maskPath": "Pyromane",
     "base": "Pyromane_ASA_sf.png",
     "masks": [
+      "Pyromane_ASA_sf_m_23.png",
+      "Pyromane_ASA_sf_m_25.png",
       "Pyromane_ASA_sf_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      0,
+      1,
+      4
+    ]
   },
   {
     "name": "Quetzal",
@@ -1846,6 +1855,9 @@
     "maskPath": "Rhyniognatha",
     "base": "Rhyniognatha_ASA.png",
     "masks": [
+      "Rhyniognatha_ASA_m_04.png",
+      "Rhyniognatha_ASA_m_05.png",
+      "Rhyniognatha_ASA_m_14.png",
       "Rhyniognatha_ASA_m.png"
     ],
     "noMask": []
@@ -1855,6 +1867,11 @@
     "maskPath": "Rock Drake",
     "base": "Rock Drake_ASA.png",
     "masks": [
+      "Rock Drake_ASA_m_04.png",
+      "Rock Drake_ASA_m_05.png",
+      "Rock Drake_ASA_m_13.png",
+      "Rock Drake_ASA_m_14.png",
+      "Rock Drake_ASA_m_25.png",
       "Rock Drake_ASA_m.png"
     ],
     "noMask": []
