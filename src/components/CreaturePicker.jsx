@@ -7,7 +7,7 @@ export default function CreaturePicker({ list, currentName, onPick, customMode =
       <label
         className="small subtle"
         style={{ opacity: 0.8 }}>
-        Sinh vật
+        Creature
       </label>
       <select
         value={customMode ? '__custom__' : currentName || ''}
@@ -24,9 +24,7 @@ export default function CreaturePicker({ list, currentName, onPick, customMode =
           background: 'var(--surface)',
           color: 'var(--text)',
         }}>
-        {customMode && (
-          <option value="__custom__">Custom</option>
-        )}
+        {customMode && <option value="__custom__">Custom</option>}
         {list.map((c) => (
           <option
             key={c.name}
@@ -38,5 +36,3 @@ export default function CreaturePicker({ list, currentName, onPick, customMode =
     </div>
   );
 }
-
-

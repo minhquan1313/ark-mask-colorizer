@@ -424,7 +424,7 @@ export default function Toolbar({
               />
               <button
                 className="btn"
-                title="N?n trong su?t"
+                title="Nền trong suốt"
                 onClick={handleTransparentBg}
                 style={{
                   padding: '4px 8px',
@@ -432,7 +432,7 @@ export default function Toolbar({
                   borderColor: isTransparent ? '#5cc8ff' : undefined,
                   boxShadow: isTransparent ? '0 0 0 2px rgba(92,200,255,0.25) inset' : undefined,
                 }}>
-                Trong su?t
+                Transparent
               </button>
             </div>
             <div
@@ -495,7 +495,7 @@ export default function Toolbar({
               className="btn"
               onClick={onDownloadImage}
               disabled={downloadingType === 'image' || downloadingType === 'palette'}
-              title="T?i ?nh"
+              title="Tải ảnh"
               style={{ flex: 1, display: 'inline-flex', justifyContent: 'center' }}>
               {downloadingType === 'image' ? (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
@@ -503,11 +503,11 @@ export default function Toolbar({
                     aria-busy
                     style={{ width: 14, height: 14, border: '2px solid var(--border)', borderTopColor: 'var(--text)', borderRadius: '50%', animation: 'spin 0.9s linear infinite' }}
                   />
-                  ?nh
+                  Pic
                 </span>
               ) : (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <IconDownload /> ?nh
+                  <IconDownload /> Pic
                 </span>
               )}
             </button>
@@ -523,11 +523,11 @@ export default function Toolbar({
                     aria-busy
                     style={{ width: 14, height: 14, border: '2px solid var(--border)', borderTopColor: 'var(--text)', borderRadius: '50%', animation: 'spin 0.9s linear infinite' }}
                   />
-                  ?nh + m�u
+                  Pic + Colors
                 </span>
               ) : (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <IconDownload /> ?nh + m�u
+                  <IconDownload /> Pic + Colors
                 </span>
               )}
             </button>
@@ -537,5 +537,3 @@ export default function Toolbar({
     </>
   );
 }
-
-
