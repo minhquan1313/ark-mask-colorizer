@@ -1,0 +1,80 @@
+﻿{
+  "language": {
+    "selectorLabel": "Ngon ngu",
+    "options": {
+      "en": "Tieng Anh",
+      "vi": "Tieng Viet"
+    }
+  },
+  "app": {
+    "lastUpdate": "Cap nhat lan cuoi: {{date}}",
+    "slotsTitle": "O mau (0 - 5)",
+    "fill": "Do mau",
+    "customCreature": "Tuy chinh"
+  },
+  "creaturePicker": {
+    "label": "Sinh vat",
+    "customOption": "Tuy chinh"
+  },
+  "slotControls": {
+    "random": "Ngau nhien",
+    "reset": "Dat lai",
+    "paste": "Dan mau",
+    "pasteTitle": "Dan mau",
+    "copy": "Sao chep mau",
+    "copyTitle": "Sao chep mau",
+    "copyFailed": "That bai",
+    "copySuccess": "Da sao chep"
+  },
+  "slotPicker": {
+    "noMask": "Slot khong co mask",
+    "pickColor": "Chon mau...",
+    "idPlaceholder": "ID",
+    "clear": "Bo mau",
+    "clearLabel": "Bo mau"
+  },
+  "paletteGrid": {
+    "reset": "Dat lai"
+  },
+  "toolbar": {
+    "threshold": "Nguong",
+    "strength": "Do manh",
+    "neutralStrength": "Do manh trung tinh",
+    "feather": "Lam min bien",
+    "gamma": "Gamma",
+    "keepLight": "Giu sang",
+    "colorMixBoost": "Tang phoi mau",
+    "chromaBoost": "Tang sac do",
+    "chromaCurve": "Duong cong sac do",
+    "speckleClean": "Lam sach hat",
+    "edgeSmooth": "Lam muot bien",
+    "boundaryBlend": "Hoa tron ranh gioi",
+    "overlayStrength": "Do manh overlay",
+    "overlayColorStrength": "Do manh mau overlay",
+    "overlayColorMixBoost": "Tang phoi mau overlay",
+    "overlayTint": "Overlay Tint (trang+mau)",
+    "overlayBlend": "Che do overlay",
+    "overlayBlendTitle": "Overlay blend: Add",
+    "overlayBlendButton": "Add",
+    "export": "Xuat",
+    "bg": "Nen",
+    "text": "Chu",
+    "transparent": "Trong suot",
+    "transparentTitle": "Nen trong suot",
+    "customMask": "Mask tuy chinh",
+    "reset": "Dat lai",
+    "downloadImageTitle": "Tai anh",
+    "downloadImage": "Anh",
+    "downloadWithPaletteTitle": "Tai anh kem palette",
+    "downloadWithPalette": "Anh + Mau",
+    "downloadingImage": "Anh",
+    "downloadingPalette": "Anh + Mau"
+  },
+  "canvas": {
+    "copyImageSuccess": "Da copy anh!",
+    "copyWithPaletteSuccess": "Da copy anh kem palette!",
+    "copyError": "Copy that bai",
+    "hint": "Nhap: copy | Chuot phai: copy + palette",
+    "slotLabel": "Slot {{index}}"
+  }
+}

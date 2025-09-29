@@ -597,27 +597,42 @@ export default function App() {
         </div>
         <div
           style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
-          <label
-            className="small subtle"
-            style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span>{t('language.selectorLabel')}</span>
-            <select
-              value={lang}
-              onChange={(e) => setLang(e.target.value)}
-              style={{
-                padding: '6px 10px',
-                borderRadius: 8,
-                border: '1px solid var(--border)',
-                background: 'var(--surface)',
-                color: 'var(--text)',
-              }}>
+          <div
+            className="language-switch"
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+            <span className="small subtle">{t('language.selectorLabel')}</span>
+            <div
+              style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
               {languageOptions.map((option) => (
-                <option key={option.code} value={option.code}>
-                  {option.label}
-                </option>
+                <button
+                  key={option.code}
+                  type="button"
+                  onClick={() => setLang(option.code)}
+                  aria-pressed={lang === option.code}
+                  className="btn"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '4px 8px',
+                    borderWidth: lang === option.code ? 2 : 1,
+                    borderColor: lang === option.code ? 'var(--accent, #3b82f6)' : undefined,
+                    boxShadow: lang === option.code ? '0 0 0 2px rgba(59,130,246,0.25)' : undefined,
+                  }}>
+                  {option.flag && (
+                    <img
+                      src={option.flag}
+                      alt={`${option.label} flag`}
+                      width={20}
+                      height={14}
+                      style={{ borderRadius: 4 }}
+                    />
+                  )}
+                  <span>{option.label}</span>
+                </button>
               ))}
-            </select>
-          </label>
+            </div>
+          </div>
         </div>
         <div style={{ textAlign: 'center', marginTop: 4, marginBottom: 8, color: 'var(--muted)' }}>{creatureName}</div>
 
@@ -746,6 +761,7 @@ export default function App() {
     </div>
   );
 }
+
 
 
 

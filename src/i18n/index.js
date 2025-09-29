@@ -1,6 +1,6 @@
 ﻿import i18n from 'i18next';
 import { initReactI18next, useTranslation } from 'react-i18next';
-import { FALLBACK_LANG, SUPPORTED_LANGS, resources } from './translations.js';
+import { FALLBACK_LANG, SUPPORTED_LANGS, resources, LANGUAGE_FLAGS } from './translations.js';
 import { STORAGE_KEYS } from '../utils/storage.js';
 
 const LANGUAGE_STORAGE_KEY = STORAGE_KEYS.language;
@@ -75,6 +75,7 @@ export function useLanguageOptions() {
   return SUPPORTED_LANGS.map((code) => ({
     code,
     label: t(`language.options.${code}`),
+    flag: LANGUAGE_FLAGS[code] ?? null,
   }));
 }
 

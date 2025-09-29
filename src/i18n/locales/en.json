@@ -1,0 +1,80 @@
+﻿{
+  "language": {
+    "selectorLabel": "Language",
+    "options": {
+      "en": "English",
+      "vi": "Vietnamese"
+    }
+  },
+  "app": {
+    "lastUpdate": "Last update: {{date}}",
+    "slotsTitle": "Slots (0 - 5)",
+    "fill": "Fill",
+    "customCreature": "Custom"
+  },
+  "creaturePicker": {
+    "label": "Creature",
+    "customOption": "Custom"
+  },
+  "slotControls": {
+    "random": "Random",
+    "reset": "Reset",
+    "paste": "Paste Color",
+    "pasteTitle": "Paste Color",
+    "copy": "Copy Color",
+    "copyTitle": "Copy Color",
+    "copyFailed": "Failed",
+    "copySuccess": "Copied"
+  },
+  "slotPicker": {
+    "noMask": "Slot has no mask",
+    "pickColor": "Pick a color...",
+    "idPlaceholder": "ID",
+    "clear": "Clear color",
+    "clearLabel": "Clear color"
+  },
+  "paletteGrid": {
+    "reset": "Reset"
+  },
+  "toolbar": {
+    "threshold": "Threshold",
+    "strength": "Strength",
+    "neutralStrength": "Neutral Strength",
+    "feather": "Feather",
+    "gamma": "Gamma",
+    "keepLight": "Keep Light",
+    "colorMixBoost": "Color Mix Boost",
+    "chromaBoost": "Chroma Boost",
+    "chromaCurve": "Chroma Curve",
+    "speckleClean": "Speckle Clean",
+    "edgeSmooth": "Edge Smooth",
+    "boundaryBlend": "Boundary Blend",
+    "overlayStrength": "Overlay Strength",
+    "overlayColorStrength": "Overlay Color Strength",
+    "overlayColorMixBoost": "Overlay Color Mix Boost",
+    "overlayTint": "Overlay Tint (white+color)",
+    "overlayBlend": "Overlay Blend",
+    "overlayBlendTitle": "Overlay blend: Add",
+    "overlayBlendButton": "Add",
+    "export": "Export",
+    "bg": "BG",
+    "text": "Text",
+    "transparent": "Transparent",
+    "transparentTitle": "Transparent background",
+    "customMask": "Custom mask",
+    "reset": "Reset",
+    "downloadImageTitle": "Download image",
+    "downloadImage": "Pic",
+    "downloadWithPaletteTitle": "Download image with palette",
+    "downloadWithPalette": "Pic + Colors",
+    "downloadingImage": "Pic",
+    "downloadingPalette": "Pic + Colors"
+  },
+  "canvas": {
+    "copyImageSuccess": "Copied image!",
+    "copyWithPaletteSuccess": "Copied image with palette!",
+    "copyError": "Copy failed",
+    "hint": "Click: copy | Right-click: copy + palette",
+    "slotLabel": "Slot {{index}}"
+  }
+}
