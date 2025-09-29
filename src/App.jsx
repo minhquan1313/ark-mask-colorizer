@@ -6,6 +6,7 @@ import PaletteGrid from './components/PaletteGrid.jsx';
 import Popover from './components/Popover.jsx';
 import SlotControls from './components/SlotControls.jsx';
 import Toolbar from './components/Toolbar.jsx';
+import { useI18n, useLanguageOptions } from './i18n/index.js';
 import { DEFAULTS } from './config/defaults.js';
 import { useCreatures } from './hooks/useCreatures.js';
 import { useImages } from './hooks/useImages.js';
@@ -113,6 +114,8 @@ function normalizeFavoriteIds(values) {
 }
 
 export default function App() {
+  const { t, setLang, lang } = useI18n();
+  const languageOptions = useLanguageOptions();
   const baseCanvasRef = useRef(null);
   const maskCanvasRef = useRef(null);
   const outCanvasRef = useRef(null);
@@ -425,7 +428,8 @@ export default function App() {
       }
       // label
       ctx.fillStyle = exportText || '#fff';
-      ctx.fillText(`Slot ${i}`, x + sw / 2, y + sh + labelY - 4);
+      const labelText = t('canvas.slotLabel', { index: i });
+      ctx.fillText(labelText, x + sw / 2, y + sh + labelY - 4);
       x += sw + gap;
     }
     setDownloadingType('palette');
@@ -591,6 +595,30 @@ export default function App() {
           style={{ textAlign: 'center', fontWeight: 800 }}>
           ARK Mask Colorizer
         </div>
+        <div
+          style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
+          <label
+            className="small subtle"
+            style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span>{t('language.selectorLabel')}</span>
+            <select
+              value={lang}
+              onChange={(e) => setLang(e.target.value)}
+              style={{
+                padding: '6px 10px',
+                borderRadius: 8,
+                border: '1px solid var(--border)',
+                background: 'var(--surface)',
+                color: 'var(--text)',
+              }}>
+              {languageOptions.map((option) => (
+                <option key={option.code} value={option.code}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
         <div style={{ textAlign: 'center', marginTop: 4, marginBottom: 8, color: 'var(--muted)' }}>{creatureName}</div>
 
         {/* ?? truy?n exportBg/exportText xu?ng d? CanvasView copy d�ng */}
@@ -652,7 +680,7 @@ export default function App() {
         <CreaturePicker
           key={customMode ? 'custom' : current?.name || 'none'}
           list={list}
-          currentName={customMode ? 'Custom' : current?.name}
+          currentName={current?.name || ''}
           customMode={customMode}
           onPick={(name) => {
             if (!name) return;
@@ -663,7 +691,7 @@ export default function App() {
         />
         <hr />
 
-        <div className="title">Slots (0 - 5)</div>
+        <div className="title">{t('app.slotsTitle')}</div>
         <SlotControls
           slots={slots}
           disabledSet={disabledSet} // ?? truy?n xu?ng
@@ -680,7 +708,7 @@ export default function App() {
                 ref={fillBtnRef}
                 className="btn"
                 onClick={() => setFillOpen(true)}>
-                Fill
+                {t('app.fill')}
               </button>
               {fillOpen && (
                 <Popover
@@ -703,7 +731,7 @@ export default function App() {
         />
 
         <hr />
-        <div className="subtle small">Last update : 2025/9/24 17:55</div>
+        <div className="subtle small">{t('app.lastUpdate', { date: '2025/9/24 17:55' })}</div>
 
         {/* working canvases */}
         <canvas
@@ -718,3 +746,32 @@ export default function App() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

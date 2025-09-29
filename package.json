@@ -13,7 +13,9 @@
   },
   "dependencies": {
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "i18next": "^24.1.0",
+    "react-i18next": "^15.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

@@ -1,4 +1,4 @@
-// src/components/PaletteGrid.jsx
+﻿import { useI18n } from '../i18n/index.js';
 import { useMemo } from 'react';
 import { ARK_PALETTE } from '../utils/arkPalette';
 import { hexToRgb, relLuminance } from '../utils/color';
@@ -6,6 +6,7 @@ import { hexToRgb, relLuminance } from '../utils/color';
 const toIdString = (value) => String(value);
 
 export default function PaletteGrid({ onPick, onToggleFavorite, onResetFavorites, favorites = [], big = false, showIndex = false }) {
+  const { t } = useI18n();
   const size = big ? 44 : 30;
   const gap = big ? 10 : 6;
 
@@ -45,7 +46,7 @@ export default function PaletteGrid({ onPick, onToggleFavorite, onResetFavorites
               type="button"
               className="btn"
               onClick={handleResetFavorites}>
-              Reset
+              {t('paletteGrid.reset')}
             </button>
           </div>
           <div
@@ -65,7 +66,7 @@ export default function PaletteGrid({ onPick, onToggleFavorite, onResetFavorites
         }}>
         {orderedList.map((c) => {
           const [r, g, b] = hexToRgb(c.hex);
-          const lum = relLuminance(r, g, b); // 0..1
+          const lum = relLuminance(r, g, b);
           const textColor = lum > 0.55 ? '#111' : '#fff';
           const isFavorite = favoriteSet.has(toIdString(c.index));
 
@@ -136,4 +137,3 @@ export default function PaletteGrid({ onPick, onToggleFavorite, onResetFavorites
     </div>
   );
 }
-

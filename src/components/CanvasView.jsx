@@ -1,8 +1,9 @@
-// src/components/CanvasView.jsx
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
+import { useI18n } from '../i18n/index.js';
 import { hexToRgb, relLuminance } from '../utils/color';
 
 export default function CanvasView({ outCanvasRef, loading, busy = false, slots = [], exportBg = '#000', exportText = '#fff' }) {
+  const { t } = useI18n();
   const wrapRef = useRef(null);
   const [hint, setHint] = useState(false);
   const [toast, setToast] = useState(null);
@@ -37,8 +38,8 @@ export default function CanvasView({ outCanvasRef, loading, busy = false, slots 
     try {
       const src = outCanvasRef.current;
       if (!src) return;
-      const W = src.width,
-        H = src.height;
+      const W = src.width;
+      const H = src.height;
       const off = document.createElement('canvas');
       off.width = W;
       off.height = H;
@@ -52,20 +53,24 @@ export default function CanvasView({ outCanvasRef, loading, busy = false, slots 
       ctx.drawImage(src, 0, 0, W, H);
       const blob = await new Promise((res) => off.toBlob(res, 'image/png'));
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-      notify('Đã copy ảnh!');
+      notify(t('canvas.copyImageSuccess'));
     } catch {
-      notify('Copy thất bại');
+      notify(t('canvas.copyError'));
     }
   };
 
   const onContextMenu = async (e) => {
     e.preventDefault();
     try {
-      const blob = await exportWithPaletteBlob(outCanvasRef.current, slots, { exportBg, exportText });
+      const blob = await exportWithPaletteBlob(outCanvasRef.current, slots, {
+        exportBg,
+        exportText,
+        slotLabel: (index) => t('canvas.slotLabel', { index }),
+      });
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-      notify('Đã copy ảnh kèm palette!');
+      notify(t('canvas.copyWithPaletteSuccess'));
     } catch {
-      notify('Copy thất bại');
+      notify(t('canvas.copyError'));
     }
   };
 
@@ -129,24 +134,25 @@ export default function CanvasView({ outCanvasRef, loading, busy = false, slots 
             />
           </div>
         )}
-        {!loading && busy && (
-          <div
-            aria-busy
-            style={{
-              position: 'absolute',
-              top: 8,
-              right: 8,
-              width: 28,
-              height: 28,
-              border: '2px solid var(--border)',
-              borderTopColor: 'var(--text)',
-              borderRadius: '50%',
-              animation: 'spin 0.9s linear infinite',
-              background: 'rgba(0,0,0,0.0)',
-            }}
-          />
-        )}
       </div>
+
+      {!loading && busy && (
+        <div
+          aria-busy
+          style={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            width: 28,
+            height: 28,
+            border: '2px solid var(--border)',
+            borderTopColor: 'var(--text)',
+            borderRadius: '50%',
+            animation: 'spin 0.9s linear infinite',
+            background: 'rgba(0,0,0,0.0)',
+          }}
+        />
+      )}
 
       {!loading && hint && (
         <div
@@ -161,7 +167,7 @@ export default function CanvasView({ outCanvasRef, loading, busy = false, slots 
             borderRadius: 8,
             pointerEvents: 'none',
           }}>
-          Click: copy | Right-click: copy + palette
+          {t('canvas.hint')}
         </div>
       )}
 
@@ -189,18 +195,17 @@ export default function CanvasView({ outCanvasRef, loading, busy = false, slots 
   );
 }
 
-/** ===== Helpers: export with palette strip (below) ===== */
-async function exportWithPaletteBlob(srcCanvas, slots, { exportBg, exportText }) {
+async function exportWithPaletteBlob(srcCanvas, slots, { exportBg, exportText, slotLabel }) {
   if (!srcCanvas) throw new Error('no canvas');
-  const W = srcCanvas.width,
-    H = srcCanvas.height;
+  const W = srcCanvas.width;
+  const H = srcCanvas.height;
 
-  const padX = 16,
-    padTop = 10,
-    padBottom = 18;
+  const padX = 16;
+  const padTop = 10;
+  const padBottom = 18;
   const gap = 12;
-  const sw = 44,
-    sh = 44;
+  const sw = 44;
+  const sh = 44;
   const labelY = 14;
   const items = 6;
   const contentW = items * sw + (items - 1) * gap;
@@ -227,8 +232,8 @@ async function exportWithPaletteBlob(srcCanvas, slots, { exportBg, exportText })
   ctx.textBaseline = 'middle';
   ctx.font = `12px system-ui, -apple-system, Segoe UI, Roboto`;
 
-  let x = startX,
-    y = startY;
+  let x = startX;
+  const y = startY;
   for (let i = 0; i < items; i++) {
     const entry = slots[i];
     if (entry?.hex) {
@@ -249,7 +254,8 @@ async function exportWithPaletteBlob(srcCanvas, slots, { exportBg, exportText })
     }
     ctx.fillStyle = exportText || '#fff';
     ctx.font = `12px system-ui, -apple-system, Segoe UI, Roboto`;
-    ctx.fillText(`Slot ${i}`, x + sw / 2, y + sh + labelY - 4);
+    const labelText = typeof slotLabel === 'function' ? slotLabel(i) : `Slot ${i}`;
+    ctx.fillText(labelText, x + sw / 2, y + sh + labelY - 4);
 
     x += sw + gap;
   }

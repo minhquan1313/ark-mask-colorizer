@@ -1,9 +1,10 @@
-// src/utils/storage.js
+﻿// src/utils/storage.js
 const NS = 'ark-mask-colorizer:v1';
 
 export const STORAGE_KEYS = {
   slots: `${NS}:slots`,
   creature: `${NS}:creature`,
+  language: `${NS}:lang`,
   exportBg: `${NS}:exportBg`,
   exportTx: `${NS}:exportTx`,
   threshold: `${NS}:threshold`,
@@ -49,4 +50,6 @@ export function remove(key) {
     localStorage.removeItem(key);
   } catch { /* ignore storage errors */ }
 }
+
+
 

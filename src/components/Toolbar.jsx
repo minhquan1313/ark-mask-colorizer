@@ -1,6 +1,7 @@
-// src/components/Toolbar.jsx
+﻿// src/components/Toolbar.jsx
 import { useEffect, useRef, useState } from 'react';
 import { DEFAULTS } from '../config/defaults.js';
+import { useI18n } from '../i18n/index.js';
 import { STORAGE_KEYS, loadJSON, saveJSON } from '../utils/storage.js';
 
 export default function Toolbar({
@@ -46,6 +47,7 @@ export default function Toolbar({
   downloadingType = null,
   onCustomFiles,
 }) {
+  const { t } = useI18n();
   const fileRef = useRef(null);
   const isTransparent = exportBg === 'transparent';
   const lastSolidBgRef = useRef(isTransparent ? DEFAULTS.exportBg : exportBg);
@@ -136,7 +138,7 @@ export default function Toolbar({
           <div
             className="row"
             style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">Threshold</label>
+            <label className="small subtle">{t('toolbar.threshold')}</label>
             <input
               className="form-range"
               type="range"
@@ -151,7 +153,7 @@ export default function Toolbar({
           <div
             className="row"
             style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">Strength</label>
+            <label className="small subtle">{t('toolbar.strength')}</label>
             <input
               className="form-range"
               type="range"
@@ -167,7 +169,7 @@ export default function Toolbar({
           <div
             className="row"
             style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">Neutral Strength</label>
+            <label className="small subtle">{t('toolbar.neutralStrength')}</label>
             <input
               className="form-range"
               type="range"
@@ -183,7 +185,7 @@ export default function Toolbar({
           <div
             className="row"
             style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">Feather</label>
+            <label className="small subtle">{t('toolbar.feather')}</label>
             <input
               className="form-range"
               type="range"
@@ -199,7 +201,7 @@ export default function Toolbar({
           <div
             className="row"
             style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">Gamma</label>
+            <label className="small subtle">{t('toolbar.gamma')}</label>
             <input
               className="form-range"
               type="range"
@@ -217,7 +219,7 @@ export default function Toolbar({
           <div
             className="row"
             style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">Keep Light</label>
+            <label className="small subtle">{t('toolbar.keepLight')}</label>
             <input
               className="form-range"
               type="range"
@@ -233,7 +235,7 @@ export default function Toolbar({
           <div
             className="row"
             style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">Color Mix Boost</label>
+            <label className="small subtle">{t('toolbar.colorMixBoost')}</label>
             <input
               className="form-range"
               type="range"
@@ -249,7 +251,7 @@ export default function Toolbar({
           <div
             className="row"
             style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">Chroma Boost</label>
+            <label className="small subtle">{t('toolbar.chromaBoost')}</label>
             <input
               className="form-range"
               type="range"
@@ -265,7 +267,7 @@ export default function Toolbar({
           <div
             className="row"
             style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">Chroma Curve</label>
+            <label className="small subtle">{t('toolbar.chromaCurve')}</label>
             <input
               className="form-range"
               type="range"
@@ -281,7 +283,7 @@ export default function Toolbar({
           <div
             className="row"
             style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">Speckle Clean</label>
+            <label className="small subtle">{t('toolbar.speckleClean')}</label>
             <input
               className="form-range"
               type="range"
@@ -297,7 +299,7 @@ export default function Toolbar({
           <div
             className="row"
             style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">Edge Smooth</label>
+            <label className="small subtle">{t('toolbar.edgeSmooth')}</label>
             <input
               className="form-range"
               type="range"
@@ -314,7 +316,7 @@ export default function Toolbar({
           <div
             className="row"
             style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">Boundary Blend</label>
+            <label className="small subtle">{t('toolbar.boundaryBlend')}</label>
             <input
               className="form-range"
               type="range"
@@ -331,7 +333,7 @@ export default function Toolbar({
           <div
             className="row"
             style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">Overlay Strength</label>
+            <label className="small subtle">{t('toolbar.overlayStrength')}</label>
             <input
               className="form-range"
               type="range"
@@ -348,7 +350,7 @@ export default function Toolbar({
           <div
             className="row"
             style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">Overlay Color Strength</label>
+            <label className="small subtle">{t('toolbar.overlayColorStrength')}</label>
             <input
               className="form-range"
               type="range"
@@ -365,7 +367,7 @@ export default function Toolbar({
           <div
             className="row"
             style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">Overlay Color Mix Boost</label>
+            <label className="small subtle">{t('toolbar.overlayColorMixBoost')}</label>
             <input
               className="form-range"
               type="range"
@@ -382,7 +384,7 @@ export default function Toolbar({
           <div
             className="row"
             style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">Overlay Tint (white+color)</label>
+            <label className="small subtle">{t('toolbar.overlayTint')}</label>
             <input
               className="form-range"
               type="range"
@@ -399,24 +401,24 @@ export default function Toolbar({
           <div
             className="row"
             style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">Overlay Blend</label>
+            <label className="small subtle">{t('toolbar.overlayBlend')}</label>
             <button
               className="btn"
-              title={'Overlay blend: Add'}
+              title={t('toolbar.overlayBlendTitle')}
               onClick={toggleOverlayBlend}
               style={{ flex: '0 0 auto' }}>
-              {'Add'}
+              {t('toolbar.overlayBlendButton')}
             </button>
           </div>
 
           <div
             className="row-colors"
             style={{ display: 'flex', alignItems: 'center', gap: 12, flex: '1 1 320px' }}>
-            <label className="small subtle">Export</label>
+            <label className="small subtle">{t('toolbar.export')}</label>
             <div
               className="swatch"
               style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              <span className="small subtle">BG</span>
+              <span className="small subtle">{t('toolbar.bg')}</span>
               <input
                 type="color"
                 value={bgInputValue}
@@ -424,21 +426,19 @@ export default function Toolbar({
               />
               <button
                 className="btn"
-                title="Nền trong suốt"
+                title={t('toolbar.transparentTitle')}
                 onClick={handleTransparentBg}
                 style={{
                   padding: '4px 8px',
                   borderWidth: isTransparent ? 2 : 1,
                   borderColor: isTransparent ? '#5cc8ff' : undefined,
                   boxShadow: isTransparent ? '0 0 0 2px rgba(92,200,255,0.25) inset' : undefined,
-                }}>
-                Transparent
-              </button>
+                }}>{t('toolbar.transparent')}</button>
             </div>
             <div
               className="swatch"
               style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              <span className="small subtle">Text</span>
+              <span className="small subtle">{t('toolbar.text')}</span>
               <input
                 type="color"
                 value={exportText}
@@ -454,9 +454,7 @@ export default function Toolbar({
           style={{ display: 'flex', flex: '1 1 100%', gap: 8, flexWrap: 'wrap' }}>
           <button
             className="btn"
-            onClick={() => fileRef.current?.click()}>
-            Custom mask
-          </button>
+            onClick={() => fileRef.current?.click()}>{t('toolbar.customMask')}</button>
           <input
             ref={fileRef}
             type="file"
@@ -484,9 +482,7 @@ export default function Toolbar({
                 /* empty */
               }
               onReset && onReset();
-            }}>
-            Reset
-          </button>
+            }}>{t('toolbar.reset')}</button>
 
           <div
             className="hstack"
@@ -495,7 +491,7 @@ export default function Toolbar({
               className="btn"
               onClick={onDownloadImage}
               disabled={downloadingType === 'image' || downloadingType === 'palette'}
-              title="Tải ảnh"
+              title={t('toolbar.downloadImageTitle')}
               style={{ flex: 1, display: 'inline-flex', justifyContent: 'center' }}>
               {downloadingType === 'image' ? (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
@@ -503,11 +499,11 @@ export default function Toolbar({
                     aria-busy
                     style={{ width: 14, height: 14, border: '2px solid var(--border)', borderTopColor: 'var(--text)', borderRadius: '50%', animation: 'spin 0.9s linear infinite' }}
                   />
-                  Pic
+                  {t('toolbar.downloadingImage')}
                 </span>
               ) : (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <IconDownload /> Pic
+                  <IconDownload /> {t('toolbar.downloadImage')}
                 </span>
               )}
             </button>
@@ -515,7 +511,7 @@ export default function Toolbar({
               className="btn"
               onClick={onDownloadWithPalette}
               disabled={downloadingType === 'image' || downloadingType === 'palette'}
-              title="T?i ?nh k�m palette"
+              title={t('toolbar.downloadWithPaletteTitle')}
               style={{ flex: 1, display: 'inline-flex', justifyContent: 'center', whiteSpace: 'nowrap' }}>
               {downloadingType === 'palette' ? (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
@@ -523,11 +519,11 @@ export default function Toolbar({
                     aria-busy
                     style={{ width: 14, height: 14, border: '2px solid var(--border)', borderTopColor: 'var(--text)', borderRadius: '50%', animation: 'spin 0.9s linear infinite' }}
                   />
-                  Pic + Colors
+                  {t('toolbar.downloadingPalette')}
                 </span>
               ) : (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <IconDownload /> Pic + Colors
+                  <IconDownload /> {t('toolbar.downloadWithPalette')}
                 </span>
               )}
             </button>
@@ -537,3 +533,28 @@ export default function Toolbar({
     </>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

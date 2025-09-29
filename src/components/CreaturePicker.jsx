@@ -1,5 +1,8 @@
-﻿// src/components/CreaturePicker.jsx
+﻿import { useI18n } from '../i18n/index.js';
+
 export default function CreaturePicker({ list, currentName, onPick, customMode = false }) {
+  const { t } = useI18n();
+
   return (
     <div
       className="hstack"
@@ -7,13 +10,13 @@ export default function CreaturePicker({ list, currentName, onPick, customMode =
       <label
         className="small subtle"
         style={{ opacity: 0.8 }}>
-        Creature
+        {t('creaturePicker.label')}
       </label>
       <select
         value={customMode ? '__custom__' : currentName || ''}
         onChange={(e) => {
           const v = e.target.value;
-          if (v === '__custom__') return; // stay in custom
+          if (v === '__custom__') return;
           onPick(v);
         }}
         style={{
@@ -24,7 +27,7 @@ export default function CreaturePicker({ list, currentName, onPick, customMode =
           background: 'var(--surface)',
           color: 'var(--text)',
         }}>
-        {customMode && <option value="__custom__">Custom</option>}
+        {customMode && <option value="__custom__">{t('creaturePicker.customOption')}</option>}
         {list.map((c) => (
           <option
             key={c.name}

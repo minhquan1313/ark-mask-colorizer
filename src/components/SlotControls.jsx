@@ -1,10 +1,12 @@
-// src/components/SlotControls.jsx
-import { useState } from 'react';
+﻿import { useState } from 'react';
+import { useI18n } from '../i18n/index.js';
 import SlotPicker from './SlotPicker.jsx';
 
 export default function SlotControls({ slots, disabledSet, onPickSlot, onRandomAll, onResetSlots, extraActions, onPasteCmd, onCopyCmd, favorites = [], onToggleFavorite, onResetFavorites }) {
+  const { t } = useI18n();
   const [copied, setCopied] = useState(false);
   const [copyErr, setCopyErr] = useState(false);
+
   return (
     <div className="vstack">
       {slots.map((s, i) => (
@@ -12,7 +14,7 @@ export default function SlotControls({ slots, disabledSet, onPickSlot, onRandomA
           key={i}
           slotIndex={i}
           value={s}
-          disabled={disabledSet?.has(i)} // ⬅️ disable theo noMask
+          disabled={disabledSet?.has(i)}
           favorites={favorites}
           onToggleFavorite={onToggleFavorite}
           onResetFavorites={onResetFavorites}
@@ -25,19 +27,19 @@ export default function SlotControls({ slots, disabledSet, onPickSlot, onRandomA
         <button
           className="btn"
           onClick={onRandomAll}>
-          Random
+          {t('slotControls.random')}
         </button>
         <button
           className="btn"
           onClick={onResetSlots}>
-          Reset
+          {t('slotControls.reset')}
         </button>
-        {extraActions /* ⬅️ “Fill” popover gắn từ App */}
+        {extraActions}
         <button
           className="btn"
           onClick={onPasteCmd}
-          title="Paste Color">
-          Paste Color
+          title={t('slotControls.pasteTitle')}>
+          {t('slotControls.paste')}
         </button>
         <button
           className="btn"
@@ -62,12 +64,11 @@ export default function SlotControls({ slots, disabledSet, onPickSlot, onRandomA
               setTimeout(() => setCopyErr(false), 1500);
             }
           }}
-          title="Copy Color"
+          title={t('slotControls.copyTitle')}
           aria-live="polite">
-          {copyErr ? 'Failed' : copied ? '✓ Copied' : 'Copy Color'}
+          {copyErr ? t('slotControls.copyFailed') : copied ? t('slotControls.copySuccess') : t('slotControls.copy')}
         </button>
       </div>
     </div>
   );
 }
-

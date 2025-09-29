@@ -1,5 +1,5 @@
-// src/components/SlotPicker.jsx
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
+import { useI18n } from '../i18n/index.js';
 import { ARK_PALETTE } from '../utils/arkPalette';
 import { hexToRgb, relLuminance } from '../utils/color';
 import PaletteGrid from './PaletteGrid';
@@ -8,6 +8,7 @@ import Popover from './Popover';
 const findByIndex = (idx) => ARK_PALETTE.find((p) => String(p.index) === String(idx)) || null;
 
 export default function SlotPicker({ slotIndex, value, onChange, disabled = false, favorites = [], onToggleFavorite, onResetFavorites }) {
+  const { t } = useI18n();
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [idDraft, setIdDraft] = useState(value ? String(value.index) : '');
@@ -73,18 +74,18 @@ export default function SlotPicker({ slotIndex, value, onChange, disabled = fals
         ref={anchorRef}
         className="btn"
         onClick={() => !disabled && setOpen(true)}
-        title={value ? `${value.index} - ${value.name}` : disabled ? 'Slot không có mask' : 'Chọn màu…'}
+        title={value ? `${value.index} - ${value.name}` : disabled ? t('slotPicker.noMask') : t('slotPicker.pickColor')}
         tabIndex={-1}
         aria-disabled={disabled}
         style={btnStyle}>
-        {value?.index ?? '—'}
+        {value?.index ?? '-'}
       </button>
 
       <input
         type="text"
         inputMode="numeric"
         pattern="[0-9]*"
-        placeholder="id"
+        placeholder={t('slotPicker.idPlaceholder')}
         value={idDraft}
         onChange={onIdChange}
         onBlur={onIdBlur}
@@ -113,8 +114,8 @@ export default function SlotPicker({ slotIndex, value, onChange, disabled = fals
             setIdDraft('');
           }
         }}
-        aria-label="Bỏ màu"
-        title={disabled ? 'Slot không có mask' : 'Bỏ màu'}
+        aria-label={t('slotPicker.clearLabel')}
+        title={disabled ? t('slotPicker.noMask') : t('slotPicker.clear')}
         tabIndex={-1}
         aria-disabled={disabled}
         style={{
