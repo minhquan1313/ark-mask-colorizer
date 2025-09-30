@@ -9,7 +9,7 @@
 
 .app-main {
   flex: 1;
-  padding-bottom: 96px;
+  padding-bottom: 36px;
 }
 
 .bottom-nav {
@@ -276,7 +276,9 @@
   position: relative;
 }
 
-.slot-picker__button {
+.slot-picker__input-display {
+  appearance: none;
+  -webkit-appearance: none;
   width: 100%;
   min-height: 36px;
   border-radius: 8px;
@@ -285,16 +287,20 @@
   place-items: center;
   font-size: 16px;
   font-weight: 700;
+  text-align: center;
+  background: transparent;
+  color: inherit;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: text;
 }
 
-.slot-picker__button:focus-visible {
+.slot-picker__input-display:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.45);
 }
 
-.slot-picker.is-highlighted .slot-picker__button {
+.slot-picker.is-highlighted .slot-picker__input-display {
   box-shadow: 0 0 0 3px #ffffff, 0 0 0 6px #0ea5e9;
 }
 
@@ -328,17 +334,6 @@
   opacity: 0.4;
   cursor: not-allowed;
   box-shadow: none;
-}
-
-.slot-picker__input {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  text-align: center;
-  font-weight: 600;
-  color: var(--text);
 }
 
 .palette-grid {

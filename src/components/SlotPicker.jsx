@@ -41,29 +41,37 @@ export default function SlotPicker({
     }
   };
 
+  const applyDraft = (draft) => {
+    const sanitized = draft.replace(/[^0-9]/g, '').slice(0, 3);
+    setIdDraft(sanitized);
+    if (sanitized === '' || sanitized === '255') {
+      onChange(null);
+      return;
+    }
+    const found = findByIndex(sanitized);
+    if (found) {
+      onChange(found);
+    }
+  };
+
+  const confirmDraft = () => {
+    if (disabled) return;
+    if (idDraft === '' || idDraft === '255') {
+      onChange(null);
+      setIdDraft('');
+      return;
+    }
+    const found = findByIndex(idDraft);
+    if (!found) {
+      setIdDraft(value ? String(value.index) : '');
+    }
+  };
+
   const handlePick = (entryOrNull) => {
     if (disabled) return;
     onChange(entryOrNull || null);
     setIdDraft(entryOrNull ? String(entryOrNull.index) : '');
     setOpen(false);
-  };
-
-  const onIdChange = (e) => {
-    if (disabled) return;
-    const onlyDigits = e.target.value.replace(/\D/g, '');
-    setIdDraft(onlyDigits);
-    if (onlyDigits === '' || onlyDigits === '255') {
-      onChange(null);
-      return;
-    }
-    const found = findByIndex(onlyDigits);
-    if (found) onChange(found);
-  };
-  const onIdBlur = () => {
-    if (disabled) return;
-    if (idDraft === '' || idDraft === '255') return;
-    const found = findByIndex(idDraft);
-    if (!found) setIdDraft(value ? String(value.index) : '');
   };
 
   const idTextColor = (() => {
@@ -72,9 +80,29 @@ export default function SlotPicker({
     return relLuminance(r, g, b) > 0.55 ? '#111' : '#fff';
   })();
 
-  const buttonStyle = {
+  const inputStyle = {
     background: value?.hex || 'transparent',
     color: idTextColor,
+  };
+
+  const displayText = idDraft !== '' ? idDraft : value?.index ?? '';
+
+  const handleKeyDown = (event) => {
+    if (disabled) return;
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      confirmDraft();
+      setOpen(false);
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      setIdDraft(value ? String(value.index) : '');
+      setOpen(false);
+    }
+  };
+
+  const handleChange = (event) => {
+    if (disabled) return;
+    applyDraft(event.target.value);
   };
 
   const containerClass = ['slot-picker'];
@@ -88,23 +116,28 @@ export default function SlotPicker({
       onMouseLeave={() => notifyHover(false)}>
       <div className="slot-picker__index">{slotIndex}</div>
       <div className="slot-picker__swatch">
-        <button
+        <input
           ref={anchorRef}
-          type="button"
-          className="slot-picker__button"
+          type="text"
+          className="slot-picker__input-display"
+          value={displayText}
+          placeholder="-"
           onClick={() => {
             if (!disabled) {
               setOpen(true);
             }
           }}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
           onFocus={() => !disabled && notifyHover(true)}
-          onBlur={() => notifyHover(false)}
+          onBlur={() => {
+            notifyHover(false);
+            confirmDraft();
+          }}
           title={value ? `${value.index} - ${value.name}` : disabled ? t('slotPicker.noMask') : t('slotPicker.pickColor')}
-          tabIndex={disabled ? -1 : 0}
-          aria-disabled={disabled}
-          style={buttonStyle}>
-          {value?.index ?? '-'}
-        </button>
+          readOnly={disabled}
+          style={inputStyle}
+        />
         <button
           type="button"
           className="slot-picker__clear"
@@ -120,19 +153,6 @@ export default function SlotPicker({
           <span aria-hidden>X</span>
         </button>
       </div>
-
-      <input
-        className="slot-picker__input"
-        type="text"
-        inputMode="numeric"
-        pattern="[0-9]*"
-        placeholder={t('slotPicker.idPlaceholder')}
-        value={idDraft}
-        onChange={onIdChange}
-        onBlur={onIdBlur}
-        autoComplete="off"
-        disabled={disabled}
-      />
 
       {open && !disabled && (
         <Popover
