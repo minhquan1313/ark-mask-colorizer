@@ -1,5 +1,5 @@
-﻿// src/components/Toolbar.jsx
-import { useEffect, useRef, useState } from 'react';
+// src/components/Toolbar.jsx
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { DEFAULTS } from '../config/defaults.js';
 import { useI18n } from '../i18n/index.js';
 import { STORAGE_KEYS, loadJSON, saveJSON } from '../utils/storage.js';
@@ -64,6 +64,7 @@ export default function Toolbar({
     window.addEventListener('overlay-blend-mode-changed', onChanged);
     return () => window.removeEventListener('overlay-blend-mode-changed', onChanged);
   }, []);
+
   useEffect(() => {
     if (!isTransparent && typeof exportBg === 'string' && exportBg.startsWith('#') && exportBg.length === 7) {
       lastSolidBgRef.current = exportBg;
@@ -95,13 +96,180 @@ export default function Toolbar({
     }
   };
 
-  // Ensure keyframes exist for spinner if not already present
   if (typeof document !== 'undefined' && !document.getElementById('tb-spin-style')) {
     const style = document.createElement('style');
     style.id = 'tb-spin-style';
     style.textContent = '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
     document.head.appendChild(style);
   }
+
+  const isProduction = Boolean(typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.PROD);
+
+  const sliderConfigs = useMemo(
+    () => [
+      {
+        key: 'threshold',
+        label: t('toolbar.threshold'),
+        value: threshold,
+        min: 10,
+        max: 150,
+        step: 1,
+        format: (v) => Math.round(v),
+        setter: setThreshold,
+      },
+      {
+        key: 'strength',
+        label: t('toolbar.strength'),
+        value: strength,
+        min: 0,
+        max: 1,
+        step: 0.05,
+        format: (v) => v.toFixed(2),
+        setter: setStrength,
+      },
+      {
+        key: 'neutral-strength',
+        label: t('toolbar.neutralStrength'),
+        value: neutralStrength,
+        min: 0,
+        max: 5,
+        step: 0.05,
+        format: (v) => v.toFixed(2),
+        setter: setNeutralStrength,
+      },
+      {
+        key: 'feather',
+        label: t('toolbar.feather'),
+        value: feather,
+        min: 0,
+        max: 4,
+        step: 0.1,
+        format: (v) => `${v.toFixed(1)}px`,
+        setter: setFeather,
+      },
+      {
+        key: 'gamma',
+        label: t('toolbar.gamma'),
+        value: gamma,
+        min: 1.0,
+        max: 3.5,
+        step: 0.05,
+        format: (v) => v.toFixed(2),
+        setter: setGamma,
+      },
+      {
+        key: 'keep-light',
+        label: t('toolbar.keepLight'),
+        value: keepLight,
+        min: 0.9,
+        max: 1.0,
+        step: 0.005,
+        format: (v) => v.toFixed(3),
+        setter: setKeepLight,
+      },
+      {
+        key: 'color-mix',
+        label: t('toolbar.colorMixBoost'),
+        value: colorMixBoost,
+        min: 0,
+        max: 1,
+        step: 0.05,
+        format: (v) => v.toFixed(2),
+        setter: setColorMixBoost,
+      },
+      {
+        key: 'chroma-boost',
+        label: t('toolbar.chromaBoost'),
+        value: chromaBoost,
+        min: 1.0,
+        max: 1.5,
+        step: 0.01,
+        format: (v) => v.toFixed(2),
+        setter: setChromaBoost,
+      },
+      {
+        key: 'chroma-curve',
+        label: t('toolbar.chromaCurve'),
+        value: chromaCurve,
+        min: 0.8,
+        max: 1.2,
+        step: 0.01,
+        format: (v) => v.toFixed(2),
+        setter: setChromaCurve,
+      },
+      {
+        key: 'speckle',
+        label: t('toolbar.speckleClean'),
+        value: speckleClean,
+        min: 0,
+        max: 2,
+        step: 0.05,
+        format: (v) => v.toFixed(2),
+        setter: setSpeckleClean,
+      },
+      {
+        key: 'edge',
+        label: t('toolbar.edgeSmooth'),
+        value: edgeSmooth,
+        min: 0,
+        max: 1,
+        step: 0.05,
+        format: (v) => v.toFixed(2),
+        setter: setEdgeSmooth,
+      },
+      {
+        key: 'boundary',
+        label: t('toolbar.boundaryBlend'),
+        value: boundaryBlend,
+        min: 0,
+        max: 2,
+        step: 0.02,
+        format: (v) => v.toFixed(2),
+        setter: setBoundaryBlend,
+      },
+      {
+        key: 'overlay-strength',
+        label: t('toolbar.overlayStrength'),
+        value: overlayStrength,
+        min: 0,
+        max: 3,
+        step: 0.05,
+        format: (v) => v.toFixed(2),
+        setter: setOverlayStrength,
+      },
+      {
+        key: 'overlay-color-strength',
+        label: t('toolbar.overlayColorStrength'),
+        value: overlayColorStrength,
+        min: 0,
+        max: 1,
+        step: 0.05,
+        format: (v) => v.toFixed(2),
+        setter: setOverlayColorStrength,
+      },
+      {
+        key: 'overlay-color-mix',
+        label: t('toolbar.overlayColorMixBoost'),
+        value: overlayColorMixBoost,
+        min: 0,
+        max: 1,
+        step: 0.05,
+        format: (v) => v.toFixed(2),
+        setter: setOverlayColorMixBoost,
+      },
+      {
+        key: 'overlay-tint',
+        label: t('toolbar.overlayTint'),
+        value: overlayTint,
+        min: 0,
+        max: 1,
+        step: 0.01,
+        format: (v) => v.toFixed(2),
+        setter: setOverlayTint,
+      },
+    ],
+    [t, threshold, setThreshold, strength, setStrength, neutralStrength, setNeutralStrength, feather, setFeather, gamma, setGamma, keepLight, setKeepLight, colorMixBoost, setColorMixBoost, chromaBoost, setChromaBoost, chromaCurve, setChromaCurve, speckleClean, setSpeckleClean, edgeSmooth, setEdgeSmooth, boundaryBlend, setBoundaryBlend, overlayStrength, setOverlayStrength, overlayColorStrength, setOverlayColorStrength, overlayColorMixBoost, setOverlayColorMixBoost, overlayTint, setOverlayTint]
+  );
 
   const IconDownload = ({ size = 14 }) => (
     <svg
@@ -125,436 +293,164 @@ export default function Toolbar({
     </svg>
   );
 
-  return (
-    <>
-      <hr />
+  const renderSlider = (config) => {
+    const id = `slider-${config.key}`;
+    const handleChange = (event) => {
+      const setter = config.setter;
+      if (typeof setter === 'function') {
+        setter(Number(event.target.value));
+      }
+    };
+    const formatted = config.format ? config.format(config.value) : config.value;
+    return (
       <div
-        className="toolbar-grid"
-        style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'flex-end' }}>
-        {/* LEFT: sliders + colors */}
-        <div
-          className="toolbar"
-          style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'flex-end', flex: '1 1 100%' }}>
-          <div
-            className="row"
-            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">{t('toolbar.threshold')}</label>
-            <input
-              className="form-range"
-              type="range"
-              min="10"
-              max="150"
-              value={threshold}
-              onChange={(e) => setThreshold(+e.target.value)}
-              style={{ flex: 1 }}
-            />
-            <span className="small value">{threshold}</span>
-          </div>
-          <div
-            className="row"
-            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">{t('toolbar.strength')}</label>
-            <input
-              className="form-range"
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              value={strength}
-              onChange={(e) => setStrength(+e.target.value)}
-              style={{ flex: 1 }}
-            />
-            <span className="small value">{strength.toFixed(2)}</span>
-          </div>
-          <div
-            className="row"
-            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">{t('toolbar.neutralStrength')}</label>
-            <input
-              className="form-range"
-              type="range"
-              min="0"
-              max="5"
-              step="0.05"
-              value={neutralStrength}
-              onChange={(e) => setNeutralStrength(+e.target.value)}
-              style={{ flex: 1 }}
-            />
-            <span className="small value">{neutralStrength.toFixed(2)}</span>
-          </div>
-          <div
-            className="row"
-            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">{t('toolbar.feather')}</label>
-            <input
-              className="form-range"
-              type="range"
-              min="0"
-              max="4"
-              step="0.1"
-              value={feather}
-              onChange={(e) => setFeather(+e.target.value)}
-              style={{ flex: 1 }}
-            />
-            <span className="small value">{feather.toFixed(1)}px</span>
-          </div>
-          <div
-            className="row"
-            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">{t('toolbar.gamma')}</label>
-            <input
-              className="form-range"
-              type="range"
-              min="1.0"
-              max="3.5"
-              step="0.05"
-              value={gamma}
-              onChange={(e) => setGamma(+e.target.value)}
-              style={{ flex: 1 }}
-            />
-            <span className="small value">{gamma.toFixed(2)}</span>
-          </div>
+        key={config.key}
+        className="mask-toolbar__slider">
+        <label
+          className="mask-toolbar__slider-label"
+          htmlFor={id}>
+          {config.label}
+        </label>
+        <div className="mask-toolbar__slider-control">
+          <input
+            id={id}
+            type="range"
+            min={config.min}
+            max={config.max}
+            step={config.step}
+            value={config.value}
+            onChange={handleChange}
+          />
+          <span className="mask-toolbar__slider-value">{formatted}</span>
+        </div>
+      </div>
+    );
+  };
 
-          {/* Advanced OKLab tuning */}
-          <div
-            className="row"
-            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">{t('toolbar.keepLight')}</label>
-            <input
-              className="form-range"
-              type="range"
-              min="0.90"
-              max="1.00"
-              step="0.005"
-              value={keepLight}
-              onChange={(e) => setKeepLight(+e.target.value)}
-              style={{ flex: 1 }}
-            />
-            <span className="small value">{keepLight.toFixed(3)}</span>
-          </div>
-          <div
-            className="row"
-            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">{t('toolbar.colorMixBoost')}</label>
-            <input
-              className="form-range"
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              value={colorMixBoost}
-              onChange={(e) => setColorMixBoost(+e.target.value)}
-              style={{ flex: 1 }}
-            />
-            <span className="small value">{colorMixBoost.toFixed(2)}</span>
-          </div>
-          <div
-            className="row"
-            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">{t('toolbar.chromaBoost')}</label>
-            <input
-              className="form-range"
-              type="range"
-              min="1.00"
-              max="1.50"
-              step="0.01"
-              value={chromaBoost}
-              onChange={(e) => setChromaBoost(+e.target.value)}
-              style={{ flex: 1 }}
-            />
-            <span className="small value">{chromaBoost.toFixed(2)}</span>
-          </div>
-          <div
-            className="row"
-            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">{t('toolbar.chromaCurve')}</label>
-            <input
-              className="form-range"
-              type="range"
-              min="0.80"
-              max="1.20"
-              step="0.01"
-              value={chromaCurve}
-              onChange={(e) => setChromaCurve(+e.target.value)}
-              style={{ flex: 1 }}
-            />
-            <span className="small value">{chromaCurve.toFixed(2)}</span>
-          </div>
-          <div
-            className="row"
-            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">{t('toolbar.speckleClean')}</label>
-            <input
-              className="form-range"
-              type="range"
-              min="0"
-              max="2"
-              step="0.05"
-              value={speckleClean}
-              onChange={(e) => setSpeckleClean(+e.target.value)}
-              style={{ flex: 1 }}
-            />
-            <span className="small value">{speckleClean.toFixed(2)}</span>
-          </div>
-          <div
-            className="row"
-            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">{t('toolbar.edgeSmooth')}</label>
-            <input
-              className="form-range"
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              value={edgeSmooth}
-              onChange={(e) => setEdgeSmooth(+e.target.value)}
-              style={{ flex: 1 }}
-            />
-            <span className="small value">{edgeSmooth.toFixed(2)}</span>
-          </div>
-
-          <div
-            className="row"
-            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">{t('toolbar.boundaryBlend')}</label>
-            <input
-              className="form-range"
-              type="range"
-              min="0"
-              max="2"
-              step="0.02"
-              value={boundaryBlend}
-              onChange={(e) => setBoundaryBlend(+e.target.value)}
-              style={{ flex: 1 }}
-            />
-            <span className="small value">{boundaryBlend.toFixed(2)}</span>
-          </div>
-
-          <div
-            className="row"
-            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">{t('toolbar.overlayStrength')}</label>
-            <input
-              className="form-range"
-              type="range"
-              min="0"
-              max="3"
-              step="0.05"
-              value={overlayStrength}
-              onChange={(e) => setOverlayStrength(+e.target.value)}
-              style={{ flex: 1 }}
-            />
-            <span className="small value">{overlayStrength.toFixed(2)}</span>
-          </div>
-
-          <div
-            className="row"
-            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">{t('toolbar.overlayColorStrength')}</label>
-            <input
-              className="form-range"
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              value={overlayColorStrength}
-              onChange={(e) => setOverlayColorStrength(+e.target.value)}
-              style={{ flex: 1 }}
-            />
-            <span className="small value">{overlayColorStrength.toFixed(2)}</span>
-          </div>
-
-          <div
-            className="row"
-            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">{t('toolbar.overlayColorMixBoost')}</label>
-            <input
-              className="form-range"
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              value={overlayColorMixBoost}
-              onChange={(e) => setOverlayColorMixBoost(+e.target.value)}
-              style={{ flex: 1 }}
-            />
-            <span className="small value">{overlayColorMixBoost.toFixed(2)}</span>
-          </div>
-
-          <div
-            className="row"
-            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">{t('toolbar.overlayTint')}</label>
-            <input
-              className="form-range"
-              type="range"
-              min="0"
-              max="1"
-              step="0.01"
-              value={overlayTint}
-              onChange={(e) => setOverlayTint(+e.target.value)}
-              style={{ flex: 1 }}
-            />
-            <span className="small value">{overlayTint.toFixed(2)}</span>
-          </div>
-
-          <div
-            className="row"
-            style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '1 1 260px' }}>
-            <label className="small subtle">{t('toolbar.overlayBlend')}</label>
+  return (
+    <div className="mask-toolbar">
+      <div className="mask-toolbar__sliders">
+        {!isProduction && sliderConfigs.map(renderSlider)}
+        {!isProduction && (
+          <div className="mask-toolbar__slider mask-toolbar__slider--button">
+            <span className="mask-toolbar__slider-label">{t('toolbar.overlayBlend')}</span>
             <button
               className="btn"
-              title={t('toolbar.overlayBlendTitle')}
               onClick={toggleOverlayBlend}
-              style={{ flex: '0 0 auto' }}>
+              title={t('toolbar.overlayBlendTitle')}>
               {t('toolbar.overlayBlendButton')}
             </button>
           </div>
+        )}
 
-          <div
-            className="row-colors"
-            style={{ display: 'flex', alignItems: 'center', gap: 12, flex: '1 1 320px' }}>
-            <label className="small subtle">{t('toolbar.export')}</label>
-            <div
-              className="swatch"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+        <div className="mask-toolbar__colors">
+          <span className="mask-toolbar__slider-label">{t('toolbar.export')}</span>
+          <div className="mask-toolbar__color-row">
+            <div className="mask-toolbar__color-field">
               <span className="small subtle">{t('toolbar.bg')}</span>
-              <input
-                type="color"
-                value={bgInputValue}
-                onChange={(e) => handleExportBgChange(e.target.value)}
-              />
-              <button
-                className="btn"
-                title={t('toolbar.transparentTitle')}
-                onClick={handleTransparentBg}
-                style={{
-                  padding: '4px 8px',
-                  borderWidth: isTransparent ? 2 : 1,
-                  borderColor: isTransparent ? '#5cc8ff' : undefined,
-                  boxShadow: isTransparent ? '0 0 0 2px rgba(92,200,255,0.25) inset' : undefined,
-                }}>{t('toolbar.transparent')}</button>
+              <div className="mask-toolbar__color-picker">
+                <input
+                  type="color"
+                  value={bgInputValue}
+                  onChange={(e) => handleExportBgChange(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className={`mask-toolbar__color-clear${isTransparent ? ' is-active' : ''}`}
+                  aria-label={t('toolbar.transparentTitle')}
+                  onClick={handleTransparentBg}>
+                  <span aria-hidden>X</span>
+                </button>
+              </div>
             </div>
-            <div
-              className="swatch"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <div className="mask-toolbar__color-field">
               <span className="small subtle">{t('toolbar.text')}</span>
-              <input
-                type="color"
-                value={exportText}
-                onChange={(e) => setExportText(e.target.value)}
-              />
+              <div className="mask-toolbar__color-picker mask-toolbar__color-picker--plain">
+                <input
+                  type="color"
+                  value={exportText}
+                  onChange={(e) => setExportText(e.target.value)}
+                />
+              </div>
             </div>
-          </div>
-        </div>
-
-        {/* RIGHT: actions */}
-        <div
-          className="actions"
-          style={{ display: 'flex', flex: '1 1 100%', gap: 8, flexWrap: 'wrap' }}>
-          <button
-            className="btn"
-            onClick={() => fileRef.current?.click()}>{t('toolbar.customMask')}</button>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/png"
-            multiple
-            style={{ display: 'none' }}
-            onChange={(e) => {
-              const files = e.target.files;
-              if (files && files.length) onCustomFiles(files);
-              e.target.value = '';
-            }}
-          />
-          <button
-            className="btn"
-            onClick={() => {
-              // Reset new overlay-related values here for reliability
-              try {
-                typeof setBoundaryBlend === 'function' && setBoundaryBlend(DEFAULTS.boundaryBlend);
-                typeof setOverlayStrength === 'function' && setOverlayStrength(DEFAULTS.overlayStrength);
-                typeof setOverlayColorStrength === 'function' && setOverlayColorStrength(DEFAULTS.overlayColorStrength);
-                typeof setOverlayColorMixBoost === 'function' && setOverlayColorMixBoost(DEFAULTS.overlayColorMixBoost);
-                typeof setColorMixBoost === 'function' && setColorMixBoost(DEFAULTS.colorMixBoost);
-                typeof setOverlayTint === 'function' && setOverlayTint(DEFAULTS.overlayTint);
-              } catch {
-                /* empty */
-              }
-              onReset && onReset();
-            }}>{t('toolbar.reset')}</button>
-
-          <div
-            className="hstack"
-            style={{ display: 'inline-flex', gap: 6 }}>
-            <button
-              className="btn"
-              onClick={onDownloadImage}
-              disabled={downloadingType === 'image' || downloadingType === 'palette'}
-              title={t('toolbar.downloadImageTitle')}
-              style={{ flex: 1, display: 'inline-flex', justifyContent: 'center' }}>
-              {downloadingType === 'image' ? (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <span
-                    aria-busy
-                    style={{ width: 14, height: 14, border: '2px solid var(--border)', borderTopColor: 'var(--text)', borderRadius: '50%', animation: 'spin 0.9s linear infinite' }}
-                  />
-                  {t('toolbar.downloadingImage')}
-                </span>
-              ) : (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <IconDownload /> {t('toolbar.downloadImage')}
-                </span>
-              )}
-            </button>
-            <button
-              className="btn"
-              onClick={onDownloadWithPalette}
-              disabled={downloadingType === 'image' || downloadingType === 'palette'}
-              title={t('toolbar.downloadWithPaletteTitle')}
-              style={{ flex: 1, display: 'inline-flex', justifyContent: 'center', whiteSpace: 'nowrap' }}>
-              {downloadingType === 'palette' ? (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <span
-                    aria-busy
-                    style={{ width: 14, height: 14, border: '2px solid var(--border)', borderTopColor: 'var(--text)', borderRadius: '50%', animation: 'spin 0.9s linear infinite' }}
-                  />
-                  {t('toolbar.downloadingPalette')}
-                </span>
-              ) : (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <IconDownload /> {t('toolbar.downloadWithPalette')}
-                </span>
-              )}
-            </button>
           </div>
         </div>
       </div>
-    </>
+
+      <div className="mask-toolbar__actions">
+        <button
+          className="btn"
+          onClick={() => fileRef.current?.click()}>
+          {t('toolbar.customMask')}
+        </button>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/png"
+          multiple
+          style={{ display: 'none' }}
+          onChange={(e) => {
+            const files = e.target.files;
+            if (files && files.length) onCustomFiles(files);
+            e.target.value = '';
+          }}
+        />
+        <button
+          className="btn"
+          onClick={() => {
+            try {
+              typeof setBoundaryBlend === 'function' && setBoundaryBlend(DEFAULTS.boundaryBlend);
+              typeof setOverlayStrength === 'function' && setOverlayStrength(DEFAULTS.overlayStrength);
+              typeof setOverlayColorStrength === 'function' && setOverlayColorStrength(DEFAULTS.overlayColorStrength);
+              typeof setOverlayColorMixBoost === 'function' && setOverlayColorMixBoost(DEFAULTS.overlayColorMixBoost);
+              typeof setColorMixBoost === 'function' && setColorMixBoost(DEFAULTS.colorMixBoost);
+              typeof setOverlayTint === 'function' && setOverlayTint(DEFAULTS.overlayTint);
+            } catch {
+              /* noop */
+            }
+            if (typeof onReset === 'function') onReset();
+          }}>
+          {t('toolbar.reset')}
+        </button>
+        <button
+          className="btn"
+          onClick={onDownloadImage}
+          disabled={downloadingType === 'image' || downloadingType === 'palette'}
+          title={t('toolbar.downloadImageTitle')}>
+          {downloadingType === 'image' ? (
+            <span className="mask-toolbar__spinner-label">
+              <span
+                aria-busy
+                className="mask-toolbar__spinner"
+              />
+              {t('toolbar.downloadingImage')}
+            </span>
+          ) : (
+            <span className="mask-toolbar__icon-label">
+              <IconDownload /> {t('toolbar.downloadImage')}
+            </span>
+          )}
+        </button>
+        <button
+          className="btn"
+          onClick={onDownloadWithPalette}
+          disabled={downloadingType === 'image' || downloadingType === 'palette'}
+          title={t('toolbar.downloadWithPaletteTitle')}>
+          {downloadingType === 'palette' ? (
+            <span className="mask-toolbar__spinner-label">
+              <span
+                aria-busy
+                className="mask-toolbar__spinner"
+              />
+              {t('toolbar.downloadingPalette')}
+            </span>
+          ) : (
+            <span className="mask-toolbar__icon-label">
+              <IconDownload /> {t('toolbar.downloadWithPalette')}
+            </span>
+          )}
+        </button>
+      </div>
+    </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

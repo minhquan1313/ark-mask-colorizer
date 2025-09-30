@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useI18n } from '../i18n/index.js';
 import { ARK_PALETTE } from '../utils/arkPalette';
 import { hexToRgb, relLuminance } from '../utils/color';
@@ -7,7 +7,19 @@ import Popover from './Popover';
 
 const findByIndex = (idx) => ARK_PALETTE.find((p) => String(p.index) === String(idx)) || null;
 
-export default function SlotPicker({ slotIndex, value, onChange, disabled = false, favorites = [], onToggleFavorite, onResetFavorites }) {
+export default function SlotPicker({
+  slotIndex,
+  value,
+  onChange,
+  disabled = false,
+  favorites = [],
+  onToggleFavorite,
+  onResetFavorites,
+  onReorderFavorites,
+  onHoverChange,
+  onOpenChange,
+  highlighted = false,
+}) {
   const { t } = useI18n();
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
@@ -16,6 +28,18 @@ export default function SlotPicker({ slotIndex, value, onChange, disabled = fals
   useEffect(() => {
     setIdDraft(value ? String(value.index) : '');
   }, [value]);
+
+  useEffect(() => {
+    if (typeof onOpenChange === 'function') {
+      onOpenChange(open && !disabled);
+    }
+  }, [open, disabled, onOpenChange]);
+
+  const notifyHover = (state) => {
+    if (typeof onHoverChange === 'function') {
+      onHoverChange(state);
+    }
+  };
 
   const handlePick = (entryOrNull) => {
     if (disabled) return;
@@ -48,40 +72,57 @@ export default function SlotPicker({ slotIndex, value, onChange, disabled = fals
     return relLuminance(r, g, b) > 0.55 ? '#111' : '#fff';
   })();
 
-  const btnStyle = {
-    display: 'inline-grid',
-    placeItems: 'center',
-    padding: 0,
-    width: 56,
-    height: 36,
-    borderRadius: 10,
-    border: '1px solid var(--border)',
+  const buttonStyle = {
     background: value?.hex || 'transparent',
     color: idTextColor,
-    fontWeight: 700,
-    boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
-    cursor: disabled ? 'not-allowed' : 'pointer',
-    opacity: disabled ? 0.5 : 1,
   };
+
+  const containerClass = ['slot-picker'];
+  if (disabled) containerClass.push('is-disabled');
+  if (highlighted) containerClass.push('is-highlighted');
 
   return (
     <div
-      className="hstack"
-      style={{ gap: 10, alignItems: 'center', flexWrap: 'nowrap' }}>
-      <div style={{ width: 24, textAlign: 'right', fontWeight: 600, color: 'var(--text)' }}>{slotIndex}</div>
-
-      <button
-        ref={anchorRef}
-        className="btn"
-        onClick={() => !disabled && setOpen(true)}
-        title={value ? `${value.index} - ${value.name}` : disabled ? t('slotPicker.noMask') : t('slotPicker.pickColor')}
-        tabIndex={-1}
-        aria-disabled={disabled}
-        style={btnStyle}>
-        {value?.index ?? '-'}
-      </button>
+      className={containerClass.join(' ')}
+      onMouseEnter={() => !disabled && notifyHover(true)}
+      onMouseLeave={() => notifyHover(false)}>
+      <div className="slot-picker__index">{slotIndex}</div>
+      <div className="slot-picker__swatch">
+        <button
+          ref={anchorRef}
+          type="button"
+          className="slot-picker__button"
+          onClick={() => {
+            if (!disabled) {
+              setOpen(true);
+            }
+          }}
+          onFocus={() => !disabled && notifyHover(true)}
+          onBlur={() => notifyHover(false)}
+          title={value ? `${value.index} - ${value.name}` : disabled ? t('slotPicker.noMask') : t('slotPicker.pickColor')}
+          tabIndex={disabled ? -1 : 0}
+          aria-disabled={disabled}
+          style={buttonStyle}>
+          {value?.index ?? '-'}
+        </button>
+        <button
+          type="button"
+          className="slot-picker__clear"
+          onClick={() => {
+            if (!disabled) {
+              onChange(null);
+              setIdDraft('');
+            }
+          }}
+          aria-label={t('slotPicker.clearLabel')}
+          title={disabled ? t('slotPicker.noMask') : t('slotPicker.clear')}
+          disabled={disabled}>
+          <span aria-hidden>X</span>
+        </button>
+      </div>
 
       <input
+        className="slot-picker__input"
         type="text"
         inputMode="numeric"
         pattern="[0-9]*"
@@ -91,48 +132,7 @@ export default function SlotPicker({ slotIndex, value, onChange, disabled = fals
         onBlur={onIdBlur}
         autoComplete="off"
         disabled={disabled}
-        style={{
-          width: 80,
-          padding: '8px 10px',
-          borderRadius: 8,
-          border: '1px solid var(--border)',
-          background: 'var(--surface)',
-          color: 'var(--text)',
-          textAlign: 'center',
-          marginLeft: 8,
-          marginRight: 8,
-          opacity: disabled ? 0.5 : 1,
-          cursor: disabled ? 'not-allowed' : 'text',
-        }}
       />
-
-      <button
-        className="btn"
-        onClick={() => {
-          if (!disabled) {
-            onChange(null);
-            setIdDraft('');
-          }
-        }}
-        aria-label={t('slotPicker.clearLabel')}
-        title={disabled ? t('slotPicker.noMask') : t('slotPicker.clear')}
-        tabIndex={-1}
-        aria-disabled={disabled}
-        style={{
-          width: 36,
-          height: 36,
-          borderRadius: 10,
-          border: '1px solid var(--border)',
-          background: 'var(--surface)',
-          color: '#ef4444',
-          fontWeight: 700,
-          display: 'grid',
-          placeItems: 'center',
-          cursor: disabled ? 'not-allowed' : 'pointer',
-          opacity: disabled ? 0.5 : 1,
-        }}>
-        X
-      </button>
 
       {open && !disabled && (
         <Popover
@@ -146,6 +146,7 @@ export default function SlotPicker({ slotIndex, value, onChange, disabled = fals
               onPick={handlePick}
               onToggleFavorite={onToggleFavorite}
               onResetFavorites={onResetFavorites}
+              onReorderFavorites={onReorderFavorites}
             />
           </div>
         </Popover>

@@ -170,6 +170,27 @@ export default function App() {
   const disabledSet = customMode ? new Set() : new Set(current?.noMask || []);
 
   const { baseImg, maskImg, extraMasks, loadPairFromFiles, loadFromEntry } = useImages();
+  const slotLinks = useMemo(() => {
+    if (!Array.isArray(extraMasks) || !extraMasks.length) {
+      return {};
+    }
+    const map = {};
+    for (const mask of extraMasks) {
+      const pair = Array.isArray(mask?.pair) ? mask.pair : [];
+      if (pair.length !== 2) continue;
+      const [rawA, rawB] = pair;
+      const a = Number(rawA);
+      const b = Number(rawB);
+      if (!Number.isFinite(a) || !Number.isFinite(b)) continue;
+      if (a === b) continue;
+      if (a < 0 || a > 5 || b < 0 || b > 5) continue;
+      const currentA = Array.isArray(map[a]) ? map[a] : [];
+      const currentB = Array.isArray(map[b]) ? map[b] : [];
+      map[a] = Array.from(new Set([...currentA, b])).filter((idx) => idx >= 0 && idx <= 5);
+      map[b] = Array.from(new Set([...currentB, a])).filter((idx) => idx >= 0 && idx <= 5);
+    }
+    return map;
+  }, [extraMasks]);
   const variantKey = useMemo(() => buildVariantKey(current, slots), [current, slots]);
   const slotsColorSignature = useMemo(() => buildSlotsColorSignature(slots), [slots]);
   const { draw, busy } = useRecolorWorker({ threshold, strength, neutralStrength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, overlayStrength, overlayColorStrength, overlayColorMixBoost, colorMixBoost, overlayTint });
@@ -194,6 +215,21 @@ export default function App() {
     const next = normalizeFavoriteIds(DEFAULTS.paletteFavorites);
     setFavoriteColors(next);
     saveJSON(STORAGE_KEYS.paletteFavorites, next);
+  }, []);
+
+  const reorderFavoriteColors = useCallback((nextOrder) => {
+    if (!Array.isArray(nextOrder)) return;
+    setFavoriteColors((prevRaw) => {
+      const prev = Array.isArray(prevRaw) ? prevRaw.map((id) => String(id)) : [];
+      const sanitized = nextOrder
+        .map((id) => String(id))
+        .filter((id, index, arr) => arr.indexOf(id) === index);
+      const preserved = sanitized.filter((id) => prev.includes(id));
+      const remainder = prev.filter((id) => !preserved.includes(id));
+      const next = preserved.concat(remainder);
+      saveJSON(STORAGE_KEYS.paletteFavorites, next);
+      return next;
+    });
   }, []);
 
   // Khi current thay d?i ? load ?nh d�ng con, KH�NG d�ng base.png m?c d?nh
@@ -693,49 +729,50 @@ export default function App() {
           exportText={exportText}
         />
 
-        <Toolbar
-          threshold={threshold}
-          setThreshold={setThreshold}
-          strength={strength}
-          setStrength={setStrength}
-          neutralStrength={neutralStrength}
-          setNeutralStrength={setNeutralStrength}
-          feather={feather}
-          setFeather={setFeather}
-          gamma={gamma}
-          setGamma={setGamma}
-          keepLight={keepLight}
-          setKeepLight={setKeepLight}
-          chromaBoost={chromaBoost}
-          setChromaBoost={setChromaBoost}
-          chromaCurve={chromaCurve}
-          setChromaCurve={setChromaCurve}
-          speckleClean={speckleClean}
-          setSpeckleClean={setSpeckleClean}
-          edgeSmooth={edgeSmooth}
-          setEdgeSmooth={setEdgeSmooth}
-          boundaryBlend={boundaryBlend}
-          setBoundaryBlend={setBoundaryBlend}
-          overlayStrength={overlayStrength}
-          setOverlayStrength={setOverlayStrength}
-          overlayColorStrength={overlayColorStrength}
-          setOverlayColorStrength={setOverlayColorStrength}
-          overlayColorMixBoost={overlayColorMixBoost}
-          setOverlayColorMixBoost={setOverlayColorMixBoost}
-          colorMixBoost={colorMixBoost}
-          setColorMixBoost={setColorMixBoost}
-          overlayTint={overlayTint}
-          setOverlayTint={setOverlayTint}
-          exportBg={exportBg}
-          setExportBg={handleSetExportBg}
-          exportText={exportText}
-          setExportText={setExportText}
-          onReset={reset}
-          onDownloadImage={handleDownloadImage}
-          onDownloadWithPalette={handleDownloadWithPalette}
-          downloadingType={downloadingType}
-          onCustomFiles={handleCustomFiles}
-        />
+        <div className="slot-strip">
+          <SlotControls
+            slots={slots}
+            disabledSet={disabledSet} // ?? truy?n xu?ng
+            slotLinks={slotLinks}
+            onPickSlot={onPickSlot}
+            onRandomAll={randomAll}
+            onResetSlots={resetSlotsOnly}
+            favorites={favoriteColors}
+            onToggleFavorite={toggleFavoriteColor}
+            onResetFavorites={resetFavoriteColors}
+            onReorderFavorites={reorderFavoriteColors}
+            onPasteCmd={handlePasteCmd}
+            extraActions={
+              <>
+                <button
+                  ref={fillBtnRef}
+                  className="btn"
+                  onClick={() => setFillOpen(true)}
+                >
+                  {t('app.fill')}
+                </button>
+                {fillOpen && (
+                  <Popover
+                    anchorRef={fillBtnRef}
+                    onClose={() => setFillOpen(false)}
+                  >
+                    <div style={{ padding: 10 }}>
+                      <PaletteGrid
+                        big
+                        showIndex
+                        favorites={favoriteColors}
+                        onPick={(p) => doFillWith(p)}
+                        onToggleFavorite={toggleFavoriteColor}
+                        onResetFavorites={resetFavoriteColors}
+                      />
+                    </div>
+                  </Popover>
+                )}
+              </>
+            }
+          />
+        </div>
+
       </section>
 
       <section className="panel">
@@ -751,47 +788,51 @@ export default function App() {
             selectByName(name);
           }}
         />
-        <hr />
-
-        <div className="title">{t('app.slotsTitle')}</div>
-        <SlotControls
-          slots={slots}
-          disabledSet={disabledSet} // ?? truy?n xu?ng
-          onPickSlot={onPickSlot}
-          onRandomAll={randomAll}
-          onResetSlots={resetSlotsOnly}
-          favorites={favoriteColors}
-          onToggleFavorite={toggleFavoriteColor}
-          onResetFavorites={resetFavoriteColors}
-          onPasteCmd={handlePasteCmd}
-          extraActions={
-            <>
-              <button
-                ref={fillBtnRef}
-                className="btn"
-                onClick={() => setFillOpen(true)}>
-                {t('app.fill')}
-              </button>
-              {fillOpen && (
-                <Popover
-                  anchorRef={fillBtnRef}
-                  onClose={() => setFillOpen(false)}>
-                  <div style={{ padding: 10 }}>
-                    <PaletteGrid
-                      big
-                      showIndex
-                      favorites={favoriteColors}
-                      onPick={(p) => doFillWith(p)}
-                      onToggleFavorite={toggleFavoriteColor}
-                      onResetFavorites={resetFavoriteColors}
-                    />
-                  </div>
-                </Popover>
-              )}
-            </>
-          }
-        />
-
+        <div className="toolbar-standalone">
+          <Toolbar
+            threshold={threshold}
+            setThreshold={setThreshold}
+            strength={strength}
+            setStrength={setStrength}
+            neutralStrength={neutralStrength}
+            setNeutralStrength={setNeutralStrength}
+            feather={feather}
+            setFeather={setFeather}
+            gamma={gamma}
+            setGamma={setGamma}
+            keepLight={keepLight}
+            setKeepLight={setKeepLight}
+            chromaBoost={chromaBoost}
+            setChromaBoost={setChromaBoost}
+            chromaCurve={chromaCurve}
+            setChromaCurve={setChromaCurve}
+            speckleClean={speckleClean}
+            setSpeckleClean={setSpeckleClean}
+            edgeSmooth={edgeSmooth}
+            setEdgeSmooth={setEdgeSmooth}
+            boundaryBlend={boundaryBlend}
+            setBoundaryBlend={setBoundaryBlend}
+            overlayStrength={overlayStrength}
+            setOverlayStrength={setOverlayStrength}
+            overlayColorStrength={overlayColorStrength}
+            setOverlayColorStrength={setOverlayColorStrength}
+            overlayColorMixBoost={overlayColorMixBoost}
+            setOverlayColorMixBoost={setOverlayColorMixBoost}
+            colorMixBoost={colorMixBoost}
+            setColorMixBoost={setColorMixBoost}
+            overlayTint={overlayTint}
+            setOverlayTint={setOverlayTint}
+            exportBg={exportBg}
+            setExportBg={handleSetExportBg}
+            exportText={exportText}
+            setExportText={setExportText}
+            onReset={reset}
+            onDownloadImage={handleDownloadImage}
+            onDownloadWithPalette={handleDownloadWithPalette}
+            downloadingType={downloadingType}
+            onCustomFiles={handleCustomFiles}
+          />
+        </div>
         <hr />
 
         {/* working canvases */}
