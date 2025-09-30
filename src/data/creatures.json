@@ -46,6 +46,7 @@
     "maskPath": "Aberrant Arthropluera",
     "base": "Aberrant Arthropluera_ASA.png",
     "masks": [
+      "Aberrant Arthropluera_ASA_m_04.png",
       "Aberrant Arthropluera_ASA_m.png"
     ],
     "noMask": []
@@ -648,6 +649,7 @@
     "maskPath": "Arthropluera",
     "base": "Arthropluera_ASA.png",
     "masks": [
+      "Arthropluera_ASA_m_04.png",
       "Arthropluera_ASA_m.png"
     ],
     "noMask": []
@@ -669,6 +671,8 @@
     "maskPath": "Basilisk",
     "base": "Basilisk_ASA.png",
     "masks": [
+      "Basilisk_ASA_m_04.png",
+      "Basilisk_ASA_m_05.png",
       "Basilisk_ASA_m.png"
     ],
     "noMask": [
@@ -1995,6 +1999,9 @@
     "maskPath": "Reaper King",
     "base": "Reaper King_ASA.png",
     "masks": [
+      "Reaper King_ASA_m_04.png",
+      "Reaper King_ASA_m_05.png",
+      "Reaper King_ASA_m_25.png",
       "Reaper King_ASA_m.png"
     ],
     "noMask": [
@@ -2347,6 +2354,8 @@
     "maskPath": "Veilwyn",
     "base": "Veilwyn_ASA.png",
     "masks": [
+      "Veilwyn_ASA_m_04.png",
+      "Veilwyn_ASA_m_13.png",
       "Veilwyn_ASA_m.png"
     ],
     "noMask": [
@@ -2358,6 +2367,9 @@
     "maskPath": "Velonasaur",
     "base": "Velonasaur_ASA.png",
     "masks": [
+      "Velonasaur_ASA_m_05.png",
+      "Velonasaur_ASA_m_13.png",
+      "Velonasaur_ASA_m_25.png",
       "Velonasaur_ASA_m.png"
     ],
     "noMask": []
