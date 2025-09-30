@@ -69,11 +69,6 @@ async function movePng(fileName, baseFolder) {
   return path.relative(ROOT_DIR, destinationPath);
 }
 
-async function clearExistingFolder(baseFolder) {
-  const destinationFolder = path.join(DEST_DIR, baseFolder);
-  await fs.promises.rm(destinationFolder, { recursive: true, force: true });
-}
-
 async function main() {
   const tempExists = await fs.promises
     .stat(TEMP_DIR)
@@ -108,8 +103,6 @@ async function main() {
   }
 
   for (const [baseFolder, files] of groupedByBase) {
-    await clearExistingFolder(baseFolder);
-
     for (const fileName of files) {
       const relativeDestination = await movePng(fileName, baseFolder);
       console.log(`Moved ${fileName} -> ${relativeDestination}`);

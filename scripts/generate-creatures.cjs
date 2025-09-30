@@ -188,6 +188,17 @@ function applySpecialVariantRule(folderName, variants) {
   ];
 }
 
+
+function normalizeNameKey(value) {
+  if (!value) return '';
+  return String(value)
+    .toLowerCase()
+    .replace(/\(.*?\)/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function resolveNoMask(noMaskByKey, variant) {
   const candidates = [];
   if (variant.maskPath && variant.base) {
@@ -202,7 +213,8 @@ function resolveNoMask(noMaskByKey, variant) {
 
   for (const key of candidates) {
     if (noMaskByKey.has(key)) {
-      return noMaskByKey.get(key);
+      const value = noMaskByKey.get(key);
+      return Array.isArray(value) ? [...value] : [];
     }
   }
 
@@ -232,6 +244,46 @@ function main() {
         ...variant,
         noMask,
       });
+    }
+  }
+
+  const baseNoMaskCandidates = creatures
+    .filter((entry) => Array.isArray(entry.noMask) && entry.noMask.length > 0)
+    .map((entry) => ({
+      entry,
+      nameKey: normalizeNameKey(entry.name),
+      pathKey: normalizeNameKey(entry.maskPath),
+    }));
+
+  for (const creature of creatures) {
+    if (Array.isArray(creature.noMask) && creature.noMask.length > 0) continue;
+    const nameKey = normalizeNameKey(creature.name);
+    const pathKey = normalizeNameKey(creature.maskPath);
+    let selected = null;
+    let selectedScore = -1;
+
+    for (const candidate of baseNoMaskCandidates) {
+      const { entry, nameKey: candidateName, pathKey: candidatePath } = candidate;
+      const source = Array.isArray(entry.noMask) ? entry.noMask : [];
+      if (!source.length) continue;
+
+      const matches = [
+        candidateName && nameKey.includes(candidateName),
+        candidateName && pathKey.includes(candidateName),
+        candidatePath && nameKey.includes(candidatePath),
+        candidatePath && pathKey.includes(candidatePath),
+      ].some(Boolean);
+
+      if (!matches) continue;
+      const score = Math.max(candidateName ? candidateName.length : 0, candidatePath ? candidatePath.length : 0);
+      if (score > selectedScore) {
+        selected = candidate;
+        selectedScore = score;
+      }
+    }
+
+    if (selected) {
+      creature.noMask = [...selected.entry.noMask];
     }
   }
 
