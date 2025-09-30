@@ -1,19 +1,11 @@
-import { useI18n } from '../i18n/index.js';
 import { useMemo, useState } from 'react';
+import { useI18n } from '../i18n/index.js';
 import { ARK_PALETTE } from '../utils/arkPalette';
 import { hexToRgb, relLuminance } from '../utils/color';
 
 const toIdString = (value) => String(value);
 
-export default function PaletteGrid({
-  onPick,
-  onToggleFavorite,
-  onResetFavorites,
-  onReorderFavorites,
-  favorites = [],
-  big = false,
-  showIndex = false,
-}) {
+export default function PaletteGrid({ onPick, onToggleFavorite, onResetFavorites, onReorderFavorites, favorites = [], big = false, showIndex = false }) {
   const { t } = useI18n();
   const size = big ? 44 : 30;
   const gap = big ? 10 : 6;

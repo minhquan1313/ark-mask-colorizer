@@ -221,9 +221,7 @@ export default function App() {
     if (!Array.isArray(nextOrder)) return;
     setFavoriteColors((prevRaw) => {
       const prev = Array.isArray(prevRaw) ? prevRaw.map((id) => String(id)) : [];
-      const sanitized = nextOrder
-        .map((id) => String(id))
-        .filter((id, index, arr) => arr.indexOf(id) === index);
+      const sanitized = nextOrder.map((id) => String(id)).filter((id, index, arr) => arr.indexOf(id) === index);
       const preserved = sanitized.filter((id) => prev.includes(id));
       const remainder = prev.filter((id) => !preserved.includes(id));
       const next = preserved.concat(remainder);
@@ -747,15 +745,13 @@ export default function App() {
                 <button
                   ref={fillBtnRef}
                   className="btn"
-                  onClick={() => setFillOpen(true)}
-                >
+                  onClick={() => setFillOpen(true)}>
                   {t('app.fill')}
                 </button>
                 {fillOpen && (
                   <Popover
                     anchorRef={fillBtnRef}
-                    onClose={() => setFillOpen(false)}
-                  >
+                    onClose={() => setFillOpen(false)}>
                     <div style={{ padding: 10 }}>
                       <PaletteGrid
                         big
@@ -772,7 +768,6 @@ export default function App() {
             }
           />
         </div>
-
       </section>
 
       <section className="panel">
@@ -833,7 +828,6 @@ export default function App() {
             onCustomFiles={handleCustomFiles}
           />
         </div>
-        <hr />
 
         {/* working canvases */}
         <canvas

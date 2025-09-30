@@ -190,6 +190,38 @@
   margin-top: 12px;
 }
 
+.creature-picker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.creature-picker__label {
+  opacity: 0.8;
+}
+
+.creature-picker__select {
+  min-width: 180px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+}
+
+@media (max-width: 900px) {
+  .creature-picker {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .creature-picker__select {
+    width: 100%;
+  }
+}
+
 .slot-controls {
   display: flex;
   flex-direction: column;
@@ -366,7 +398,6 @@
 
 .mask-toolbar {
   width: 100%;
-  max-width: 480px;
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -377,6 +408,19 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+.mask-toolbar__toggle {
+  align-self: flex-start;
+}
+
+.mask-toolbar__toggle.is-active {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+}
+
+@media (max-width: 900px) {
+  .mask-toolbar__toggle {
+    width: 100%;
+  }
 }
 
 .mask-toolbar__slider {
@@ -538,10 +582,11 @@
   margin-top: 16px;
   display: flex;
   justify-content: flex-end;
+  width: 100%;
 }
 
 .toolbar-standalone .mask-toolbar {
-  max-width: 420px;
+  width: 100%;
 }
 
 @media (max-width: 900px) {

@@ -104,6 +104,8 @@ export default function Toolbar({
   }
 
   const isProduction = Boolean(typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.PROD);
+  const [devSlidersVisible, setDevSlidersVisible] = useState(true);
+  const showSliderControls = !isProduction && devSlidersVisible;
 
   const sliderConfigs = useMemo(
     () => [
@@ -330,8 +332,19 @@ export default function Toolbar({
   return (
     <div className="mask-toolbar">
       <div className="mask-toolbar__sliders">
-        {!isProduction && sliderConfigs.map(renderSlider)}
         {!isProduction && (
+          <button
+            type="button"
+            className={`btn mask-toolbar__toggle${devSlidersVisible ? ' is-active' : ''}`}
+            onClick={() => setDevSlidersVisible((prev) => !prev)}
+            aria-pressed={devSlidersVisible}>
+            {devSlidersVisible
+              ? t('toolbar.hideSliders', { defaultValue: 'Hide sliders' })
+              : t('toolbar.showSliders', { defaultValue: 'Show sliders' })}
+          </button>
+        )}
+        {showSliderControls && sliderConfigs.map(renderSlider)}
+        {showSliderControls && (
           <div className="mask-toolbar__slider mask-toolbar__slider--button">
             <span className="mask-toolbar__slider-label">{t('toolbar.overlayBlend')}</span>
             <button
