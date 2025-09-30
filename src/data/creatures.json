@@ -590,6 +590,17 @@
     ]
   },
   {
+    "name": "Bison (female)",
+    "maskPath": "Bison",
+    "base": "Bison_ASA_sf.png",
+    "masks": [
+      "Bison_ASA_sf_m.png"
+    ],
+    "noMask": [
+      5
+    ]
+  },
+  {
     "name": "Brontosaurus",
     "maskPath": "Brontosaurus",
     "base": "Brontosaurus_ASA.png",
@@ -813,6 +824,18 @@
     "base": "Deinotherium_ASA.png",
     "masks": [
       "Deinotherium_ASA_m.png"
+    ],
+    "noMask": [
+      2,
+      3
+    ]
+  },
+  {
+    "name": "Deinotherium (female)",
+    "maskPath": "Deinotherium",
+    "base": "Deinotherium_ASA_sf.png",
+    "masks": [
+      "Deinotherium_ASA_sf_m.png"
     ],
     "noMask": [
       2,
