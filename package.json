@@ -12,9 +12,12 @@
     "organize:mask-in-temp": "node ./scripts/organize-dino-images.cjs"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.0.8",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.1",
+    "i18next": "^24.1.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "i18next": "^24.1.0",
     "react-i18next": "^15.0.1"
   },
   "devDependencies": {

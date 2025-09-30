@@ -1,5 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useI18n } from '../i18n/index.js';
+import { DndContext, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, rectSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { ARK_PALETTE } from '../utils/arkPalette';
 import { hexToRgb, relLuminance } from '../utils/color';
 
@@ -34,87 +38,29 @@ export default function PaletteGrid({ onPick, onToggleFavorite, onResetFavorites
     return { favoriteEntries: favEntries, otherEntries: rest, favoriteSet: favSet };
   }, [favorites, filter]);
 
-  const [draggingId, setDraggingId] = useState(null);
-  const [dragOverIndex, setDragOverIndex] = useState(null);
   const canReorder = typeof onReorderFavorites === 'function' && favoriteEntries.length > 1;
-
   const favoriteIds = useMemo(() => favoriteEntries.map((entry) => toIdString(entry.index)), [favoriteEntries]);
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 6 },
+    }),
+  );
 
-  const commitReorder = (targetIndex) => {
-    if (!canReorder || !draggingId) return;
-    const ids = favoriteEntries.map((entry) => toIdString(entry.index));
-    const fromIdx = ids.indexOf(draggingId);
-    if (fromIdx === -1) return;
-    const next = [...ids];
-    const [moved] = next.splice(fromIdx, 1);
-    let insertIndex = targetIndex;
-    if (fromIdx < targetIndex) {
-      insertIndex -= 1;
-    }
-    insertIndex = Math.max(0, Math.min(insertIndex, next.length));
-    next.splice(insertIndex, 0, moved);
-    if (next.join('|') !== ids.join('|')) {
-      onReorderFavorites(next);
-    }
-  };
-
-  const endDrag = () => {
-    setDraggingId(null);
-    setDragOverIndex(null);
-  };
-
-  const handleFavoriteDragStart = (event, id) => {
-    if (!canReorder) return;
-    if (event?.dataTransfer) {
-      event.dataTransfer.effectAllowed = 'move';
-      try {
-        event.dataTransfer.setData('text/plain', id);
-      } catch {
-        /* ignore */
+  const handleFavoriteDragEnd = useCallback(
+    (event) => {
+      if (!canReorder) return;
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
+      const oldIndex = favoriteIds.indexOf(active.id);
+      const newIndex = favoriteIds.indexOf(over.id);
+      if (oldIndex === -1 || newIndex === -1) return;
+      const next = arrayMove(favoriteIds, oldIndex, newIndex);
+      if (next.some((value, index) => value !== favoriteIds[index])) {
+        onReorderFavorites(next);
       }
-    }
-    setDraggingId(id);
-    setDragOverIndex(favoriteIds.indexOf(id));
-  };
-
-  const handleFavoriteDragOver = (event, index) => {
-    if (!canReorder || !draggingId) return;
-    event.preventDefault();
-    const rect = event.currentTarget.getBoundingClientRect();
-    const offset = event.clientX - rect.left;
-    const position = offset > rect.width / 2 ? index + 1 : index;
-    setDragOverIndex(position);
-  };
-
-  const handleFavoriteDrop = (event, index) => {
-    if (!canReorder || !draggingId) return;
-    event.preventDefault();
-    const rect = event.currentTarget.getBoundingClientRect();
-    const offset = event.clientX - rect.left;
-    const position = offset > rect.width / 2 ? index + 1 : index;
-    commitReorder(position);
-    endDrag();
-  };
-
-  const handleFavoriteDropTail = (event) => {
-    if (!canReorder || !draggingId) return;
-    event.preventDefault();
-    commitReorder(favoriteEntries.length);
-    endDrag();
-  };
-
-  const handleRestDragOver = (event) => {
-    if (!canReorder || !draggingId) return;
-    event.preventDefault();
-    setDragOverIndex(favoriteEntries.length);
-  };
-
-  const handleRestDrop = (event) => {
-    if (!canReorder || !draggingId) return;
-    event.preventDefault();
-    commitReorder(favoriteEntries.length);
-    endDrag();
-  };
+    },
+    [canReorder, favoriteIds, onReorderFavorites],
+  );
 
   const renderButton = (entry, options = {}) => {
     const [r, g, b] = hexToRgb(entry.hex);
@@ -122,15 +68,9 @@ export default function PaletteGrid({ onPick, onToggleFavorite, onResetFavorites
     const textColor = lum > 0.55 ? '#111' : '#fff';
     const idStr = toIdString(entry.index);
     const isFavorite = options.isFavorite ?? favoriteSet.has(idStr);
-    const isDragging = options.isDragging ?? false;
-    const dropBefore = options.dropBefore ?? false;
-    const dropAfter = options.dropAfter ?? false;
 
     const classNames = ['palette-grid__button'];
     if (isFavorite) classNames.push('is-favorite');
-    if (isDragging) classNames.push('is-dragging');
-    if (dropBefore) classNames.push('drop-before');
-    if (dropAfter) classNames.push('drop-after');
 
     const handleContextMenu = (event) => {
       if (!onToggleFavorite) return;
@@ -146,11 +86,6 @@ export default function PaletteGrid({ onPick, onToggleFavorite, onResetFavorites
         onClick={() => onPick?.(entry)}
         onContextMenu={handleContextMenu}
         title={`${entry.index} - ${entry.name}`}
-        draggable={options.draggable}
-        onDragStart={options.onDragStart}
-        onDragOver={options.onDragOver}
-        onDrop={options.onDrop}
-        onDragEnd={options.onDragEnd}
         style={{
           position: 'relative',
           width: size,
@@ -160,7 +95,7 @@ export default function PaletteGrid({ onPick, onToggleFavorite, onResetFavorites
           background: entry.hex,
           display: 'grid',
           placeItems: 'center',
-          cursor: options.draggable ? 'grab' : 'pointer',
+          cursor: 'pointer',
           overflow: 'hidden',
         }}>
         {isFavorite && (
@@ -204,33 +139,8 @@ export default function PaletteGrid({ onPick, onToggleFavorite, onResetFavorites
     );
   };
 
-  const favoriteButtons = favoriteEntries.map((entry, index) => {
-    const id = toIdString(entry.index);
-    const isDragging = draggingId === id;
-    const dropBefore = canReorder && dragOverIndex === index;
-    const dropAfter = canReorder && dragOverIndex === index + 1;
-    return renderButton(entry, {
-      isFavorite: true,
-      draggable: canReorder,
-      isDragging,
-      dropBefore,
-      dropAfter,
-      onDragStart: (event) => handleFavoriteDragStart(event, id),
-      onDragOver: (event) => handleFavoriteDragOver(event, index),
-      onDrop: (event) => handleFavoriteDrop(event, index),
-      onDragEnd: endDrag,
-    });
-  });
-
-  const otherButtons = otherEntries.map((entry) =>
-    renderButton(entry, {
-      isFavorite: false,
-      draggable: false,
-      dropAfter: canReorder && dragOverIndex === favoriteEntries.length,
-      onDragOver: canReorder ? handleRestDragOver : undefined,
-      onDrop: canReorder ? handleRestDrop : undefined,
-    })
-  );
+  const favoriteButtons = favoriteEntries.map((entry) => renderButton(entry, { isFavorite: true }));
+  const otherButtons = otherEntries.map((entry) => renderButton(entry, { isFavorite: false }));
 
   const handleResetFavorites = () => {
     if (typeof onResetFavorites === 'function') {
@@ -263,23 +173,40 @@ export default function PaletteGrid({ onPick, onToggleFavorite, onResetFavorites
       )}
 
       {favoriteEntries.length > 0 && (
-        <div
-          className="palette-grid__favorites"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: `repeat(6, ${size}px)`,
-            gap,
-            marginBottom: gap,
-          }}>
-          {favoriteButtons}
-          {canReorder && (
-            <div
-              className={`palette-grid__drop-tail${dragOverIndex === favoriteEntries.length ? ' is-active' : ''}`}
-              onDragOver={handleFavoriteDropTail}
-              onDrop={handleFavoriteDropTail}
-            />
-          )}
-        </div>
+        canReorder ? (
+          <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={handleFavoriteDragEnd}>
+            <SortableContext items={favoriteIds} strategy={rectSortingStrategy}>
+              <div
+                className="palette-grid__favorites"
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: `repeat(6, ${size}px)`,
+                  gap,
+                  marginBottom: gap,
+                }}>
+                {favoriteEntries.map((entry) => {
+                  const id = toIdString(entry.index);
+                  return (
+                    <SortableFavorite key={id} id={id}>
+                      {renderButton(entry, { isFavorite: true })}
+                    </SortableFavorite>
+                  );
+                })}
+              </div>
+            </SortableContext>
+          </DndContext>
+        ) : (
+          <div
+            className="palette-grid__favorites"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: `repeat(6, ${size}px)`,
+              gap,
+              marginBottom: gap,
+            }}>
+            {favoriteButtons}
+          </div>
+        )
       )}
 
       <div
@@ -292,6 +219,20 @@ export default function PaletteGrid({ onPick, onToggleFavorite, onResetFavorites
         {favoriteEntries.length === 0 ? favoriteButtons : null}
         {otherButtons}
       </div>
+    </div>
+  );
+}
+
+function SortableFavorite({ id, children }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 2 : 'auto',
+  };
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      {children}
     </div>
   );
 }
