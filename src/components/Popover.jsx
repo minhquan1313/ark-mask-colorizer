@@ -86,7 +86,7 @@ export default function Popover({ anchorRef, onClose, children, className = '', 
       window.removeEventListener('keydown', onKey);
       window.removeEventListener('mousedown', onClick);
     };
-  }, [onClose]);
+  }, [anchorRef, onClose]);
 
   return (
     <div

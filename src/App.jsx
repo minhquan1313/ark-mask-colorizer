@@ -1,14 +1,12 @@
-﻿// src/App.jsx
+// src/App.jsx
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import BottomNav from './components/BottomNav.jsx';
-import CanvasView from './components/CanvasView.jsx';
-import CreaturePicker from './components/CreaturePicker.jsx';
-import PaletteGrid from './components/PaletteGrid.jsx';
-import Popover from './components/Popover.jsx';
-import SlotControls from './components/SlotControls.jsx';
-import Toolbar from './components/Toolbar.jsx';
+import MaskPage from './components/pages/MaskPage.jsx';
+import LibraryPage from './components/pages/LibraryPage.jsx';
+import SettingsPage from './components/pages/SettingsPage.jsx';
+import { MaskSettingsProvider } from './context/MaskSettingsContext.jsx';
+import useMaskSettingsState from './hooks/useMaskSettingsState.js';
 import { DEFAULTS } from './config/defaults.js';
-import updateNote from './data/updateNote.json';
 import { useCreatures } from './hooks/useCreatures.js';
 import { useImages } from './hooks/useImages.js';
 import { useRecolorWorker } from './hooks/useRecolorWorker.js';
@@ -16,116 +14,15 @@ import { useI18n, useLanguageOptions } from './i18n/index.js';
 import { extractQuoted, extractSpeciesFromBlueprint, normalizeName, parseNumList, sanitizeName } from './utils/arkCmd.js';
 import { ARK_PALETTE } from './utils/arkPalette.js';
 import { STORAGE_KEYS, loadJSON, saveJSON } from './utils/storage.js';
+import { hexToRgb, relLuminance } from './utils/contrast.js';
+import { idToEntry, buildVariantKey, buildSlotsColorSignature, normalizeFavoriteIds } from './utils/slotUtils.js';
+import { MaskIcon, LibraryIcon, SettingsIcon } from './components/icons/NavIcons.jsx';
 
-const initialBg = loadJSON(STORAGE_KEYS.exportBg, DEFAULTS.exportBg);
-const initialText = loadJSON(STORAGE_KEYS.exportTx, DEFAULTS.exportText);
-// Load persisted slider states (fallback to defaults)
-const initialThreshold = loadJSON(STORAGE_KEYS.threshold, DEFAULTS.threshold);
-const initialStrength = loadJSON(STORAGE_KEYS.strength, DEFAULTS.strength);
-const initialNeutralStrength = loadJSON(STORAGE_KEYS.neutralStrength, DEFAULTS.neutralStrength);
-const initialFeather = loadJSON(STORAGE_KEYS.feather, DEFAULTS.feather);
-const initialGamma = loadJSON(STORAGE_KEYS.gamma, DEFAULTS.gamma);
-const initialKeepLight = loadJSON(STORAGE_KEYS.keepLight, DEFAULTS.keepLight);
-const initialChromaBoost = loadJSON(STORAGE_KEYS.chromaBoost, DEFAULTS.chromaBoost);
-const initialChromaCurve = loadJSON(STORAGE_KEYS.chromaCurve, DEFAULTS.chromaCurve);
-const initialSpeckleClean = loadJSON(STORAGE_KEYS.speckleClean, DEFAULTS.speckleClean);
-const initialEdgeSmooth = loadJSON(STORAGE_KEYS.edgeSmooth, DEFAULTS.edgeSmooth);
-const initialBoundaryBlend = loadJSON(STORAGE_KEYS.boundaryBlend, DEFAULTS.boundaryBlend);
-const initialOverlayTint = loadJSON(STORAGE_KEYS.overlayTint, DEFAULTS.overlayTint);
-const initialOverlayStrength = loadJSON(STORAGE_KEYS.overlayStrength, DEFAULTS.overlayStrength);
-const initialColorMixBoost = loadJSON(STORAGE_KEYS.colorMixBoost, DEFAULTS.colorMixBoost);
-const initialOverlayColorStrength = loadJSON(STORAGE_KEYS.overlayColorStrength, DEFAULTS.overlayColorStrength);
-const initialOverlayColorMixBoost = loadJSON(STORAGE_KEYS.overlayColorMixBoost, DEFAULTS.overlayColorMixBoost);
-
-const idToEntry = (id) => ARK_PALETTE.find((p) => String(p.index) === String(id)) || null;
 const QIDX_BP = 0; // Blueprint'...'
 const QIDX_BASE = 2; // "103,53,0,0,100,105,0,0"
 const QIDX_INC = 3; // "0,0,0,0,0,0,0,0"
-const QIDX_NAME = 4; // "T�n dino do user d?t"
+const QIDX_NAME = 4; // "T?n dino do user d?t"
 const QIDX_COLORS = 8; // "76,83,83,0,83,70"
-function toVariantColorId(slotValue) {
-  if (slotValue == null) {
-    return null;
-  }
-  if (typeof slotValue === 'number' || typeof slotValue === 'string') {
-    const parsed = Number(slotValue);
-    return Number.isFinite(parsed) ? parsed : null;
-  }
-  if (typeof slotValue === 'object') {
-    if (slotValue.index != null) {
-      const parsed = Number(slotValue.index);
-      return Number.isFinite(parsed) ? parsed : null;
-    }
-    if (slotValue.id != null) {
-      const parsed = Number(slotValue.id);
-      return Number.isFinite(parsed) ? parsed : null;
-    }
-    if (slotValue.value != null) {
-      const parsed = Number(slotValue.value);
-      return Number.isFinite(parsed) ? parsed : null;
-    }
-  }
-  return null;
-}
-
-function buildVariantKey(entry, slots) {
-  if (!entry?.variantSlots) {
-    return '';
-  }
-  return Object.keys(entry.variantSlots)
-    .map((slot) => {
-      const idx = Number(slot);
-      const colorId = toVariantColorId(slots?.[idx]);
-      return `${slot}:${colorId == null ? 'x' : colorId}`;
-    })
-    .sort((a, b) => Number(a.split(':')[0]) - Number(b.split(':')[0]))
-    .join('|');
-}
-
-function buildSlotsColorSignature(slots) {
-  if (!Array.isArray(slots)) {
-    return '';
-  }
-  return slots
-    .map((slot) => {
-      if (!slot) return 'x';
-      if (typeof slot === 'string') return slot;
-      if (slot.hex) return slot.hex;
-      const id = toVariantColorId(slot);
-      return id == null ? 'x' : `id:${id}`;
-    })
-    .join('|');
-}
-
-function normalizeFavoriteIds(values) {
-  if (!Array.isArray(values)) {
-    return [];
-  }
-  const seen = new Set();
-  const normalized = [];
-  for (const value of values) {
-    if (value == null) continue;
-    const id = String(value);
-    if (seen.has(id)) continue;
-    const entry = ARK_PALETTE.find((p) => String(p.index) === id);
-    if (!entry) continue;
-    seen.add(id);
-    normalized.push(id);
-  }
-  return normalized;
-}
-
-function parseUpdateDate(key) {
-  if (!key) return null;
-  const parts = String(key).split('/');
-  if (parts.length !== 3) return null;
-  const [year, month, day] = parts.map((value) => Number(value));
-  if (![year, month, day].every(Number.isFinite)) {
-    return null;
-  }
-  return new Date(year, month - 1, day);
-}
-
 export default function App() {
   const { t, setLang, lang } = useI18n();
   const languageOptions = useLanguageOptions();
@@ -134,40 +31,61 @@ export default function App() {
   const maskCanvasRef = useRef(null);
   const outCanvasRef = useRef(null);
 
-  // ? KH?I T?O t? localStorage ngay l?p t?c (tr�nh overwrite)
+  // ? KH?I T?O t? localStorage ngay l?p t?c (tr?nh overwrite)
   const initialSlots = useMemo(() => loadJSON(STORAGE_KEYS.slots, DEFAULTS.slots), []);
   const preferredCreature = useMemo(() => loadJSON(STORAGE_KEYS.creature, DEFAULTS.defaultCreatureName), []);
   const initialPaletteFavorites = useMemo(() => normalizeFavoriteIds(loadJSON(STORAGE_KEYS.paletteFavorites, DEFAULTS.paletteFavorites)), []);
 
+  const maskSettings = useMaskSettingsState();
+  const {
+    threshold,
+    setThreshold,
+    strength,
+    setStrength,
+    neutralStrength,
+    setNeutralStrength,
+    feather,
+    setFeather,
+    gamma,
+    setGamma,
+    keepLight,
+    setKeepLight,
+    chromaBoost,
+    setChromaBoost,
+    chromaCurve,
+    setChromaCurve,
+    speckleClean,
+    setSpeckleClean,
+    edgeSmooth,
+    setEdgeSmooth,
+    boundaryBlend,
+    setBoundaryBlend,
+    overlayStrength,
+    setOverlayStrength,
+    overlayColorStrength,
+    setOverlayColorStrength,
+    overlayColorMixBoost,
+    setOverlayColorMixBoost,
+    colorMixBoost,
+    setColorMixBoost,
+    overlayTint,
+    setOverlayTint,
+    exportBg,
+    setExportBg,
+    exportText,
+    setExportText,
+  } = maskSettings;
   const [slots, setSlots] = useState(Array.isArray(initialSlots) && initialSlots.length === 6 ? initialSlots : DEFAULTS.slots);
-  const [threshold, setThreshold] = useState(initialThreshold);
-  const [strength, setStrength] = useState(initialStrength);
-  const [neutralStrength, setNeutralStrength] = useState(initialNeutralStrength);
-  const [feather, setFeather] = useState(initialFeather);
-  const [gamma, setGamma] = useState(initialGamma);
-  const [speckleClean, setSpeckleClean] = useState(initialSpeckleClean);
-  const [edgeSmooth, setEdgeSmooth] = useState(initialEdgeSmooth);
-  const [boundaryBlend, setBoundaryBlend] = useState(initialBoundaryBlend);
-  const [overlayTint, setOverlayTint] = useState(initialOverlayTint);
-  const [overlayStrength, setOverlayStrength] = useState(initialOverlayStrength);
-  const [overlayColorStrength, setOverlayColorStrength] = useState(initialOverlayColorStrength);
-  const [overlayColorMixBoost, setOverlayColorMixBoost] = useState(initialOverlayColorMixBoost);
-  const [colorMixBoost, setColorMixBoost] = useState(initialColorMixBoost);
-  // Advanced OKLab tuning
-  const [keepLight, setKeepLight] = useState(initialKeepLight);
-  const [chromaBoost, setChromaBoost] = useState(initialChromaBoost);
-  const [chromaCurve, setChromaCurve] = useState(initialChromaCurve);
-  const [exportBg, setExportBg] = useState(initialBg);
-  const [exportText, setExportText] = useState(initialText);
   const [favoriteColors, setFavoriteColors] = useState(initialPaletteFavorites);
   const [fillOpen, setFillOpen] = useState(false);
   const fillBtnRef = useRef(null);
-
+  const openFill = useCallback(() => setFillOpen(true), []);
+  const closeFill = useCallback(() => setFillOpen(false), []);
   const { list, current, selectByName, setCurrent } = useCreatures(preferredCreature);
   const [tempCreatureName, setTempCreatureName] = useState(null);
   const [customMode, setCustomMode] = useState(false);
   const creatureName = tempCreatureName ?? (current?.name || '?');
-  const disabledSet = customMode ? new Set() : new Set(current?.noMask || []);
+  const disabledSet = useMemo(() => (customMode ? new Set() : new Set(current?.noMask || [])), [customMode, current]);
 
   const { baseImg, maskImg, extraMasks, loadPairFromFiles, loadFromEntry } = useImages();
   const slotLinks = useMemo(() => {
@@ -230,13 +148,13 @@ export default function App() {
     });
   }, []);
 
-  // Khi current thay d?i ? load ?nh d�ng con, KH�NG d�ng base.png m?c d?nh
+  // Khi current thay d?i ? load ?nh d?ng con, KH?NG d?ng base.png m?c d?nh
   useEffect(() => {
     if (!current) return;
     loadFromEntry(current, slotsRef.current);
   }, [current, variantKey, loadFromEntry]);
 
-  // Khi d?i creature ? set null cho c�c slot b? disable
+  // Khi d?i creature ? set null cho c?c slot b? disable
   useEffect(() => {
     if (!current || customMode) return;
     const disabled = new Set(current.noMask || []);
@@ -281,18 +199,18 @@ export default function App() {
         }
       }
     }
+    const cleanupCanvas = outCanvasRef.current;
     return () => {
       if (activePage !== 'mask') return;
-      const canvas = outCanvasRef.current;
-      if (!canvas || !canvas.width || !canvas.height) {
+      if (!cleanupCanvas || !cleanupCanvas.width || !cleanupCanvas.height) {
         cachedRenderRef.current = { url: null, width: 0, height: 0 };
         return;
       }
       try {
         cachedRenderRef.current = {
-          url: canvas.toDataURL('image/png'),
-          width: canvas.width,
-          height: canvas.height,
+          url: cleanupCanvas.toDataURL('image/png'),
+          width: cleanupCanvas.width,
+          height: cleanupCanvas.height,
         };
       } catch {
         cachedRenderRef.current = { url: null, width: 0, height: 0 };
@@ -300,7 +218,7 @@ export default function App() {
     };
   }, [activePage]);
 
-  // V? khi d� c� ?nh
+  // V? khi d? c? ?nh
   useEffect(() => {
     if (activePage !== 'mask') return;
     if (!baseImg || !maskImg) return;
@@ -313,7 +231,7 @@ export default function App() {
     });
   }, [activePage, maskRenderNonce, baseImg, maskImg, extraMasks, slotsColorSignature, threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, overlayStrength, overlayColorStrength, overlayColorMixBoost, colorMixBoost, overlayTint, draw]);
 
-  // ? Luu slots m?i khi d?i (d� an to�n v� init t? storage)
+  // ? Luu slots m?i khi d?i (d? an to?n v? init t? storage)
   useEffect(() => {
     slotsRef.current = slots;
   }, [slots]);
@@ -321,64 +239,6 @@ export default function App() {
   useEffect(() => {
     saveJSON(STORAGE_KEYS.slots, slots);
   }, [slots]);
-  useEffect(() => {
-    saveJSON(STORAGE_KEYS.threshold, threshold);
-  }, [threshold]);
-  useEffect(() => {
-    saveJSON(STORAGE_KEYS.strength, strength);
-  }, [strength]);
-  useEffect(() => {
-    saveJSON(STORAGE_KEYS.neutralStrength, neutralStrength);
-  }, [neutralStrength]);
-  useEffect(() => {
-    saveJSON(STORAGE_KEYS.feather, feather);
-  }, [feather]);
-  useEffect(() => {
-    saveJSON(STORAGE_KEYS.gamma, gamma);
-  }, [gamma]);
-  useEffect(() => {
-    saveJSON(STORAGE_KEYS.keepLight, keepLight);
-  }, [keepLight]);
-  useEffect(() => {
-    saveJSON(STORAGE_KEYS.chromaBoost, chromaBoost);
-  }, [chromaBoost]);
-  useEffect(() => {
-    saveJSON(STORAGE_KEYS.chromaCurve, chromaCurve);
-  }, [chromaCurve]);
-  useEffect(() => {
-    saveJSON(STORAGE_KEYS.speckleClean, speckleClean);
-  }, [speckleClean]);
-  useEffect(() => {
-    saveJSON(STORAGE_KEYS.edgeSmooth, edgeSmooth);
-  }, [edgeSmooth]);
-  useEffect(() => {
-    saveJSON(STORAGE_KEYS.boundaryBlend, boundaryBlend);
-  }, [boundaryBlend]);
-  useEffect(() => {
-    saveJSON(STORAGE_KEYS.overlayTint, overlayTint);
-  }, [overlayTint]);
-  useEffect(() => {
-    saveJSON(STORAGE_KEYS.overlayStrength, overlayStrength);
-  }, [overlayStrength]);
-  useEffect(() => {
-    saveJSON(STORAGE_KEYS.overlayColorStrength, overlayColorStrength);
-  }, [overlayColorStrength]);
-
-  useEffect(() => {
-    saveJSON(STORAGE_KEYS.overlayColorMixBoost, overlayColorMixBoost);
-  }, [overlayColorMixBoost]);
-
-  useEffect(() => {
-    saveJSON(STORAGE_KEYS.colorMixBoost, colorMixBoost);
-  }, [colorMixBoost]);
-
-  useEffect(() => {
-    saveJSON(STORAGE_KEYS.exportBg, exportBg);
-  }, [exportBg]);
-  useEffect(() => {
-    saveJSON(STORAGE_KEYS.exportTx, exportText);
-  }, [exportText]);
-
   // ? Luu creature khi d?i
   useEffect(() => {
     if (current?.name) saveJSON(STORAGE_KEYS.creature, current.name);
@@ -394,28 +254,28 @@ export default function App() {
       const speciesRaw = extractSpeciesFromBlueprint(bpStr); // "Basilisk"
       const speciesNorm = normalizeName(speciesRaw);
       if (speciesNorm) {
-        // t�m trong creatures.json (so kh�ng ph�n bi?t hoa thu?ng, b? _-)
+        // t?m trong creatures.json (so kh?ng ph?n bi?t hoa thu?ng, b? _-)
         const found = list.find((c) => normalizeName(c.name) === speciesNorm);
         if (found) {
-          selectByName(found.name); // load d�ng base/mask c?a lo�i
+          selectByName(found.name); // load d?ng base/mask c?a lo?i
           saveJSON(STORAGE_KEYS.creature, found.name);
-          // n?u b?n dang c� tempCreatureName d? hi?n th? t�n t? do, n�n clear:
+          // n?u b?n dang c? tempCreatureName d? hi?n th? t?n t? do, n?n clear:
           setTempCreatureName(null);
         }
       }
 
-      // --- 2) T�n ngu?i d�ng d?t (d? hi?n th? ph?): kh�ng ch?a k� t? d?c bi?t
+      // --- 2) T?n ngu?i d?ng d?t (d? hi?n th? ph?): kh?ng ch?a k? t? d?c bi?t
       const rawName = quoted[QIDX_NAME] ?? '';
       const dinoName = sanitizeName(rawName);
       if (dinoName) saveJSON(STORAGE_KEYS.cmdName, dinoName);
 
-      // --- 3) Base/Inc stats (8 s? m?i b�n) -> luu l?i cho tuong lai
+      // --- 3) Base/Inc stats (8 s? m?i b?n) -> luu l?i cho tuong lai
       const baseStats = parseNumList(quoted[QIDX_BASE], 8, 8);
       const incStats = parseNumList(quoted[QIDX_INC], 8, 8);
       if (baseStats) saveJSON(STORAGE_KEYS.cmdBaseStats, baseStats);
       if (incStats) saveJSON(STORAGE_KEYS.cmdIncStats, incStats);
 
-      // --- 4) M�u 6 slot -> apply (b? qua slot b? noMask)
+      // --- 4) M?u 6 slot -> apply (b? qua slot b? noMask)
       const colorIds = parseNumList(quoted[QIDX_COLORS], 6, 6);
       if (colorIds) {
         const disabled = new Set(current?.noMask || []);
@@ -428,7 +288,7 @@ export default function App() {
         );
       }
 
-      // (tu? ch?n) hi?n th? toast: ��� d�n CMD, auto ch?n Basilisk v� �p m�u�
+      // (tu? ch?n) hi?n th? toast: ??? d?n CMD, auto ch?n Basilisk v? ?p m?u?
     } catch (e) {
       console.error('Paste CMD failed', e);
     }
@@ -541,73 +401,6 @@ export default function App() {
     }, 'image/png');
   }
 
-  function hexToRgb(hex) {
-    const h = hex?.[0] === '#' ? hex.slice(1) : hex;
-    if (!h || h.length !== 6) return null;
-    const n = parseInt(h, 16);
-    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-  }
-  function relLuminance(r, g, b) {
-    const toLin = (v) => (v <= 10.314 ? v / 3294 : Math.pow((v + 14.025) / 269.025, 2.4));
-    const rl = toLin(r),
-      gl = toLin(g),
-      bl = toLin(b);
-    return 0.2126 * rl + 0.7152 * gl + 0.0722 * bl;
-  }
-  const isNearBlack = (hex) => {
-    const rgb = hexToRgb(hex);
-    if (!rgb) return false;
-    return relLuminance(rgb[0], rgb[1], rgb[2]) < 0.22;
-  };
-  const isGrayish = (hex) => {
-    const rgb = hexToRgb(hex);
-    if (!rgb) return false;
-    const max = Math.max(...rgb),
-      min = Math.min(...rgb);
-    const sat = (max - min) / 255;
-    return sat < 0.1; // low chroma
-  };
-  // Light gray/white range: #FFFFFF down to #616161 (inclusive), and grayish (low chroma)
-  const isLightGrayOrWhite = (hex) => {
-    const rgb = hexToRgb(hex);
-    if (!rgb) return false;
-    const [r, g, b] = rgb;
-    const grayish = isGrayish(hex);
-    const lightEnough = r >= 0x61 && g >= 0x61 && b >= 0x61; // >= #616161
-    return grayish && lightEnough;
-  };
-
-  // Smart setter for export BG to keep text readable automatically
-  function handleSetExportBg(next) {
-    setExportBg(next);
-    try {
-      if (next === 'transparent') {
-        if (exportText && isGrayish(exportText)) {
-          setExportText('#171717'); // ARK 79 ActualBlack
-        }
-        return;
-      }
-      if (typeof next === 'string' && next.startsWith('#') && next.length === 7) {
-        // PRIORITY: Light gray/white first to avoid flicker in gray range
-        if (isLightGrayOrWhite(next)) {
-          // BG white..gray: if text is white -> swap to black
-          if (exportText === '#FFFFFF') setExportText('#171717');
-          return;
-        }
-
-        // Else consider near-black backgrounds
-        if (isNearBlack(next)) {
-          if (exportText === '#171717' || isNearBlack(exportText)) {
-            setExportText('#FFFFFF'); // ARK 36
-          }
-          return;
-        }
-        // Other mid colors: do nothing to avoid jitter while dragging
-      }
-    } catch {
-      /* empty */
-    }
-  }
   function roundRect(c, x, y, w, h, r) {
     c.beginPath();
     c.moveTo(x + r, y);
@@ -630,12 +423,15 @@ export default function App() {
     c.restore();
   }
 
-  const doFillWith = (entry) => {
-    setSlots(Array.from({ length: 6 }, (_, i) => (disabledSet.has(i) ? null : entry ? { ...entry } : null)));
-    setFillOpen(false);
-  };
+  const doFillWith = useCallback(
+    (entry) => {
+      setSlots(Array.from({ length: 6 }, (_, i) => (disabledSet.has(i) ? null : entry ? { ...entry } : null)));
+      closeFill();
+    },
+    [disabledSet, closeFill]
+  );
 
-  const reset = () => {
+  const reset = useCallback(() => {
     setThreshold(DEFAULTS.threshold);
     setStrength(DEFAULTS.strength);
     setNeutralStrength(DEFAULTS.neutralStrength);
@@ -654,19 +450,26 @@ export default function App() {
     setOverlayTint(DEFAULTS.overlayTint);
     setExportBg(DEFAULTS.exportBg);
     setExportText(DEFAULTS.exportText);
-    // slots s? du?c luu l?i qua effect ? tr�n
-  };
-  const onPickSlot = (i, entryOrNull) => {
-    setSlots((prev) => {
-      const next = prev.slice();
-      next[i] = entryOrNull ? { ...entryOrNull } : null;
-      return next;
-    });
-  };
-  const randomAll = () => {
-    const pool = ARK_PALETTE.filter((p) => String(p.index) !== '255');
-    setSlots(Array.from({ length: 6 }, (_, i) => (disabledSet.has(i) ? null : pool[Math.floor(Math.random() * pool.length)])));
-  };
+  }, [
+    setThreshold,
+    setStrength,
+    setNeutralStrength,
+    setFeather,
+    setGamma,
+    setKeepLight,
+    setChromaBoost,
+    setChromaCurve,
+    setSpeckleClean,
+    setEdgeSmooth,
+    setBoundaryBlend,
+    setOverlayStrength,
+    setOverlayColorStrength,
+    setOverlayColorMixBoost,
+    setColorMixBoost,
+    setOverlayTint,
+    setExportBg,
+    setExportText,
+  ]);
 
   async function handleCustomFiles(fileList) {
     const baseName = await loadPairFromFiles(fileList);
@@ -684,6 +487,19 @@ export default function App() {
     setSlots(Array.from({ length: 6 }, () => null));
   };
 
+  const onPickSlot = useCallback((slotIndex, entryOrNull) => {
+    setSlots((prev) => {
+      const next = prev.slice();
+      next[slotIndex] = entryOrNull ? { ...entryOrNull } : null;
+      return next;
+    });
+  }, []);
+
+  const randomAll = useCallback(() => {
+    const pool = ARK_PALETTE.filter((p) => String(p.index) !== '255');
+    setSlots(Array.from({ length: 6 }, (_, i) => (disabledSet.has(i) ? null : pool[Math.floor(Math.random() * pool.length)])));
+  }, [disabledSet]);
+
   const navItems = useMemo(
     () => [
       { id: 'mask', label: t('nav.mask', { defaultValue: 'Mask' }), icon: <MaskIcon /> },
@@ -693,317 +509,98 @@ export default function App() {
     [t]
   );
 
-  const updateLogEntries = useMemo(() => {
-    if (!updateNote || typeof updateNote !== 'object') {
-      return [];
-    }
-    return Object.entries(updateNote)
-      .map(([dateKey, notes]) => {
-        const parsed = parseUpdateDate(dateKey);
-        return {
-          dateKey,
-          displayDate: dateKey,
-          sortValue: parsed?.getTime?.() ?? Number.MIN_SAFE_INTEGER,
-          notes: Array.isArray(notes) ? notes : [],
-        };
-      })
-      .sort((a, b) => (b.sortValue ?? 0) - (a.sortValue ?? 0));
-  }, []);
-
-  const maskPage = (
-    <div className="container page-mask">
-      <section className="panel">
-        <div
-          className="title"
-          style={{ textAlign: 'center', fontWeight: 800 }}>
-          ARK Mask Colorizer
-        </div>
-        <div style={{ textAlign: 'center', marginTop: 4, marginBottom: 8, color: 'var(--muted)' }}>{creatureName}</div>
-
-        <CanvasView
-          outCanvasRef={outCanvasRef}
-          loading={!baseImg || !maskImg}
-          busy={busy}
-          slots={slots}
-          exportBg={exportBg}
-          exportText={exportText}
-        />
-
-        <div className="slot-strip">
-          <SlotControls
-            slots={slots}
-            disabledSet={disabledSet} // ?? truy?n xu?ng
-            slotLinks={slotLinks}
-            onPickSlot={onPickSlot}
-            onRandomAll={randomAll}
-            onResetSlots={resetSlotsOnly}
-            favorites={favoriteColors}
-            onToggleFavorite={toggleFavoriteColor}
-            onResetFavorites={resetFavoriteColors}
-            onReorderFavorites={reorderFavoriteColors}
-            onPasteCmd={handlePasteCmd}
-            extraActions={
-              <>
-                <button
-                  ref={fillBtnRef}
-                  className="btn"
-                  onClick={() => setFillOpen(true)}>
-                  {t('app.fill')}
-                </button>
-                {fillOpen && (
-                  <Popover
-                    anchorRef={fillBtnRef}
-                    onClose={() => setFillOpen(false)}>
-                    <div style={{ padding: 10 }}>
-                      <PaletteGrid
-                        big
-                        showIndex
-                        favorites={favoriteColors}
-                        onPick={(p) => doFillWith(p)}
-                        onToggleFavorite={toggleFavoriteColor}
-                        onResetFavorites={resetFavoriteColors}
-                      />
-                    </div>
-                  </Popover>
-                )}
-              </>
-            }
-          />
-        </div>
-      </section>
-
-      <section className="panel">
-        <CreaturePicker
-          key={customMode ? 'custom' : current?.name || 'none'}
-          list={list}
-          currentName={current?.name || ''}
-          customMode={customMode}
-          onPick={(name) => {
-            if (!name) return;
-            setCustomMode(false);
-            setTempCreatureName(null);
-            selectByName(name);
-          }}
-        />
-        <div className="toolbar-standalone">
-          <Toolbar
-            threshold={threshold}
-            setThreshold={setThreshold}
-            strength={strength}
-            setStrength={setStrength}
-            neutralStrength={neutralStrength}
-            setNeutralStrength={setNeutralStrength}
-            feather={feather}
-            setFeather={setFeather}
-            gamma={gamma}
-            setGamma={setGamma}
-            keepLight={keepLight}
-            setKeepLight={setKeepLight}
-            chromaBoost={chromaBoost}
-            setChromaBoost={setChromaBoost}
-            chromaCurve={chromaCurve}
-            setChromaCurve={setChromaCurve}
-            speckleClean={speckleClean}
-            setSpeckleClean={setSpeckleClean}
-            edgeSmooth={edgeSmooth}
-            setEdgeSmooth={setEdgeSmooth}
-            boundaryBlend={boundaryBlend}
-            setBoundaryBlend={setBoundaryBlend}
-            overlayStrength={overlayStrength}
-            setOverlayStrength={setOverlayStrength}
-            overlayColorStrength={overlayColorStrength}
-            setOverlayColorStrength={setOverlayColorStrength}
-            overlayColorMixBoost={overlayColorMixBoost}
-            setOverlayColorMixBoost={setOverlayColorMixBoost}
-            colorMixBoost={colorMixBoost}
-            setColorMixBoost={setColorMixBoost}
-            overlayTint={overlayTint}
-            setOverlayTint={setOverlayTint}
-            exportBg={exportBg}
-            setExportBg={handleSetExportBg}
-            exportText={exportText}
-            setExportText={setExportText}
-            onReset={reset}
-            onDownloadImage={handleDownloadImage}
-            onDownloadWithPalette={handleDownloadWithPalette}
-            downloadingType={downloadingType}
-            onCustomFiles={handleCustomFiles}
-          />
-        </div>
-
-        {/* working canvases */}
-        <canvas
-          ref={baseCanvasRef}
-          style={{ display: 'none' }}
-        />
-        <canvas
-          ref={maskCanvasRef}
-          style={{ display: 'none' }}
-        />
-      </section>
-    </div>
+  const handleSelectCreature = useCallback(
+    (name) => {
+      if (!name) return;
+      setCustomMode(false);
+      setTempCreatureName(null);
+      selectByName(name);
+    },
+    [selectByName, setCustomMode, setTempCreatureName]
   );
 
-  const libraryPage = (
-    <div className="container container--single">
-      <section className="panel">
-        <div className="title">{t('nav.library', { defaultValue: 'Library' })}</div>
-        <p className="page-placeholder subtle">{t('library.comingSoon', { defaultValue: 'Library page is coming soon.' })}</p>
-      </section>
-    </div>
+  const canvasState = {
+    baseImg,
+    maskImg,
+    busy,
+    outCanvasRef,
+    baseCanvasRef,
+    maskCanvasRef,
+  };
+
+  const fillControls = {
+    isOpen: fillOpen,
+    anchorRef: fillBtnRef,
+    open: openFill,
+    close: closeFill,
+    onPick: doFillWith,
+  };
+
+  const creaturePickerProps = {
+    list,
+    currentName: current?.name || '',
+    customMode,
+    onSelect: handleSelectCreature,
+  };
+
+  const toolbarActions = {
+    onReset: reset,
+    onDownloadImage: handleDownloadImage,
+    onDownloadWithPalette: handleDownloadWithPalette,
+    downloadingType,
+    onCustomFiles: handleCustomFiles,
+  };
+
+  let pageContent = (
+    <MaskPage
+      t={t}
+      creatureName={creatureName}
+      canvas={canvasState}
+      slots={slots}
+      exportBg={exportBg}
+      exportText={exportText}
+      disabledSet={disabledSet}
+      slotLinks={slotLinks}
+      onPickSlot={onPickSlot}
+      onRandomAll={randomAll}
+      onResetSlots={resetSlotsOnly}
+      favoriteColors={favoriteColors}
+      onToggleFavorite={toggleFavoriteColor}
+      onResetFavorites={resetFavoriteColors}
+      onReorderFavorites={reorderFavoriteColors}
+      onPasteCmd={handlePasteCmd}
+      fillControls={fillControls}
+      creaturePicker={creaturePickerProps}
+      toolbarActions={toolbarActions}
+    />
   );
 
-  const settingsPage = (
-    <div className="container container--single">
-      <section className="panel settings-panel">
-        <div className="title">{t('settings.title', { defaultValue: 'Settings' })}</div>
-        <div className="settings-section">
-          <div className="settings-section__header">{t('language.selectorLabel')}</div>
-          <div className="language-switch">
-            <div className="language-switch__options">
-              {languageOptions.map((option) => (
-                <button
-                  key={option.code}
-                  type="button"
-                  onClick={() => setLang(option.code)}
-                  aria-pressed={lang === option.code}
-                  className="btn language-switch__button">
-                  {option.flag && (
-                    <img
-                      src={option.flag}
-                      alt={`${option.label} flag`}
-                      width={20}
-                      height={14}
-                      style={{ borderRadius: 4 }}
-                    />
-                  )}
-                  <span>{option.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="settings-section">
-          <div className="settings-section__header">{t('settings.updateLogTitle', { defaultValue: 'Update log' })}</div>
-          {updateLogEntries.length ? (
-            <div className="update-log">
-              {updateLogEntries.map((entry) => (
-                <article
-                  className="update-card"
-                  key={entry.dateKey}>
-                  <div className="update-card__date">{entry.displayDate}</div>
-                  <ul>
-                    {entry.notes.map((note, noteIndex) => (
-                      <li key={`${entry.dateKey}-${noteIndex}`}>{note}</li>
-                    ))}
-                  </ul>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <div className="subtle small">{t('settings.updateLogEmpty', { defaultValue: 'No updates yet.' })}</div>
-          )}
-        </div>
-      </section>
-    </div>
-  );
-
-  let pageContent = maskPage;
   if (activePage === 'library') {
-    pageContent = libraryPage;
+    pageContent = <LibraryPage t={t} />;
   } else if (activePage === 'settings') {
-    pageContent = settingsPage;
+    pageContent = (
+      <SettingsPage
+        t={t}
+        languageOptions={languageOptions}
+        lang={lang}
+        onSelectLanguage={setLang}
+      />
+    );
   }
 
   return (
-    <div className="app-shell">
-      <main className="app-main">{pageContent}</main>
-      <BottomNav
-        items={navItems}
-        activeId={activePage}
-        onSelect={setActivePage}
-      />
-    </div>
+    <MaskSettingsProvider value={maskSettings}>
+      <div className="app-shell">
+        <main className="app-main">{pageContent}</main>
+        <BottomNav items={navItems} activeId={activePage} onSelect={setActivePage} />
+      </div>
+    </MaskSettingsProvider>
   );
 }
 
-function MaskIcon() {
-  return (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round">
-      <path d="M4 9c0-3 4-5 8-5s8 2 8 5v3c0 3.5-3.5 6-8 6s-8-2.5-8-6V9Z" />
-      <path d="M8.5 13c.9.8 2.1 1.2 3.5 1.2s2.6-.4 3.5-1.2" />
-      <circle
-        cx="9"
-        cy="10"
-        r="1.2"
-        fill="currentColor"
-        stroke="none"
-      />
-      <circle
-        cx="15"
-        cy="10"
-        r="1.2"
-        fill="currentColor"
-        stroke="none"
-      />
-    </svg>
-  );
-}
 
-function LibraryIcon() {
-  return (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round">
-      <path d="M5 6.5h5a2.5 2.5 0 0 1 2.5 2.5v10.5l-3-1.6-3 1.6V9A2.5 2.5 0 0 1 9.5 6.5Z" />
-      <path d="M12.5 9A2.5 2.5 0 0 1 15 6.5h4a1.5 1.5 0 0 1 1.5 1.5v11l-3-1.6-3 1.6Z" />
-      <line
-        x1="6"
-        y1="11"
-        x2="10"
-        y2="11"
-      />
-      <line
-        x1="15.5"
-        y1="11"
-        x2="19"
-        y2="11"
-      />
-    </svg>
-  );
-}
 
-function SettingsIcon() {
-  return (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round">
-      <circle
-        cx="12"
-        cy="12"
-        r="3.25"
-      />
-      <path d="M5.4 12.75a6.7 6.7 0 0 1 0-1.5l-1.45-1.05 1.6-2.77 1.74.43a6.7 6.7 0 0 1 1.3-.75l.37-1.78h3.2l.37 1.78a6.7 6.7 0 0 1 1.3.75l1.74-.43 1.6 2.77-1.45 1.05a6.7 6.7 0 0 1 0 1.5l1.45 1.05-1.6 2.77-1.74-.43a6.7 6.7 0 0 1-1.3.75l-.37 1.78h-3.2l-.37-1.78a6.7 6.7 0 0 1-1.3-.75l-1.74.43-1.6-2.77 1.45-1.05Z" />
-    </svg>
-  );
-}
+
+
+
+

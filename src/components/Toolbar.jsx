@@ -3,51 +3,48 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { DEFAULTS } from '../config/defaults.js';
 import { useI18n } from '../i18n/index.js';
 import { STORAGE_KEYS, loadJSON, saveJSON } from '../utils/storage.js';
+import { useMaskSettings } from '../context/MaskSettingsContext.jsx';
 
-export default function Toolbar({
-  threshold,
-  setThreshold,
-  strength,
-  setStrength,
-  neutralStrength,
-  setNeutralStrength,
-  feather,
-  setFeather,
-  gamma,
-  setGamma,
-  keepLight,
-  setKeepLight,
-  chromaBoost,
-  setChromaBoost,
-  chromaCurve,
-  setChromaCurve,
-  speckleClean,
-  setSpeckleClean,
-  edgeSmooth,
-  setEdgeSmooth,
-  boundaryBlend,
-  setBoundaryBlend,
-  overlayStrength,
-  setOverlayStrength,
-  overlayColorStrength,
-  setOverlayColorStrength,
-  overlayColorMixBoost,
-  setOverlayColorMixBoost,
-  colorMixBoost,
-  setColorMixBoost,
-  overlayTint,
-  setOverlayTint,
-  exportBg,
-  setExportBg,
-  exportText,
-  setExportText,
-  onReset,
-  onDownloadImage,
-  onDownloadWithPalette,
-  downloadingType = null,
-  onCustomFiles,
-}) {
+export default function Toolbar({ onReset, onDownloadImage, onDownloadWithPalette, downloadingType = null, onCustomFiles }) {
   const { t } = useI18n();
+  const {
+    threshold,
+    setThreshold,
+    strength,
+    setStrength,
+    neutralStrength,
+    setNeutralStrength,
+    feather,
+    setFeather,
+    gamma,
+    setGamma,
+    keepLight,
+    setKeepLight,
+    chromaBoost,
+    setChromaBoost,
+    chromaCurve,
+    setChromaCurve,
+    speckleClean,
+    setSpeckleClean,
+    edgeSmooth,
+    setEdgeSmooth,
+    boundaryBlend,
+    setBoundaryBlend,
+    overlayStrength,
+    setOverlayStrength,
+    overlayColorStrength,
+    setOverlayColorStrength,
+    overlayColorMixBoost,
+    setOverlayColorMixBoost,
+    colorMixBoost,
+    setColorMixBoost,
+    overlayTint,
+    setOverlayTint,
+    exportBg,
+    setExportBg,
+    exportText,
+    setExportText,
+  } = useMaskSettings();
   const fileRef = useRef(null);
   const isTransparent = exportBg === 'transparent';
   const lastSolidBgRef = useRef(isTransparent ? DEFAULTS.exportBg : exportBg);
@@ -473,3 +470,4 @@ export default function Toolbar({
     </div>
   );
 }
+
