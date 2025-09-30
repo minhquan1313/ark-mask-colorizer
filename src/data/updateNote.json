@@ -5,6 +5,8 @@
         "Add language switcher",
         "Enhance slot picker UX",
         "Implement sort on creature selection",
+        "Implement dragging favorite colors",
+        "Fixed default color to 36 to regions which has no color on switching creature",
         "Added blending mask: Bison, Deinotherium, Velo, Arthropluera, Reaper, Veilwyn",
         "Added female mask: Bison, Deinotherium"
     ],
