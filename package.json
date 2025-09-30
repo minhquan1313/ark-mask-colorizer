@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "generate:creatures": "node ./scripts/generate-creatures.cjs",
-    "organize:dino-assets": "node ./scripts/organize-dino-images.cjs"
+    "organize:mask-in-temp": "node ./scripts/organize-dino-images.cjs"
   },
   "dependencies": {
     "react": "^19.1.1",
