@@ -181,7 +181,7 @@
 
 @media (max-width: 520px) {
   .app-main {
-    padding-bottom: 120px;
+    padding-bottom: 36px;
   }
 }
 
@@ -610,16 +610,15 @@
 }
 
 @media (max-width: 900px) {
-  .slot-controls__actions .btn,
-  .mask-toolbar__actions .btn {
-    flex: 1 1 100%;
-  }
-
   .toolbar-standalone {
     justify-content: stretch;
   }
 
   .toolbar-standalone .mask-toolbar {
     max-width: none;
+  }
+
+  .slot-picker__input-display {
+    font-size: 12px;
   }
 }

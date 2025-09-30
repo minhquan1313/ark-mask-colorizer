@@ -162,7 +162,7 @@ export default function SlotPicker({ slotIndex, value, onChange, disabled = fals
             confirmDraft();
           }}
           title={value ? `${value.index} - ${value.name}` : disabled ? t('slotPicker.noMask') : t('slotPicker.pickColor')}
-          readOnly={disabled}
+          readOnly={disabled || window.innerWidth < 900}
           style={inputStyle}
         />
         <button
