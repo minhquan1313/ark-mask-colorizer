@@ -171,7 +171,7 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
     ];
   };
 
-  const runDraw = useCallback(({ baseImg, maskImg, extraMasks = [], baseCanvasRef, maskCanvasRef, outCanvasRef, slots }) => {
+  const runDraw = useCallback(({ baseImg, maskImg, extraMasks = [], baseCanvasRef, maskCanvasRef, outCanvasRef, slots, renderNonce = 0 }) => {
     const src = baseImg || maskImg;
     if (!src) return;
 
@@ -185,7 +185,8 @@ export function useRecolorWorker({ threshold = 80, strength = 1, neutralStrength
       String(overlayColorStrength ?? ''),
       String(overlayColorMixBoost ?? ''),
       String(colorMixBoost ?? ''),
-      String(overlayTint ?? '')
+      String(overlayTint ?? ''),
+      String(renderNonce ?? '')
     ];
     const jobKey = jobKeyParts.join('||');
     if (jobKey && jobKey === lastJobKeyRef.current) {

@@ -1,4 +1,4 @@
-﻿{
+{
   "language": {
     "selectorLabel": "Language",
     "options": {
@@ -76,5 +76,18 @@
     "copyError": "Copy failed",
     "hint": "Click: copy | Right-click: copy + palette",
     "slotLabel": "Slot {{index}}"
+  },
+  "nav": {
+    "mask": "Mask",
+    "library": "Library",
+    "settings": "Settings"
+  },
+  "library": {
+    "comingSoon": "Library page is coming soon."
+  },
+  "settings": {
+    "title": "Settings",
+    "updateLogTitle": "Update log",
+    "updateLogEmpty": "No updates yet."
   }
 }

@@ -1,4 +1,4 @@
-﻿{
+{
   "language": {
     "selectorLabel": "Ngon ngu",
     "options": {
@@ -76,5 +76,18 @@
     "copyError": "Copy that bai",
     "hint": "Nhap: copy | Chuot phai: copy + palette",
     "slotLabel": "Slot {{index}}"
+  },
+  "nav": {
+    "mask": "Mask",
+    "library": "Thu vien",
+    "settings": "Cai dat"
+  },
+  "library": {
+    "comingSoon": "Thu vien dang duoc xay dung."
+  },
+  "settings": {
+    "title": "Cai dat",
+    "updateLogTitle": "Nhat ky cap nhat",
+    "updateLogEmpty": "Chua co cap nhat nao."
   }
 }

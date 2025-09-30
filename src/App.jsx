@@ -1,16 +1,18 @@
 ﻿// src/App.jsx
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import BottomNav from './components/BottomNav.jsx';
 import CanvasView from './components/CanvasView.jsx';
 import CreaturePicker from './components/CreaturePicker.jsx';
 import PaletteGrid from './components/PaletteGrid.jsx';
 import Popover from './components/Popover.jsx';
 import SlotControls from './components/SlotControls.jsx';
 import Toolbar from './components/Toolbar.jsx';
-import { useI18n, useLanguageOptions } from './i18n/index.js';
 import { DEFAULTS } from './config/defaults.js';
+import updateNote from './data/updateNote.json';
 import { useCreatures } from './hooks/useCreatures.js';
 import { useImages } from './hooks/useImages.js';
 import { useRecolorWorker } from './hooks/useRecolorWorker.js';
+import { useI18n, useLanguageOptions } from './i18n/index.js';
 import { extractQuoted, extractSpeciesFromBlueprint, normalizeName, parseNumList, sanitizeName } from './utils/arkCmd.js';
 import { ARK_PALETTE } from './utils/arkPalette.js';
 import { STORAGE_KEYS, loadJSON, saveJSON } from './utils/storage.js';
@@ -113,9 +115,21 @@ function normalizeFavoriteIds(values) {
   return normalized;
 }
 
+function parseUpdateDate(key) {
+  if (!key) return null;
+  const parts = String(key).split('/');
+  if (parts.length !== 3) return null;
+  const [year, month, day] = parts.map((value) => Number(value));
+  if (![year, month, day].every(Number.isFinite)) {
+    return null;
+  }
+  return new Date(year, month - 1, day);
+}
+
 export default function App() {
   const { t, setLang, lang } = useI18n();
   const languageOptions = useLanguageOptions();
+  const [activePage, setActivePage] = useState('mask');
   const baseCanvasRef = useRef(null);
   const maskCanvasRef = useRef(null);
   const outCanvasRef = useRef(null);
@@ -162,6 +176,8 @@ export default function App() {
   const rafRef = useRef(0);
   const pendingArgsRef = useRef(null);
   const slotsRef = useRef(slots);
+  const cachedRenderRef = useRef({ url: null, width: 0, height: 0 });
+  const [maskRenderNonce, setMaskRenderNonce] = useState(0);
   slotsRef.current = slots;
   const toggleFavoriteColor = useCallback((entry) => {
     if (!entry || entry.index == null) return;
@@ -206,17 +222,62 @@ export default function App() {
     }
   }, [customMode, setCurrent]);
 
+  useEffect(() => {
+    if (activePage === 'mask') {
+      setMaskRenderNonce((value) => value + 1);
+      const canvas = outCanvasRef.current;
+      const cache = cachedRenderRef.current;
+      if (canvas && cache?.url) {
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          if (cache.width && cache.height && (canvas.width !== cache.width || canvas.height !== cache.height)) {
+            canvas.width = cache.width;
+            canvas.height = cache.height;
+          }
+          const img = new Image();
+          img.onload = () => {
+            try {
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            } catch {
+              /* ignore draw from cache errors */
+            }
+          };
+          img.src = cache.url;
+        }
+      }
+    }
+    return () => {
+      if (activePage !== 'mask') return;
+      const canvas = outCanvasRef.current;
+      if (!canvas || !canvas.width || !canvas.height) {
+        cachedRenderRef.current = { url: null, width: 0, height: 0 };
+        return;
+      }
+      try {
+        cachedRenderRef.current = {
+          url: canvas.toDataURL('image/png'),
+          width: canvas.width,
+          height: canvas.height,
+        };
+      } catch {
+        cachedRenderRef.current = { url: null, width: 0, height: 0 };
+      }
+    };
+  }, [activePage]);
+
   // V? khi d� c� ?nh
   useEffect(() => {
+    if (activePage !== 'mask') return;
     if (!baseImg || !maskImg) return;
-    const args = { baseImg, maskImg, extraMasks, baseCanvasRef, maskCanvasRef, outCanvasRef, slots: slotsRef.current };
+    const args = { baseImg, maskImg, extraMasks, baseCanvasRef, maskCanvasRef, outCanvasRef, slots: slotsRef.current, renderNonce: maskRenderNonce };
     pendingArgsRef.current = args;
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => {
       draw(pendingArgsRef.current);
       rafRef.current = 0;
     });
-  }, [baseImg, maskImg, extraMasks, slotsColorSignature, threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, overlayStrength, overlayColorStrength, overlayColorMixBoost, colorMixBoost, overlayTint, draw]);
+  }, [activePage, maskRenderNonce, baseImg, maskImg, extraMasks, slotsColorSignature, threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, overlayStrength, overlayColorStrength, overlayColorMixBoost, colorMixBoost, overlayTint, draw]);
 
   // ? Luu slots m?i khi d?i (d� an to�n v� init t? storage)
   useEffect(() => {
@@ -587,56 +648,42 @@ export default function App() {
     setSlots(Array.from({ length: 6 }, () => null));
   };
 
-  return (
-    <div className="container">
+  const navItems = useMemo(
+    () => [
+      { id: 'mask', label: t('nav.mask', { defaultValue: 'Mask' }), icon: <MaskIcon /> },
+      { id: 'library', label: t('nav.library', { defaultValue: 'Library' }), icon: <LibraryIcon /> },
+      { id: 'settings', label: t('nav.settings', { defaultValue: 'Settings' }), icon: <SettingsIcon /> },
+    ],
+    [t]
+  );
+
+  const updateLogEntries = useMemo(() => {
+    if (!updateNote || typeof updateNote !== 'object') {
+      return [];
+    }
+    return Object.entries(updateNote)
+      .map(([dateKey, notes]) => {
+        const parsed = parseUpdateDate(dateKey);
+        return {
+          dateKey,
+          displayDate: dateKey,
+          sortValue: parsed?.getTime?.() ?? Number.MIN_SAFE_INTEGER,
+          notes: Array.isArray(notes) ? notes : [],
+        };
+      })
+      .sort((a, b) => (b.sortValue ?? 0) - (a.sortValue ?? 0));
+  }, []);
+
+  const maskPage = (
+    <div className="container page-mask">
       <section className="panel">
         <div
           className="title"
           style={{ textAlign: 'center', fontWeight: 800 }}>
           ARK Mask Colorizer
         </div>
-        <div
-          style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
-          <div
-            className="language-switch"
-            style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
-            <span className="small subtle">{t('language.selectorLabel')}</span>
-            <div
-              style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-              {languageOptions.map((option) => (
-                <button
-                  key={option.code}
-                  type="button"
-                  onClick={() => setLang(option.code)}
-                  aria-pressed={lang === option.code}
-                  className="btn"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    padding: '4px 8px',
-                    borderWidth: lang === option.code ? 2 : 1,
-                    borderColor: lang === option.code ? 'var(--accent, #3b82f6)' : undefined,
-                    boxShadow: lang === option.code ? '0 0 0 2px rgba(59,130,246,0.25)' : undefined,
-                  }}>
-                  {option.flag && (
-                    <img
-                      src={option.flag}
-                      alt={`${option.label} flag`}
-                      width={20}
-                      height={14}
-                      style={{ borderRadius: 4 }}
-                    />
-                  )}
-                  <span>{option.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
         <div style={{ textAlign: 'center', marginTop: 4, marginBottom: 8, color: 'var(--muted)' }}>{creatureName}</div>
 
-        {/* ?? truy?n exportBg/exportText xu?ng d? CanvasView copy d�ng */}
         <CanvasView
           outCanvasRef={outCanvasRef}
           loading={!baseImg || !maskImg}
@@ -746,7 +793,6 @@ export default function App() {
         />
 
         <hr />
-        <div className="subtle small">{t('app.lastUpdate', { date: '2025/9/24 17:55' })}</div>
 
         {/* working canvases */}
         <canvas
@@ -760,34 +806,167 @@ export default function App() {
       </section>
     </div>
   );
+
+  const libraryPage = (
+    <div className="container container--single">
+      <section className="panel">
+        <div className="title">{t('nav.library', { defaultValue: 'Library' })}</div>
+        <p className="page-placeholder subtle">{t('library.comingSoon', { defaultValue: 'Library page is coming soon.' })}</p>
+      </section>
+    </div>
+  );
+
+  const settingsPage = (
+    <div className="container container--single">
+      <section className="panel settings-panel">
+        <div className="title">{t('settings.title', { defaultValue: 'Settings' })}</div>
+        <div className="settings-section">
+          <div className="settings-section__header">{t('language.selectorLabel')}</div>
+          <div className="language-switch">
+            <div className="language-switch__options">
+              {languageOptions.map((option) => (
+                <button
+                  key={option.code}
+                  type="button"
+                  onClick={() => setLang(option.code)}
+                  aria-pressed={lang === option.code}
+                  className="btn language-switch__button">
+                  {option.flag && (
+                    <img
+                      src={option.flag}
+                      alt={`${option.label} flag`}
+                      width={20}
+                      height={14}
+                      style={{ borderRadius: 4 }}
+                    />
+                  )}
+                  <span>{option.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="settings-section">
+          <div className="settings-section__header">{t('settings.updateLogTitle', { defaultValue: 'Update log' })}</div>
+          {updateLogEntries.length ? (
+            <div className="update-log">
+              {updateLogEntries.map((entry) => (
+                <article
+                  className="update-card"
+                  key={entry.dateKey}>
+                  <div className="update-card__date">{entry.displayDate}</div>
+                  <ul>
+                    {entry.notes.map((note, noteIndex) => (
+                      <li key={`${entry.dateKey}-${noteIndex}`}>{note}</li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="subtle small">{t('settings.updateLogEmpty', { defaultValue: 'No updates yet.' })}</div>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+
+  let pageContent = maskPage;
+  if (activePage === 'library') {
+    pageContent = libraryPage;
+  } else if (activePage === 'settings') {
+    pageContent = settingsPage;
+  }
+
+  return (
+    <div className="app-shell">
+      <main className="app-main">{pageContent}</main>
+      <BottomNav
+        items={navItems}
+        activeId={activePage}
+        onSelect={setActivePage}
+      />
+    </div>
+  );
 }
 
+function MaskIcon() {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round">
+      <path d="M4 9c0-3 4-5 8-5s8 2 8 5v3c0 3.5-3.5 6-8 6s-8-2.5-8-6V9Z" />
+      <path d="M8.5 13c.9.8 2.1 1.2 3.5 1.2s2.6-.4 3.5-1.2" />
+      <circle
+        cx="9"
+        cy="10"
+        r="1.2"
+        fill="currentColor"
+        stroke="none"
+      />
+      <circle
+        cx="15"
+        cy="10"
+        r="1.2"
+        fill="currentColor"
+        stroke="none"
+      />
+    </svg>
+  );
+}
 
+function LibraryIcon() {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round">
+      <path d="M5 6.5h5a2.5 2.5 0 0 1 2.5 2.5v10.5l-3-1.6-3 1.6V9A2.5 2.5 0 0 1 9.5 6.5Z" />
+      <path d="M12.5 9A2.5 2.5 0 0 1 15 6.5h4a1.5 1.5 0 0 1 1.5 1.5v11l-3-1.6-3 1.6Z" />
+      <line
+        x1="6"
+        y1="11"
+        x2="10"
+        y2="11"
+      />
+      <line
+        x1="15.5"
+        y1="11"
+        x2="19"
+        y2="11"
+      />
+    </svg>
+  );
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+function SettingsIcon() {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round">
+      <circle
+        cx="12"
+        cy="12"
+        r="3.25"
+      />
+      <path d="M5.4 12.75a6.7 6.7 0 0 1 0-1.5l-1.45-1.05 1.6-2.77 1.74.43a6.7 6.7 0 0 1 1.3-.75l.37-1.78h3.2l.37 1.78a6.7 6.7 0 0 1 1.3.75l1.74-.43 1.6 2.77-1.45 1.05a6.7 6.7 0 0 1 0 1.5l1.45 1.05-1.6 2.77-1.74-.43a6.7 6.7 0 0 1-1.3.75l-.37 1.78h-3.2l-.37-1.78a6.7 6.7 0 0 1-1.3-.75l-1.74.43-1.6-2.77 1.45-1.05Z" />
+    </svg>
+  );
+}
