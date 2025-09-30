@@ -14,10 +14,15 @@ export default function SlotPicker({ slotIndex, value, onChange, disabled = fals
   const [idDraft, setIdDraft] = useState(value ? String(value.index) : '');
   const [hasTyped, setHasTyped] = useState(false);
 
+  const prevValueRef = useRef(value ? String(value.index) : '');
+
   useEffect(() => {
-    if (!hasTyped) {
-      setIdDraft(value ? String(value.index) : '');
+    const currentValueId = value ? String(value.index) : '';
+    const prevValueId = prevValueRef.current;
+    if (!hasTyped && currentValueId !== prevValueId) {
+      setIdDraft(currentValueId);
     }
+    prevValueRef.current = currentValueId;
   }, [value, hasTyped]);
 
   useEffect(() => {
@@ -60,25 +65,34 @@ export default function SlotPicker({ slotIndex, value, onChange, disabled = fals
     if (idDraft === '') {
       onChange(null);
       setIdDraft('');
+      setHasTyped(false);
+      prevValueRef.current = '';
       return;
     }
     const numeric = Number(idDraft);
     if (!Number.isNaN(numeric) && (numeric === 0 || idDraft === '255')) {
       onChange(null);
       setIdDraft('');
+      setHasTyped(false);
+      prevValueRef.current = '';
       return;
     }
     const lookup = idDraft.replace(/^0+/, '') || idDraft;
     const found = findByIndex(lookup);
     if (!found) {
-      setIdDraft(value ? String(value.index) : '');
+      const fallback = value ? String(value.index) : '';
+      setIdDraft(fallback);
+      setHasTyped(false);
+      prevValueRef.current = fallback;
     }
   };
 
   const handlePick = (entryOrNull) => {
     if (disabled) return;
     onChange(entryOrNull || null);
-    setIdDraft(entryOrNull ? String(entryOrNull.index) : '');
+    const nextId = entryOrNull ? String(entryOrNull.index) : '';
+    setIdDraft(nextId);
+    prevValueRef.current = nextId;
     setHasTyped(false);
     setOpen(false);
   };
@@ -146,7 +160,6 @@ export default function SlotPicker({ slotIndex, value, onChange, disabled = fals
           onBlur={() => {
             notifyHover(false);
             confirmDraft();
-            setHasTyped(false);
           }}
           title={value ? `${value.index} - ${value.name}` : disabled ? t('slotPicker.noMask') : t('slotPicker.pickColor')}
           readOnly={disabled}
@@ -160,6 +173,7 @@ export default function SlotPicker({ slotIndex, value, onChange, disabled = fals
               onChange(null);
               setIdDraft('');
               setHasTyped(false);
+              prevValueRef.current = '';
             }
           }}
           tabIndex={-1}
