@@ -75,6 +75,8 @@ export default function App() {
     exportText,
     setExportText,
   } = maskSettings;
+  const defaultSlotFallback = useMemo(() => idToEntry(36), []);
+
   const [slots, setSlots] = useState(Array.isArray(initialSlots) && initialSlots.length === 6 ? initialSlots : DEFAULTS.slots);
   const [favoriteColors, setFavoriteColors] = useState(initialPaletteFavorites);
   const [fillOpen, setFillOpen] = useState(false);
@@ -158,8 +160,17 @@ export default function App() {
   useEffect(() => {
     if (!current || customMode) return;
     const disabled = new Set(current.noMask || []);
-    setSlots((prev) => prev.map((v, i) => (disabled.has(i) ? null : v)));
-  }, [current, customMode]);
+    const fallback = defaultSlotFallback;
+    setSlots((prev) =>
+      prev.map((value, index) => {
+        if (disabled.has(index)) return null;
+        if ((value == null || value === undefined) && fallback) {
+          return { ...fallback };
+        }
+        return value;
+      }),
+    );
+  }, [current, customMode, defaultSlotFallback]);
 
   // Khi b?t customMode, clear current d? l?n ch?n creature k? ti?p lu?n t?i d?ng ?nh
   useEffect(() => {
