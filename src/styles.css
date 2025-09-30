@@ -294,6 +294,27 @@
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   cursor: text;
 }
+.slot-picker__input-display::placeholder {
+  text-align: center;
+}
+
+.slot-picker__input-display::-webkit-input-placeholder {
+  text-align: center;
+}
+
+.slot-picker__input-display:-ms-input-placeholder {
+  text-align: center;
+}
+
+.slot-picker__popover {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.slot-picker__popover::-webkit-scrollbar {
+  display: none;
+}
+
 
 .slot-picker__input-display:focus-visible {
   outline: none;

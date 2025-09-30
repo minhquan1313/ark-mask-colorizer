@@ -7,33 +7,28 @@ import Popover from './Popover';
 
 const findByIndex = (idx) => ARK_PALETTE.find((p) => String(p.index) === String(idx)) || null;
 
-export default function SlotPicker({
-  slotIndex,
-  value,
-  onChange,
-  disabled = false,
-  favorites = [],
-  onToggleFavorite,
-  onResetFavorites,
-  onReorderFavorites,
-  onHoverChange,
-  onOpenChange,
-  highlighted = false,
-}) {
+export default function SlotPicker({ slotIndex, value, onChange, disabled = false, favorites = [], onToggleFavorite, onResetFavorites, onReorderFavorites, onHoverChange, onOpenChange, highlighted = false }) {
   const { t } = useI18n();
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [idDraft, setIdDraft] = useState(value ? String(value.index) : '');
+  const [hasTyped, setHasTyped] = useState(false);
 
   useEffect(() => {
-    setIdDraft(value ? String(value.index) : '');
-  }, [value]);
+    if (!hasTyped) {
+      setIdDraft(value ? String(value.index) : '');
+    }
+  }, [value, hasTyped]);
 
   useEffect(() => {
     if (typeof onOpenChange === 'function') {
       onOpenChange(open && !disabled);
     }
   }, [open, disabled, onOpenChange]);
+
+  useEffect(() => {
+    if (!open) setHasTyped(false);
+  }, [open]);
 
   const notifyHover = (state) => {
     if (typeof onHoverChange === 'function') {
@@ -44,11 +39,17 @@ export default function SlotPicker({
   const applyDraft = (draft) => {
     const sanitized = draft.replace(/[^0-9]/g, '').slice(0, 3);
     setIdDraft(sanitized);
-    if (sanitized === '' || sanitized === '255') {
+    if (sanitized === '') {
       onChange(null);
       return;
     }
-    const found = findByIndex(sanitized);
+    const numeric = Number(sanitized);
+    if (!Number.isNaN(numeric) && (numeric === 0 || sanitized === '255')) {
+      onChange(null);
+      return;
+    }
+    const lookup = sanitized.replace(/^0+/, '') || sanitized;
+    const found = findByIndex(lookup);
     if (found) {
       onChange(found);
     }
@@ -56,12 +57,19 @@ export default function SlotPicker({
 
   const confirmDraft = () => {
     if (disabled) return;
-    if (idDraft === '' || idDraft === '255') {
+    if (idDraft === '') {
       onChange(null);
       setIdDraft('');
       return;
     }
-    const found = findByIndex(idDraft);
+    const numeric = Number(idDraft);
+    if (!Number.isNaN(numeric) && (numeric === 0 || idDraft === '255')) {
+      onChange(null);
+      setIdDraft('');
+      return;
+    }
+    const lookup = idDraft.replace(/^0+/, '') || idDraft;
+    const found = findByIndex(lookup);
     if (!found) {
       setIdDraft(value ? String(value.index) : '');
     }
@@ -71,6 +79,7 @@ export default function SlotPicker({
     if (disabled) return;
     onChange(entryOrNull || null);
     setIdDraft(entryOrNull ? String(entryOrNull.index) : '');
+    setHasTyped(false);
     setOpen(false);
   };
 
@@ -103,7 +112,11 @@ export default function SlotPicker({
   const handleChange = (event) => {
     if (disabled) return;
     applyDraft(event.target.value);
+    setHasTyped(true);
   };
+
+  const rawFilter = hasTyped ? idDraft : '';
+  const normalizedFilter = rawFilter === '255' ? '' : rawFilter.replace(/^0+/, '');
 
   const containerClass = ['slot-picker'];
   if (disabled) containerClass.push('is-disabled');
@@ -133,6 +146,7 @@ export default function SlotPicker({
           onBlur={() => {
             notifyHover(false);
             confirmDraft();
+            setHasTyped(false);
           }}
           title={value ? `${value.index} - ${value.name}` : disabled ? t('slotPicker.noMask') : t('slotPicker.pickColor')}
           readOnly={disabled}
@@ -145,8 +159,10 @@ export default function SlotPicker({
             if (!disabled) {
               onChange(null);
               setIdDraft('');
+              setHasTyped(false);
             }
           }}
+          tabIndex={-1}
           aria-label={t('slotPicker.clearLabel')}
           title={disabled ? t('slotPicker.noMask') : t('slotPicker.clear')}
           disabled={disabled}>
@@ -157,7 +173,8 @@ export default function SlotPicker({
       {open && !disabled && (
         <Popover
           anchorRef={anchorRef}
-          onClose={() => setOpen(false)}>
+          onClose={() => setOpen(false)}
+          className="slot-picker__popover">
           <div style={{ padding: 10 }}>
             <PaletteGrid
               big
@@ -167,6 +184,7 @@ export default function SlotPicker({
               onToggleFavorite={onToggleFavorite}
               onResetFavorites={onResetFavorites}
               onReorderFavorites={onReorderFavorites}
+              filter={normalizedFilter}
             />
           </div>
         </Popover>

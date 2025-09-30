@@ -5,7 +5,7 @@ const MARGIN = 8;
 const MAX_WIDTH = 360;
 const MAX_HEIGHT = 480;
 
-export default function Popover({ anchorRef, onClose, children }) {
+export default function Popover({ anchorRef, onClose, children, className = '', style = {} }) {
   const panelRef = useRef(null);
   const [pos, setPos] = useState({ top: 0, left: 0, width: MAX_WIDTH, maxHeight: MAX_HEIGHT });
 
@@ -75,7 +75,10 @@ export default function Popover({ anchorRef, onClose, children }) {
     const onKey = (e) => e.key === 'Escape' && onClose?.();
     const onClick = (e) => {
       if (!panelRef.current) return;
-      if (!panelRef.current.contains(e.target)) onClose?.();
+      const anchor = anchorRef?.current;
+      const clickedInsidePanel = panelRef.current.contains(e.target);
+      const clickedAnchor = anchor ? anchor.contains(e.target) : false;
+      if (!clickedInsidePanel && !clickedAnchor) onClose?.();
     };
     window.addEventListener('keydown', onKey);
     window.addEventListener('mousedown', onClick);
@@ -88,6 +91,7 @@ export default function Popover({ anchorRef, onClose, children }) {
   return (
     <div
       ref={panelRef}
+      className={className}
       style={{
         position: 'fixed',
         zIndex: 1000,
@@ -101,6 +105,7 @@ export default function Popover({ anchorRef, onClose, children }) {
         border: '1px solid var(--border)',
         borderRadius: 12,
         boxShadow: 'var(--shadow)',
+        ...(style || {}),
       }}>
       {children}
     </div>

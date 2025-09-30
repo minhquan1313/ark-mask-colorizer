@@ -5,7 +5,7 @@ import { hexToRgb, relLuminance } from '../utils/color';
 
 const toIdString = (value) => String(value);
 
-export default function PaletteGrid({ onPick, onToggleFavorite, onResetFavorites, onReorderFavorites, favorites = [], big = false, showIndex = false }) {
+export default function PaletteGrid({ onPick, onToggleFavorite, onResetFavorites, onReorderFavorites, favorites = [], big = false, showIndex = false, filter = '' }) {
   const { t } = useI18n();
   const size = big ? 44 : 30;
   const gap = big ? 10 : 6;
@@ -15,19 +15,24 @@ export default function PaletteGrid({ onPick, onToggleFavorite, onResetFavorites
     const favSet = new Set(ids);
     const seen = new Set();
     const favEntries = [];
+    const filterText = typeof filter === 'string' ? filter.trim() : toIdString(filter ?? '').trim();
+    const filterDigits = filterText.replace(/[^0-9]/g, '');
+    const matchesFilter = filterDigits.length > 0 ? (entry) => toIdString(entry.index).includes(filterDigits) : () => true;
 
     for (const id of ids) {
       if (seen.has(id)) continue;
       const entry = ARK_PALETTE.find((p) => toIdString(p.index) === id);
       if (entry) {
-        favEntries.push(entry);
         seen.add(toIdString(entry.index));
+        if (matchesFilter(entry)) {
+          favEntries.push(entry);
+        }
       }
     }
 
-    const rest = ARK_PALETTE.filter((entry) => !seen.has(toIdString(entry.index)));
+    const rest = ARK_PALETTE.filter((entry) => !seen.has(toIdString(entry.index)) && matchesFilter(entry));
     return { favoriteEntries: favEntries, otherEntries: rest, favoriteSet: favSet };
-  }, [favorites]);
+  }, [favorites, filter]);
 
   const [draggingId, setDraggingId] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
