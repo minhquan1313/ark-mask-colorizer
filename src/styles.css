@@ -315,7 +315,6 @@
   display: none;
 }
 
-
 .slot-picker__input-display:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.45);
@@ -323,6 +322,11 @@
 
 .slot-picker.is-highlighted .slot-picker__input-display {
   box-shadow: 0 0 0 3px #ffffff, 0 0 0 6px #0ea5e9;
+}
+
+.slot-picker__input-display::placeholder {
+  text-align: center;
+  width: 100%;
 }
 
 .slot-picker__clear {
