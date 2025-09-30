@@ -7,7 +7,7 @@ const sortCreatures = (list) => {
   return [...list].sort((a = {}, b = {}) => {
     const nameA = normalize(a.name || '');
     const nameB = normalize(b.name || '');
-    const baseCompare = nameA.localeCompare(nameB, undefined, { sensitivity: 'base' });
+    const baseCompare = nameB.localeCompare(nameA, undefined, { sensitivity: 'base' });
     if (baseCompare !== 0) return baseCompare;
     return (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' });
   });
