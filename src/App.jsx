@@ -652,6 +652,8 @@ export default function App() {
     setOverlayColorMixBoost(DEFAULTS.overlayColorMixBoost);
     setColorMixBoost(DEFAULTS.colorMixBoost);
     setOverlayTint(DEFAULTS.overlayTint);
+    setExportBg(DEFAULTS.exportBg);
+    setExportText(DEFAULTS.exportText);
     // slots s? du?c luu l?i qua effect ? tr�n
   };
   const onPickSlot = (i, entryOrNull) => {
