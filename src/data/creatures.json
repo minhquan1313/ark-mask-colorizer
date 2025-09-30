@@ -15,7 +15,11 @@
     "masks": [
       "Aberrant Anglerfish_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Aberrant Ankylosaurus",
@@ -33,7 +37,9 @@
     "masks": [
       "Aberrant Araneo_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1
+    ]
   },
   {
     "name": "Aberrant Arthropluera",
@@ -51,7 +57,10 @@
     "masks": [
       "Aberrant Baryonyx_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Aberrant Beelzebufo",
@@ -60,7 +69,10 @@
     "masks": [
       "Aberrant Beelzebufo_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Aberrant Carbonemys",
@@ -69,7 +81,10 @@
     "masks": [
       "Aberrant Carbonemys_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Aberrant Carnotaurus",
@@ -78,7 +93,10 @@
     "masks": [
       "Aberrant Carnotaurus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Aberrant Coelacanth",
@@ -87,7 +105,11 @@
     "masks": [
       "Aberrant Coelacanth_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Aberrant Dimetrodon",
@@ -96,7 +118,9 @@
     "masks": [
       "Aberrant Dimetrodon_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      5
+    ]
   },
   {
     "name": "Aberrant Dimorphodon",
@@ -105,7 +129,11 @@
     "masks": [
       "Aberrant Dimorphodon_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Aberrant Diplocaulus",
@@ -114,7 +142,10 @@
     "masks": [
       "Aberrant Diplocaulus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Aberrant Diplodocus",
@@ -123,7 +154,10 @@
     "masks": [
       "Aberrant Diplodocus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Aberrant Dire Bear",
@@ -132,7 +166,12 @@
     "masks": [
       "Aberrant Dire Bear_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3,
+      4
+    ]
   },
   {
     "name": "Aberrant Dodo",
@@ -150,7 +189,10 @@
     "masks": [
       "Aberrant Doedicurus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Aberrant Dung Beetle",
@@ -159,7 +201,9 @@
     "masks": [
       "Aberrant Dung Beetle_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2
+    ]
   },
   {
     "name": "Aberrant Electrophorus",
@@ -168,7 +212,9 @@
     "masks": [
       "Aberrant Electrophorus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      4
+    ]
   },
   {
     "name": "Aberrant Equus",
@@ -177,7 +223,11 @@
     "masks": [
       "Aberrant Equus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Aberrant Fasolasuchus",
@@ -186,7 +236,9 @@
     "masks": [
       "Aberrant Fasolasuchus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      3
+    ]
   },
   {
     "name": "Aberrant Gigantopithecus",
@@ -195,7 +247,11 @@
     "masks": [
       "Aberrant Gigantopithecus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Aberrant Gigantoraptor",
@@ -204,7 +260,9 @@
     "masks": [
       "Aberrant Gigantoraptor_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2
+    ]
   },
   {
     "name": "Aberrant Iguanodon",
@@ -213,7 +271,11 @@
     "masks": [
       "Aberrant Iguanodon_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Aberrant Lystrosaurus",
@@ -222,7 +284,11 @@
     "masks": [
       "Aberrant Lystrosaurus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Aberrant Manta",
@@ -231,7 +297,11 @@
     "masks": [
       "Aberrant Manta_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Aberrant Megalania",
@@ -240,7 +310,11 @@
     "masks": [
       "Aberrant Megalania_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Aberrant Megalosaurus",
@@ -249,7 +323,11 @@
     "masks": [
       "Aberrant Megalosaurus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Aberrant Meganeura",
@@ -258,7 +336,9 @@
     "masks": [
       "Aberrant Meganeura_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1
+    ]
   },
   {
     "name": "Aberrant Moschops",
@@ -267,7 +347,10 @@
     "masks": [
       "Aberrant Moschops_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Aberrant Otter",
@@ -276,7 +359,11 @@
     "masks": [
       "Aberrant Otter_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Aberrant Oviraptor",
@@ -285,7 +372,9 @@
     "masks": [
       "Aberrant Oviraptor_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      3
+    ]
   },
   {
     "name": "Aberrant Ovis",
@@ -294,7 +383,11 @@
     "masks": [
       "Aberrant Ovis_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Aberrant Ovis (female)",
@@ -303,7 +396,11 @@
     "masks": [
       "Aberrant Ovis_ASA_sf_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Aberrant Paraceratherium",
@@ -312,7 +409,11 @@
     "masks": [
       "Aberrant Paraceratherium_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Aberrant Parasaur",
@@ -330,7 +431,9 @@
     "masks": [
       "Aberrant Piranha_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      3
+    ]
   },
   {
     "name": "Aberrant Pulmonoscorpius",
@@ -348,7 +451,11 @@
     "masks": [
       "Aberrant Purlovia_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Aberrant Raptor",
@@ -357,7 +464,9 @@
     "masks": [
       "Aberrant Raptor_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2
+    ]
   },
   {
     "name": "Aberrant Salmon",
@@ -375,7 +484,9 @@
     "masks": [
       "Aberrant Sarco_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1
+    ]
   },
   {
     "name": "Aberrant Spino",
@@ -384,7 +495,10 @@
     "masks": [
       "Aberrant Spino_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Aberrant Stegosaurus",
@@ -411,14 +525,23 @@
     "masks": [
       "Aberrant Triceratops_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2
+    ]
   },
   {
     "name": "Aberrant Trilobite",
     "maskPath": "Aberrant Trilobite",
     "base": "Aberrant Trilobite_ASA.png",
     "masks": [],
-    "noMask": []
+    "noMask": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
   },
   {
     "name": "Achatina",
@@ -583,6 +706,8 @@
     "maskPath": "Bison",
     "base": "Bison_ASA.png",
     "masks": [
+      "Bison_ASA_m_04.png",
+      "Bison_ASA_m_14.png",
       "Bison_ASA_m.png"
     ],
     "noMask": [
@@ -594,6 +719,8 @@
     "maskPath": "Bison",
     "base": "Bison_ASA_sf.png",
     "masks": [
+      "Bison_ASA_sf_m_04.png",
+      "Bison_ASA_sf_m_14.png",
       "Bison_ASA_sf_m.png"
     ],
     "noMask": [
@@ -823,6 +950,9 @@
     "maskPath": "Deinotherium",
     "base": "Deinotherium_ASA.png",
     "masks": [
+      "Deinotherium_ASA_m_04.png",
+      "Deinotherium_ASA_m_05.png",
+      "Deinotherium_ASA_m_14.png",
       "Deinotherium_ASA_m.png"
     ],
     "noMask": [
@@ -835,6 +965,9 @@
     "maskPath": "Deinotherium",
     "base": "Deinotherium_ASA_sf.png",
     "masks": [
+      "Deinotherium_ASA_sf_m_04.png",
+      "Deinotherium_ASA_sf_m_05.png",
+      "Deinotherium_ASA_sf_m_14.png",
       "Deinotherium_ASA_sf_m.png"
     ],
     "noMask": [
@@ -948,7 +1081,9 @@
       "Drakeling (Autumn)_ASA_m_25.png",
       "Drakeling (Autumn)_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2
+    ]
   },
   {
     "name": "Drakeling (Spring)",
@@ -960,7 +1095,9 @@
       "Drakeling (Spring)_ASA_m_25.png",
       "Drakeling (Spring)_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2
+    ]
   },
   {
     "name": "Drakeling (Summer)",
@@ -972,7 +1109,9 @@
       "Drakeling (Summer)_ASA_m_23.png",
       "Drakeling (Summer)_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2
+    ]
   },
   {
     "name": "Drakeling (Winter)",
@@ -1171,7 +1310,9 @@
     "masks": [
       "Gigantoraptor_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2
+    ]
   },
   {
     "name": "Glowtail",
@@ -2037,7 +2178,11 @@
     "masks": [
       "Tek Giganotosaurus_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      1,
+      2,
+      3
+    ]
   },
   {
     "name": "Tek Parasaur",
@@ -2064,7 +2209,9 @@
     "masks": [
       "Tek Raptor_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2
+    ]
   },
   {
     "name": "Tek Rex",
@@ -2073,7 +2220,10 @@
     "masks": [
       "Tek Rex_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2,
+      3
+    ]
   },
   {
     "name": "Tek Stegosaurus",
@@ -2091,7 +2241,9 @@
     "masks": [
       "Tek Triceratops_ASA_m.png"
     ],
-    "noMask": []
+    "noMask": [
+      2
+    ]
   },
   {
     "name": "Terror Bird",
