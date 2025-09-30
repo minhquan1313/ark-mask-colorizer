@@ -104,7 +104,13 @@ export default function Toolbar({
   }
 
   const isProduction = Boolean(typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.PROD);
-  const [devSlidersVisible, setDevSlidersVisible] = useState(true);
+  const [devSlidersVisible, setDevSlidersVisible] = useState(() => {
+    const stored = loadJSON(STORAGE_KEYS.hideSliders, false);
+    return stored === true ? false : true;
+  });
+  useEffect(() => {
+    saveJSON(STORAGE_KEYS.hideSliders, !devSlidersVisible);
+  }, [devSlidersVisible]);
   const showSliderControls = !isProduction && devSlidersVisible;
 
   const sliderConfigs = useMemo(
