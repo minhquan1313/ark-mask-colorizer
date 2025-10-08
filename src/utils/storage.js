@@ -1,4 +1,4 @@
-﻿// src/utils/storage.js
+// src/utils/storage.js
 const NS = 'ark-mask-colorizer:v1';
 
 export const STORAGE_KEYS = {
@@ -51,6 +51,7 @@ export function remove(key) {
     localStorage.removeItem(key);
   } catch { /* ignore storage errors */ }
 }
+
 
 
 
