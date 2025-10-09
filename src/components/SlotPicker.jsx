@@ -156,7 +156,6 @@ export default function SlotPicker({ slotIndex, value, onChange, disabled = fals
           }}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          onFocus={() => !disabled && notifyHover(true)}
           onBlur={() => {
             notifyHover(false);
             confirmDraft();

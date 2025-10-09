@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useState } from 'react';
 import CanvasView from '../CanvasView.jsx';
 import CreaturePicker from '../CreaturePicker.jsx';
 import PaletteGrid from '../PaletteGrid.jsx';
@@ -30,6 +31,45 @@ export default function MaskPage({
   const { isOpen: fillOpen, anchorRef: fillBtnRef, open: openFill, close: closeFill, onPick: onFillPick } = fillControls;
   const { list, currentName, customMode, onSelect: onCreatureSelect } = creaturePicker;
   const { onReset, onDownloadImage, onDownloadWithPalette, downloadingType, onCustomFiles } = toolbarActions;
+  const [highlightSlots, setHighlightSlots] = useState([]);
+
+  useEffect(() => {
+    if (!disabledSet || typeof disabledSet.has !== 'function') return;
+    setHighlightSlots((prev) => {
+      const filtered = prev.filter((idx) => !disabledSet.has(idx));
+      if (filtered.length === prev.length) return prev;
+      return filtered;
+    });
+  }, [disabledSet]);
+
+  const handleHighlightSlotsChange = useCallback(
+    (indices) => {
+      if (!Array.isArray(indices) || indices.length === 0) {
+        setHighlightSlots((prev) => (prev.length === 0 ? prev : []));
+        return;
+      }
+      const next = Array.from(
+        new Set(
+          indices
+            .map((value) => Number(value))
+            .filter(
+              (idx) =>
+                Number.isInteger(idx) &&
+                idx >= 0 &&
+                idx <= 5 &&
+                !(disabledSet && typeof disabledSet.has === 'function' && disabledSet.has(idx))
+            )
+        )
+      ).sort((a, b) => a - b);
+      setHighlightSlots((prev) => {
+        if (prev.length === next.length && prev.every((value, index) => value === next[index])) {
+          return prev;
+        }
+        return next;
+      });
+    },
+    [disabledSet]
+  );
 
   return (
     <div className="container page-mask">
@@ -46,6 +86,11 @@ export default function MaskPage({
           slots={slots}
           exportBg={exportBg}
           exportText={exportText}
+          maskCanvasRef={maskCanvasRef}
+          maskImg={maskImg}
+          baseCanvasRef={baseCanvasRef}
+          baseImg={baseImg}
+          highlightSlots={highlightSlots}
         />
 
         <div className="slot-strip">
@@ -61,6 +106,7 @@ export default function MaskPage({
             onResetFavorites={onResetFavorites}
             onReorderFavorites={onReorderFavorites}
             onPasteCmd={onPasteCmd}
+            onHighlightSlotsChange={handleHighlightSlotsChange}
             extraActions={
               <>
                 <button ref={fillBtnRef} className="btn" onClick={openFill}>

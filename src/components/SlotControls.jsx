@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useI18n } from '../i18n/index.js';
 import SlotPicker from './SlotPicker.jsx';
 
@@ -16,14 +16,19 @@ export default function SlotControls({
   onToggleFavorite,
   onResetFavorites,
   onReorderFavorites,
+  onHighlightSlotsChange,
 }) {
   const { t } = useI18n();
   const [copied, setCopied] = useState(false);
   const [copyErr, setCopyErr] = useState(false);
   const [hoveredSlot, setHoveredSlot] = useState(null);
-  const [activeSlot, setActiveSlot] = useState(null);
+  const highlightSigRef = useRef('');
+  const [openSlot, setOpenSlot] = useState(null);
 
   const highlightSet = useMemo(() => {
+    if (openSlot !== null) {
+      return new Set();
+    }
     const indices = new Set();
     const resolveLinks = (idx) => {
       if (idx == null) return [];
@@ -47,9 +52,18 @@ export default function SlotControls({
       }
     };
     append(hoveredSlot);
-    append(activeSlot);
     return indices;
-  }, [hoveredSlot, activeSlot, slotLinks]);
+  }, [hoveredSlot, openSlot, slotLinks]);
+
+  useEffect(() => {
+    if (typeof onHighlightSlotsChange !== 'function') return;
+    const arr = Array.from(highlightSet).filter((idx) => Number.isInteger(idx) && idx >= 0 && idx <= 5);
+    arr.sort((a, b) => a - b);
+    const sig = arr.join(',');
+    if (sig === highlightSigRef.current) return;
+    highlightSigRef.current = sig;
+    onHighlightSlotsChange(arr);
+  }, [highlightSet, onHighlightSlotsChange]);
 
   return (
     <div className="slot-controls">
@@ -69,9 +83,12 @@ export default function SlotControls({
             onHoverChange={(isHovering) =>
               setHoveredSlot((prev) => (isHovering ? i : prev === i ? null : prev))
             }
-            onOpenChange={(isOpen) =>
-              setActiveSlot((prev) => (isOpen ? i : prev === i ? null : prev))
-            }
+            onOpenChange={(isOpen) => {
+              setOpenSlot((prev) => {
+                if (isOpen) return i;
+                return prev === i ? null : prev;
+              });
+            }}
           />
         ))}
       </div>

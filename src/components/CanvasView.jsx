@@ -2,9 +2,36 @@
 import { useI18n } from '../i18n/index.js';
 import { hexToRgb, relLuminance } from '../utils/color';
 
-export default function CanvasView({ outCanvasRef, loading, busy = false, slots = [], exportBg = '#000', exportText = '#fff' }) {
+const SLOT_REFERENCE_VECTORS = [
+  [1, 0, 0],
+  [0, 1, 0],
+  [0, 0, 1],
+  [0, 1, 1],
+  [1, 1, 0],
+  [1, 0, 1],
+].map((vector) => {
+  const length = Math.hypot(vector[0], vector[1], vector[2]);
+  return length > 0 ? [vector[0] / length, vector[1] / length, vector[2] / length] : vector;
+});
+
+const MIN_CHROMA = 8;
+
+export default function CanvasView({
+  outCanvasRef,
+  loading,
+  busy = false,
+  slots = [],
+  exportBg = '#000',
+  exportText = '#fff',
+  maskCanvasRef,
+  maskImg,
+  baseCanvasRef,
+  baseImg,
+  highlightSlots = [],
+}) {
   const { t } = useI18n();
   const wrapRef = useRef(null);
+  const highlightCanvasRef = useRef(null);
   const [hint, setHint] = useState(false);
   const [toast, setToast] = useState(null);
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
@@ -28,6 +55,127 @@ export default function CanvasView({ outCanvasRef, loading, busy = false, slots 
       wrap.removeEventListener('mousemove', onMove);
     };
   }, []);
+
+  useEffect(() => {
+    const overlay = highlightCanvasRef.current;
+    const outputCanvas = outCanvasRef?.current;
+    if (!overlay || !outputCanvas) return;
+
+    const width = outputCanvas.width || 0;
+    const height = outputCanvas.height || 0;
+
+    if (maskImg && !maskImg.complete) {
+      return;
+    }
+
+    overlay.width = width;
+    overlay.height = height;
+
+    const ctx = overlay.getContext('2d');
+    if (!ctx) return;
+    ctx.clearRect(0, 0, width, height);
+
+    if (loading || busy || !Array.isArray(highlightSlots) || highlightSlots.length === 0) {
+      return;
+    }
+
+    const highlightSet = new Set(
+      highlightSlots
+        .map((idx) => Number(idx))
+        .filter((idx) => Number.isInteger(idx) && idx >= 0 && idx <= 5)
+    );
+    if (highlightSet.size === 0) {
+      return;
+    }
+
+    const maskCanvas = maskCanvasRef?.current;
+    if (!maskCanvas || maskCanvas.width !== width || maskCanvas.height !== height) {
+      return;
+    }
+
+    let maskCtx;
+    try {
+      maskCtx = maskCanvas.getContext('2d', { willReadFrequently: true });
+    } catch {
+      maskCtx = maskCanvas.getContext('2d');
+    }
+    if (!maskCtx) return;
+
+    let maskData;
+    try {
+      maskData = maskCtx.getImageData(0, 0, width, height);
+    } catch {
+      return;
+    }
+
+    const baseCanvas = baseCanvasRef?.current;
+    const shouldUseBaseCanvas = baseCanvas && baseCanvas.width === width && baseCanvas.height === height;
+    const baseImageReady = baseImg && baseImg.complete;
+
+    if (shouldUseBaseCanvas) {
+      ctx.drawImage(baseCanvas, 0, 0, width, height);
+    } else if (baseImageReady) {
+      ctx.drawImage(baseImg, 0, 0, width, height);
+    } else {
+      ctx.drawImage(outputCanvas, 0, 0, width, height);
+    }
+
+    const src = maskData.data;
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = width;
+    tempCanvas.height = height;
+    const tempCtx = tempCanvas.getContext('2d');
+    if (!tempCtx) {
+      return;
+    }
+    const overlayImage = tempCtx.createImageData(width, height);
+    const dst = overlayImage.data;
+
+    for (let i = 0, len = width * height; i < len; i++) {
+      const p = i * 4;
+      const r = src[p];
+      const g = src[p + 1];
+      const b = src[p + 2];
+      const max = Math.max(r, g, b);
+      const min = Math.min(r, g, b);
+      const chroma = max - min;
+      if (chroma < MIN_CHROMA) continue;
+
+      let rx = r - min;
+      let gx = g - min;
+      let bx = b - min;
+      const norm = Math.hypot(rx, gx, bx);
+      if (norm <= 1e-6) continue;
+      rx /= norm;
+      gx /= norm;
+      bx /= norm;
+
+      let bestIndex = -1;
+      let bestScore = -Infinity;
+      for (let s = 0; s < SLOT_REFERENCE_VECTORS.length; s++) {
+        const ref = SLOT_REFERENCE_VECTORS[s];
+        const score = rx * ref[0] + gx * ref[1] + bx * ref[2];
+        if (score > bestScore) {
+          bestScore = score;
+          bestIndex = s;
+        }
+      }
+
+      if (!highlightSet.has(bestIndex)) continue;
+
+      const alpha = Math.max(110, Math.min(220, Math.round((chroma / 255) * 255)));
+      dst[p + 3] = alpha;
+    }
+
+    tempCtx.putImageData(overlayImage, 0, 0);
+    const prevComposite = tempCtx.globalCompositeOperation;
+    tempCtx.globalCompositeOperation = 'source-in';
+    tempCtx.fillStyle = 'rgba(255, 0, 0, 0.78)';
+    tempCtx.fillRect(0, 0, width, height);
+    tempCtx.globalCompositeOperation = prevComposite || 'source-over';
+
+    ctx.drawImage(tempCanvas, 0, 0);
+  }, [baseCanvasRef, baseImg, busy, highlightSlots, loading, maskCanvasRef, maskImg, outCanvasRef]);
 
   const notify = (text) => {
     setToast({ text, t: Date.now() });
@@ -131,6 +279,20 @@ export default function CanvasView({ outCanvasRef, loading, busy = false, slots 
               }}
               onClick={onClick}
               onContextMenu={onContextMenu}
+            />
+            <canvas
+              ref={highlightCanvasRef}
+              aria-hidden
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                display: 'block',
+                borderRadius: 12,
+                pointerEvents: 'none',
+                zIndex: 2,
+              }}
             />
           </div>
         )}
