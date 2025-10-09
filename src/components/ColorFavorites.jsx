@@ -1,7 +1,9 @@
 import { DndContext, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Tooltip } from 'antd';
+import { Tooltip, Typography } from 'antd';
+
+const { Text } = Typography;
 
 function normalizeColor(value) {
   if (typeof value !== 'string') return '';
@@ -83,22 +85,27 @@ function SortableColorSwatch({ id, color, disabled, onSelect, onRemove }) {
   };
 
   return (
-    <Tooltip title={color}>
-      <div
-        ref={setNodeRef}
-        style={style}
-        className={`color-favorites__item${isDragging ? ' is-dragging' : ''}`}
-        role="button"
-        tabIndex={0}
-        onClick={onSelect}
-        {...listeners}
-        {...attributes}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault();
-            onSelect?.();
-          }
-        }}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`color-favorites__item${isDragging ? ' is-dragging' : ''}`}
+      role="button"
+      tabIndex={0}
+      onClick={onSelect}
+      {...listeners}
+      {...attributes}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onSelect?.();
+        }
+      }}>
+      <Tooltip
+        title={
+          <>
+            {color} <Text copyable={{ text: color }} />
+          </>
+        }>
         <button
           type="button"
           className="color-favorites__swatch"
@@ -107,17 +114,17 @@ function SortableColorSwatch({ id, color, disabled, onSelect, onRemove }) {
           disabled={disabled}
           aria-label="Reorder favorite color"
         />
-        <button
-          type="button"
-          className="color-favorites__remove"
-          onClick={(event) => {
-            stopPropagation(event);
-            onRemove?.();
-          }}
-          aria-label="Remove favorite color">
-          X
-        </button>
-      </div>
-    </Tooltip>
+      </Tooltip>
+      <button
+        type="button"
+        className="color-favorites__remove"
+        onClick={(event) => {
+          stopPropagation(event);
+          onRemove?.();
+        }}
+        aria-label="Remove favorite color">
+        X
+      </button>
+    </div>
   );
 }
