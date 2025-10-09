@@ -1,6 +1,3 @@
-#!/usr/bin/env node
-// Usage: run "npm run organize:dino-assets" to move temp PNGs into public/assets/dino grouped by creature.
-
 const fs = require('fs');
 const path = require('path');
 
@@ -69,6 +66,46 @@ async function movePng(fileName, baseFolder) {
   return path.relative(ROOT_DIR, destinationPath);
 }
 
+/**
+ * @fileoverview
+ * organize-dino-images.cjs
+ *
+ * This script organizes PNG images from a temporary directory into destination folders
+ * based on their base names. It is intended for use in the ARK Mask Colorizer workflow.
+ *
+ * ## Usage
+ * Run this script using Node.js:
+ *
+ * ```bash
+ * node scripts/organize-dino-images.cjs
+ * ```
+ *
+ * ## Requirements
+ * - Node.js v14 or higher
+ * - The TEMP_DIR and DEST_DIR constants must be defined and point to valid directories.
+ * - The TEMP_DIR must contain PNG files to organize.
+ * - The helper functions `ensureDirectory`, `getBaseFolderName`, and `movePng` must be implemented.
+ *
+ * ## Example
+ * If TEMP_DIR contains:
+ *   - rex_001.png
+ *   - rex_002.png
+ *   - trike_001.png
+ *
+ * The script will move these files into folders named after their base (e.g., "rex", "trike") inside DEST_DIR.
+ *
+ * ## Note
+ * - The script will exit with code 1 if TEMP_DIR does not exist.
+ * - No files will be moved if there are no PNG files in TEMP_DIR.
+ * - Logging is provided for each file moved.
+ * Organizes PNG files from the temporary directory into destination folders based on their base names.
+ * Checks for the existence of TEMP_DIR, ensures DEST_DIR exists, groups PNG files by base name,
+ * and moves them into corresponding folders.
+ *
+ * @async
+ * @function main
+ * @returns {Promise<void>} Resolves when all files have been organized.
+ */
 async function main() {
   const tempExists = await fs.promises
     .stat(TEMP_DIR)
@@ -84,9 +121,7 @@ async function main() {
   await ensureDirectory(DEST_DIR);
 
   const entries = await fs.promises.readdir(TEMP_DIR, { withFileTypes: true });
-  const pngFiles = entries.filter(
-    (entry) => entry.isFile() && entry.name.toLowerCase().endsWith('.png'),
-  );
+  const pngFiles = entries.filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith('.png'));
 
   if (pngFiles.length === 0) {
     console.log('No PNG files found in temp directory.');
@@ -115,4 +150,3 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
-

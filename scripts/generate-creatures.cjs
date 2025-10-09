@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-// Usage: run "npm run generate:creatures" after updating assets to refresh src/data/creatures.json.
 const fs = require('fs');
 const path = require('path');
 
@@ -156,16 +154,17 @@ function applySpecialVariantRule(folderName, variants) {
     return variants;
   }
 
-  const sorter = typeof rule.sortVariants === 'function'
-    ? (a, b) => {
-        const va = Number(rule.sortVariants(a));
-        const vb = Number(rule.sortVariants(b));
-        if (!Number.isNaN(va) && !Number.isNaN(vb) && va !== vb) {
-          return va - vb;
+  const sorter =
+    typeof rule.sortVariants === 'function'
+      ? (a, b) => {
+          const va = Number(rule.sortVariants(a));
+          const vb = Number(rule.sortVariants(b));
+          if (!Number.isNaN(va) && !Number.isNaN(vb) && va !== vb) {
+            return va - vb;
+          }
+          return a.base.localeCompare(b.base, undefined, { sensitivity: 'base' });
         }
-        return a.base.localeCompare(b.base, undefined, { sensitivity: 'base' });
-      }
-    : (a, b) => a.base.localeCompare(b.base, undefined, { sensitivity: 'base' });
+      : (a, b) => a.base.localeCompare(b.base, undefined, { sensitivity: 'base' });
 
   sequence.sort(sorter);
 
@@ -187,7 +186,6 @@ function applySpecialVariantRule(folderName, variants) {
     },
   ];
 }
-
 
 function normalizeNameKey(value) {
   if (!value) return '';
@@ -221,6 +219,39 @@ function resolveNoMask(noMaskByKey, variant) {
   return [];
 }
 
+/**
+ * @fileoverview
+ * # Ark Mask Colorizer Creature Generator
+ *
+ * This script generates a list of Ark creatures and their mask information for use in the Ark Mask Colorizer project.
+ *
+ * ## Usage
+ * Run this script using Node.js:
+ *
+ * ```bash
+ * node scripts/generate-creatures.cjs
+ * ```
+ *
+ * ## Requirements
+ * - Node.js installed
+ * - Required directories and files must exist (see `dinoDir` and other dependencies in the script)
+ * - The script depends on several helper functions and variables (e.g., `fs`, `dinoDir`, `outputPath`, `loadExistingNoMask`, etc.)
+ *
+ * ## Example
+ * After running, the script will output a JSON file containing all creatures and their mask data:
+ *
+ * ```
+ * Updated ./output/creatures.json with 123 creatures.
+ * ```
+ *
+ * ## Note
+ * - Make sure all dependencies and required directories are set up before running.
+ * - The script is intended to be run from the project root or with correct relative paths.
+ * - For more details, refer to the Ark Mask Colorizer documentation.
+ *
+ * @function main
+ * @description Generates the creatures list with mask information and writes it to the output file.
+ */
 function main() {
   const noMaskByKey = loadExistingNoMask();
 
@@ -267,12 +298,7 @@ function main() {
       const source = Array.isArray(entry.noMask) ? entry.noMask : [];
       if (!source.length) continue;
 
-      const matches = [
-        candidateName && nameKey.includes(candidateName),
-        candidateName && pathKey.includes(candidateName),
-        candidatePath && nameKey.includes(candidatePath),
-        candidatePath && pathKey.includes(candidatePath),
-      ].some(Boolean);
+      const matches = [candidateName && nameKey.includes(candidateName), candidateName && pathKey.includes(candidateName), candidatePath && nameKey.includes(candidatePath), candidatePath && pathKey.includes(candidatePath)].some(Boolean);
 
       if (!matches) continue;
       const score = Math.max(candidateName ? candidateName.length : 0, candidatePath ? candidatePath.length : 0);
@@ -293,4 +319,3 @@ function main() {
 }
 
 main();
-
