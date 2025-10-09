@@ -638,6 +638,7 @@
     "maskPath": "Armadoggo",
     "base": "Armadoggo_ASA.png",
     "masks": [
+      "Armadoggo_ASA_m_14.png",
       "Armadoggo_ASA_m.png"
     ],
     "noMask": [
@@ -876,6 +877,21 @@
     ]
   },
   {
+    "name": "Chalk Elemental",
+    "maskPath": "Chalk Elemental",
+    "base": "Chalk Elemental_ASA.png",
+    "masks": [
+      "Chalk Elemental_ASA_m.png"
+    ],
+    "noMask": [
+      0,
+      2,
+      3,
+      4,
+      5
+    ]
+  },
+  {
     "name": "Cnidaria",
     "maskPath": "Cnidaria",
     "base": "Cnidaria_ASA.png",
@@ -934,6 +950,21 @@
       1,
       3,
       4
+    ]
+  },
+  {
+    "name": "Deinonychus",
+    "maskPath": "Deinonychus",
+    "base": "Deinonychus_ASA.png",
+    "masks": [
+      "Deinonychus_ASA_m_04.png",
+      "Deinonychus_ASA_m_05.png",
+      "Deinonychus_ASA_m_13.png",
+      "Deinonychus_ASA_m_14.png",
+      "Deinonychus_ASA_m.png"
+    ],
+    "noMask": [
+      2
     ]
   },
   {
@@ -1177,6 +1208,15 @@
     ]
   },
   {
+    "name": "Elderclaw",
+    "maskPath": "Elderclaw",
+    "base": "Elderclaw_ASA.png",
+    "masks": [
+      "Elderclaw_ASA_m.png"
+    ],
+    "noMask": []
+  },
+  {
     "name": "Electrophorus",
     "maskPath": "Electrophorus",
     "base": "Electrophorus_ASA.png",
@@ -1330,6 +1370,20 @@
     ]
   },
   {
+    "name": "Grendel (Alpha)",
+    "maskPath": "Grendel (Alpha)",
+    "base": "Grendel (Alpha)_ASA.png",
+    "masks": [],
+    "noMask": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  },
+  {
     "name": "Griffin",
     "maskPath": "Griffin",
     "base": "Griffin_ASA.png",
@@ -1380,6 +1434,15 @@
       2,
       3
     ]
+  },
+  {
+    "name": "Ice Elemental",
+    "maskPath": "Ice Elemental",
+    "base": "Ice Elemental_ASA.png",
+    "masks": [
+      "Ice Elemental_ASA_m.png"
+    ],
+    "noMask": []
   },
   {
     "name": "Ice Wyvern",
@@ -1486,6 +1549,20 @@
       "Kentrosaurus_ASA_m.png"
     ],
     "noMask": []
+  },
+  {
+    "name": "Lava Elemental",
+    "maskPath": "Lava Elemental",
+    "base": "Lava Elemental_ASA.png",
+    "masks": [],
+    "noMask": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
   },
   {
     "name": "Lightning Wyvern",
@@ -1664,6 +1741,21 @@
     ],
     "noMask": [
       1
+    ]
+  },
+  {
+    "name": "Megaraptor",
+    "maskPath": "Megaraptor",
+    "base": "Megaraptor_ASA.png",
+    "masks": [
+      "Megaraptor_ASA_m_05.png",
+      "Megaraptor_ASA_m_23.png",
+      "Megaraptor_ASA_m_25.png",
+      "Megaraptor_ASA_m.png"
+    ],
+    "noMask": [
+      1,
+      4
     ]
   },
   {
@@ -2072,6 +2164,21 @@
     "noMask": [
       2,
       3
+    ]
+  },
+  {
+    "name": "Rubble Golem",
+    "maskPath": "Rubble Golem",
+    "base": "Rubble Golem_ASA.png",
+    "masks": [
+      "Rubble Golem_ASA_m.png"
+    ],
+    "noMask": [
+      0,
+      2,
+      3,
+      4,
+      5
     ]
   },
   {
