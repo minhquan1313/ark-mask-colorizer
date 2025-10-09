@@ -533,6 +533,7 @@ export default function App() {
   const canvasState = {
     baseImg,
     maskImg,
+    extraMasks,
     busy,
     outCanvasRef,
     baseCanvasRef,

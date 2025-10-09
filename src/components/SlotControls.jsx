@@ -57,13 +57,15 @@ export default function SlotControls({
 
   useEffect(() => {
     if (typeof onHighlightSlotsChange !== 'function') return;
-    const arr = Array.from(highlightSet).filter((idx) => Number.isInteger(idx) && idx >= 0 && idx <= 5);
-    arr.sort((a, b) => a - b);
+    const arr =
+      hoveredSlot != null && Number.isInteger(hoveredSlot) && hoveredSlot >= 0 && hoveredSlot <= 5
+        ? [Number(hoveredSlot)]
+        : [];
     const sig = arr.join(',');
     if (sig === highlightSigRef.current) return;
     highlightSigRef.current = sig;
     onHighlightSlotsChange(arr);
-  }, [highlightSet, onHighlightSlotsChange]);
+  }, [hoveredSlot, onHighlightSlotsChange]);
 
   return (
     <div className="slot-controls">

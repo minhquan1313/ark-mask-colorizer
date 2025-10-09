@@ -14,7 +14,38 @@ const SLOT_REFERENCE_VECTORS = [
   return length > 0 ? [vector[0] / length, vector[1] / length, vector[2] / length] : vector;
 });
 
-const MIN_CHROMA = 8;
+const MIN_CHROMA = 4;
+
+function resolveMaskSlot(r, g, b) {
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const chroma = max - min;
+  if (chroma < MIN_CHROMA) {
+    return { index: -1, chroma: 0 };
+  }
+  let rx = r - min;
+  let gx = g - min;
+  let bx = b - min;
+  const norm = Math.hypot(rx, gx, bx);
+  if (norm <= 1e-6) {
+    return { index: -1, chroma: 0 };
+  }
+  rx /= norm;
+  gx /= norm;
+  bx /= norm;
+
+  let bestIndex = -1;
+  let bestScore = -Infinity;
+  for (let s = 0; s < SLOT_REFERENCE_VECTORS.length; s++) {
+    const ref = SLOT_REFERENCE_VECTORS[s];
+    const score = rx * ref[0] + gx * ref[1] + bx * ref[2];
+    if (score > bestScore) {
+      bestScore = score;
+      bestIndex = s;
+    }
+  }
+  return { index: bestIndex, chroma };
+}
 
 export default function CanvasView({
   outCanvasRef,
@@ -23,7 +54,6 @@ export default function CanvasView({
   slots = [],
   exportBg = '#000',
   exportText = '#fff',
-  maskCanvasRef,
   maskImg,
   baseCanvasRef,
   baseImg,
@@ -32,6 +62,9 @@ export default function CanvasView({
   const { t } = useI18n();
   const wrapRef = useRef(null);
   const highlightCanvasRef = useRef(null);
+  const maskImageDataRef = useRef(null);
+  const maskImageKeyRef = useRef(null);
+  const [maskVersion, setMaskVersion] = useState(0);
   const [hint, setHint] = useState(false);
   const [toast, setToast] = useState(null);
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
@@ -57,6 +90,44 @@ export default function CanvasView({
   }, []);
 
   useEffect(() => {
+    if (!maskImg || !maskImg.complete) {
+      maskImageDataRef.current = null;
+      maskImageKeyRef.current = null;
+      return;
+    }
+    const key = `${maskImg.src || ''}|${maskImg.naturalWidth}x${maskImg.naturalHeight}|${maskImg.currentSrc || ''}`;
+    if (maskImageKeyRef.current === key && maskImageDataRef.current) {
+      return;
+    }
+    try {
+      const off = document.createElement('canvas');
+      off.width = maskImg.naturalWidth || maskImg.width || 0;
+      off.height = maskImg.naturalHeight || maskImg.height || 0;
+      if (!off.width || !off.height) {
+        maskImageDataRef.current = null;
+        maskImageKeyRef.current = null;
+        return;
+      }
+      const offCtx = off.getContext('2d');
+      if (!offCtx) {
+        maskImageDataRef.current = null;
+        maskImageKeyRef.current = null;
+        return;
+      }
+      offCtx.clearRect(0, 0, off.width, off.height);
+      offCtx.drawImage(maskImg, 0, 0, off.width, off.height);
+      const imageData = offCtx.getImageData(0, 0, off.width, off.height);
+      maskImageDataRef.current = imageData;
+      maskImageKeyRef.current = key;
+      setMaskVersion((value) => value + 1);
+    } catch {
+      maskImageDataRef.current = null;
+      maskImageKeyRef.current = null;
+      setMaskVersion((value) => value + 1);
+    }
+  }, [maskImg]);
+
+  useEffect(() => {
     const overlay = highlightCanvasRef.current;
     const outputCanvas = outCanvasRef?.current;
     if (!overlay || !outputCanvas) return;
@@ -64,118 +135,113 @@ export default function CanvasView({
     const width = outputCanvas.width || 0;
     const height = outputCanvas.height || 0;
 
+    const resetOverlay = (w = width, h = height) => {
+      overlay.width = w;
+      overlay.height = h;
+      const ctx = overlay.getContext('2d');
+      if (ctx) ctx.clearRect(0, 0, w, h);
+    };
+
+    if (!width || !height) {
+      resetOverlay(overlay.width || 0, overlay.height || 0);
+      return;
+    }
+
     if (maskImg && !maskImg.complete) {
+      resetOverlay();
+      return;
+    }
+
+    const highlightSet = new Set(
+      Array.isArray(highlightSlots)
+        ? highlightSlots
+            .map((idx) => Number(idx))
+            .filter((idx) => Number.isInteger(idx) && idx >= 0 && idx <= 5)
+        : []
+    );
+    if (loading || busy || highlightSet.size === 0) {
+      resetOverlay();
+      return;
+    }
+
+    const maskData = maskImageDataRef.current;
+    if (!maskData || maskData.width !== width || maskData.height !== height) {
+      resetOverlay();
+      return;
+    }
+
+    const alphaBuffer = new Uint8ClampedArray(width * height);
+    const src = maskData.data;
+    let painted = false;
+    for (let i = 0, len = width * height; i < len; i++) {
+      const p = i * 4;
+      const { index, chroma } = resolveMaskSlot(src[p], src[p + 1], src[p + 2]);
+      if (index === -1 || !highlightSet.has(index)) continue;
+      const alpha = Math.max(90, Math.min(220, Math.round((chroma / 255) * 255)));
+      if (alpha > alphaBuffer[i]) {
+        alphaBuffer[i] = alpha;
+        painted = true;
+      }
+    }
+
+    if (!painted) {
+      resetOverlay();
       return;
     }
 
     overlay.width = width;
     overlay.height = height;
-
     const ctx = overlay.getContext('2d');
     if (!ctx) return;
     ctx.clearRect(0, 0, width, height);
 
-    if (loading || busy || !Array.isArray(highlightSlots) || highlightSlots.length === 0) {
-      return;
-    }
-
-    const highlightSet = new Set(
-      highlightSlots
-        .map((idx) => Number(idx))
-        .filter((idx) => Number.isInteger(idx) && idx >= 0 && idx <= 5)
-    );
-    if (highlightSet.size === 0) {
-      return;
-    }
-
-    const maskCanvas = maskCanvasRef?.current;
-    if (!maskCanvas || maskCanvas.width !== width || maskCanvas.height !== height) {
-      return;
-    }
-
-    let maskCtx;
-    try {
-      maskCtx = maskCanvas.getContext('2d', { willReadFrequently: true });
-    } catch {
-      maskCtx = maskCanvas.getContext('2d');
-    }
-    if (!maskCtx) return;
-
-    let maskData;
-    try {
-      maskData = maskCtx.getImageData(0, 0, width, height);
-    } catch {
-      return;
-    }
-
     const baseCanvas = baseCanvasRef?.current;
-    const shouldUseBaseCanvas = baseCanvas && baseCanvas.width === width && baseCanvas.height === height;
+    const baseCanvasReady = baseCanvas && baseCanvas.width === width && baseCanvas.height === height;
     const baseImageReady = baseImg && baseImg.complete;
 
-    if (shouldUseBaseCanvas) {
+    if (baseCanvasReady) {
       ctx.drawImage(baseCanvas, 0, 0, width, height);
     } else if (baseImageReady) {
       ctx.drawImage(baseImg, 0, 0, width, height);
     } else {
-      ctx.drawImage(outputCanvas, 0, 0, width, height);
+      resetOverlay();
+      return;
     }
 
-    const src = maskData.data;
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = width;
     tempCanvas.height = height;
     const tempCtx = tempCanvas.getContext('2d');
     if (!tempCtx) {
+      resetOverlay();
       return;
     }
+
     const overlayImage = tempCtx.createImageData(width, height);
     const dst = overlayImage.data;
-
-    for (let i = 0, len = width * height; i < len; i++) {
+    let hasAlpha = false;
+    for (let i = 0, len = alphaBuffer.length; i < len; i++) {
+      const alpha = alphaBuffer[i];
+      if (!alpha) continue;
       const p = i * 4;
-      const r = src[p];
-      const g = src[p + 1];
-      const b = src[p + 2];
-      const max = Math.max(r, g, b);
-      const min = Math.min(r, g, b);
-      const chroma = max - min;
-      if (chroma < MIN_CHROMA) continue;
-
-      let rx = r - min;
-      let gx = g - min;
-      let bx = b - min;
-      const norm = Math.hypot(rx, gx, bx);
-      if (norm <= 1e-6) continue;
-      rx /= norm;
-      gx /= norm;
-      bx /= norm;
-
-      let bestIndex = -1;
-      let bestScore = -Infinity;
-      for (let s = 0; s < SLOT_REFERENCE_VECTORS.length; s++) {
-        const ref = SLOT_REFERENCE_VECTORS[s];
-        const score = rx * ref[0] + gx * ref[1] + bx * ref[2];
-        if (score > bestScore) {
-          bestScore = score;
-          bestIndex = s;
-        }
-      }
-
-      if (!highlightSet.has(bestIndex)) continue;
-
-      const alpha = Math.max(110, Math.min(220, Math.round((chroma / 255) * 255)));
       dst[p + 3] = alpha;
+      hasAlpha = true;
+    }
+
+    if (!hasAlpha) {
+      resetOverlay();
+      return;
     }
 
     tempCtx.putImageData(overlayImage, 0, 0);
     const prevComposite = tempCtx.globalCompositeOperation;
     tempCtx.globalCompositeOperation = 'source-in';
-    tempCtx.fillStyle = 'rgba(255, 0, 0, 0.78)';
+    tempCtx.fillStyle = 'rgba(255, 48, 48, 0.88)';
     tempCtx.fillRect(0, 0, width, height);
     tempCtx.globalCompositeOperation = prevComposite || 'source-over';
 
     ctx.drawImage(tempCanvas, 0, 0);
-  }, [baseCanvasRef, baseImg, busy, highlightSlots, loading, maskCanvasRef, maskImg, outCanvasRef]);
+  }, [baseCanvasRef, baseImg, busy, highlightSlots, loading, maskImg, maskVersion, outCanvasRef]);
 
   const notify = (text) => {
     setToast({ text, t: Date.now() });
