@@ -1,5 +1,11 @@
 {
-  "2025/10/11": ["Update Elderclaw mask"],
+  "2025/10/11": [
+    "Update Elderclaw mask",
+    "Update UI",
+    "Upgrade project to TypeScript",
+    "Improve Settings i18n coverage",
+    "Redesign Settings layout for mobile-first responsiveness"
+  ],
   "2025/10/9": [
     "Added color hover preview behavior",
     "Added Megaraptor, Armadoggo, Deinonychus(with blending mask)",

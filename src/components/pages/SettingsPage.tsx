@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useMemo } from 'react';
-import { Button, Card, Empty, Space, Tabs, Timeline, Typography } from 'antd';
+import { Button, Card, Empty, Grid, Tabs, Timeline, Typography } from 'antd';
 import updateNote from '../../data/updateNote.json';
 import MaskExportSettings from '../MaskExportSettings';
 
@@ -18,6 +18,11 @@ function parseUpdateDate(key) {
 const { Title, Text, Paragraph } = Typography;
 
 export default function SettingsPage({ t, languageOptions, lang, onSelectLanguage }) {
+  const screens = Grid.useBreakpoint();
+  const isMediumUp = Boolean(screens.md);
+  const isLargeUp = Boolean(screens.lg);
+  const tabPosition = isLargeUp ? 'left' : 'top';
+
   const updateLogEntries = useMemo(() => {
     if (!updateNote || typeof updateNote !== 'object') {
       return [];
@@ -36,17 +41,15 @@ export default function SettingsPage({ t, languageOptions, lang, onSelectLanguag
   }, []);
 
   const languageTab = (
-    <Space
-      direction="vertical"
-      size="large"
-      style={{ width: '100%' }}>
-      <Paragraph>{t('language.selectorLabel')}</Paragraph>
-      <Space
-        size="small"
-        wrap>
+    <div className="settings-language">
+      <Paragraph className="settings-language__intro">{t('language.selectorLabel')}</Paragraph>
+      <div className="settings-language__options">
         {languageOptions.map((option) => (
           <Button
             key={option.code}
+            size={isMediumUp ? 'middle' : 'large'}
+            block={!isMediumUp}
+            className="settings-language__button"
             type={lang === option.code ? 'primary' : 'default'}
             onClick={() => onSelectLanguage(option.code)}
             icon={
@@ -63,32 +66,40 @@ export default function SettingsPage({ t, languageOptions, lang, onSelectLanguag
             {option.label}
           </Button>
         ))}
-      </Space>
-    </Space>
+      </div>
+    </div>
   );
 
   const updateTab = updateLogEntries.length ? (
-    <Timeline
-      mode="left"
-      items={updateLogEntries.map((entry) => ({
-        key: entry.dateKey,
-        label: <Text strong>{entry.displayDate}</Text>,
-        children: (
-          <Space
-            direction="vertical"
-            size={4}>
-            {entry.notes.map((note, noteIndex) => (
-              <Text key={`${entry.dateKey}-${noteIndex}`}>- {note}</Text>
-            ))}
-          </Space>
-        ),
-      }))}
-    />
+    <div className="settings-update">
+      <Timeline
+        mode={isMediumUp ? 'left' : 'alternate'}
+        className="settings-update__timeline"
+        items={updateLogEntries.map((entry) => ({
+          key: entry.dateKey,
+          label: <Text strong>{entry.displayDate}</Text>,
+          children: (
+            <div className="settings-update__notes">
+              {entry.notes.map((note, noteIndex) => (
+                <Text key={`${entry.dateKey}-${noteIndex}`}>- {note}</Text>
+              ))}
+            </div>
+          ),
+        }))}
+      />
+    </div>
   ) : (
-    <Empty description={t('settings.updateLogEmpty', { defaultValue: 'No updates yet.' })} />
+    <Empty
+      className="settings-update__empty"
+      description={t('settings.updateLogEmpty', { defaultValue: 'No updates yet.' })}
+    />
   );
 
-  const maskTab = <MaskExportSettings t={t} />;
+  const maskTab = (
+    <div className="settings-mask">
+      <MaskExportSettings t={t} />
+    </div>
+  );
 
   const tabItems = [
     {
@@ -110,24 +121,27 @@ export default function SettingsPage({ t, languageOptions, lang, onSelectLanguag
 
   return (
     <div className="container container--single">
-      <Card
-        bordered={false}
-        style={{ background: 'transparent' }}>
-        <Space
-          direction="vertical"
-          size="large"
-          style={{ width: '100%' }}>
-          <Title
-            level={3}
-            style={{ margin: 0 }}>
+      <section className="settings-page">
+        <header className="settings-page__header">
+          <Title level={3} className="settings-page__title">
             {t('settings.title', { defaultValue: 'Settings' })}
           </Title>
+          <Text type="secondary" className="settings-page__subtitle">
+            {t('settings.subtitle', { defaultValue: 'Adjust the experience and review recent changes.' })}
+          </Text>
+        </header>
+
+        <Card
+          bordered={false}
+          className="settings-page__card">
           <Tabs
-            tabPosition="left"
+            className="settings-page__tabs"
+            tabPosition={tabPosition}
+            tabBarGutter={isLargeUp ? 20 : 12}
             items={tabItems}
           />
-        </Space>
-      </Card>
+        </Card>
+      </section>
     </div>
   );
 }

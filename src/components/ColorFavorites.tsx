@@ -3,6 +3,7 @@ import { DndContext, PointerSensor, closestCenter, useSensor, useSensors } from 
 import { SortableContext, arrayMove, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Tooltip, Typography } from 'antd';
+import { useI18n } from '../i18n';
 
 const { Text } = Typography;
 
@@ -12,6 +13,7 @@ function normalizeColor(value) {
 }
 
 export default function ColorFavorites({ label, colors = [], onSelect, onRemove, onReorder }) {
+  const { t } = useI18n();
   const items = colors.map((color, index) => ({ id: `${color}-${index}`, color: normalizeColor(color) }));
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -41,6 +43,7 @@ export default function ColorFavorites({ label, colors = [], onSelect, onRemove,
           color={item.color}
           onSelect={() => onSelect?.(item.color)}
           onRemove={() => onRemove?.(item.color)}
+          t={t}
         />
       ))}
     </div>
@@ -50,7 +53,7 @@ export default function ColorFavorites({ label, colors = [], onSelect, onRemove,
     <div className="color-favorites">
       {label ? <div className="color-favorites__label small subtle">{label}</div> : null}
       {items.length === 0 ? (
-        <div className="color-favorites__empty small subtle">X</div>
+        <div className="color-favorites__empty small subtle">{t('colorFavorites.empty')}</div>
       ) : canReorder ? (
         <DndContext
           sensors={sensors}
@@ -69,7 +72,7 @@ export default function ColorFavorites({ label, colors = [], onSelect, onRemove,
   );
 }
 
-function SortableColorSwatch({ id, color, disabled, onSelect, onRemove }) {
+function SortableColorSwatch({ id, color, disabled, onSelect, onRemove, t }) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
     id,
     disabled,
@@ -113,7 +116,7 @@ function SortableColorSwatch({ id, color, disabled, onSelect, onRemove }) {
           style={{ backgroundColor: color }}
           ref={setActivatorNodeRef}
           disabled={disabled}
-          aria-label="Reorder favorite color"
+          aria-label={t('colorFavorites.reorderAria')}
         />
       </Tooltip>
       <button
@@ -123,7 +126,8 @@ function SortableColorSwatch({ id, color, disabled, onSelect, onRemove }) {
           stopPropagation(event);
           onRemove?.();
         }}
-        aria-label="Remove favorite color">
+        aria-label={t('colorFavorites.removeAria')}
+        title={t('colorFavorites.removeAria')}>
         X
       </button>
     </div>

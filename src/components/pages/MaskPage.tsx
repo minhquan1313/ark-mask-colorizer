@@ -76,7 +76,7 @@ export default function MaskPage({
         <div
           className="title"
           style={{ textAlign: 'center', fontWeight: 800 }}>
-          ARK Mask Colorizer
+          {t('app.title', { defaultValue: 'ARK Mask Colorizer' })}
         </div>
         <div style={{ textAlign: 'center', marginTop: 4, marginBottom: 8, color: 'var(--muted)' }}>{creatureName}</div>
 
