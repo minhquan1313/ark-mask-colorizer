@@ -4,47 +4,6 @@ import { DEFAULTS } from '../config/defaults.js';
 import { useI18n } from '../i18n/index.js';
 import { STORAGE_KEYS, loadJSON, saveJSON } from '../utils/storage.js';
 import { useMaskSettings } from '../context/MaskSettingsContext.jsx';
-import ColorFavorites from './ColorFavorites.jsx';
-
-const MAX_COLOR_FAVORITES = 6;
-
-const HEX_COLOR_REGEX = /^#[0-9a-f]{6}$/i;
-
-function normalizeHexColor(value) {
-  if (typeof value !== 'string') return null;
-  const trimmed = value.trim();
-  if (!HEX_COLOR_REGEX.test(trimmed)) return null;
-  return trimmed.toUpperCase();
-}
-
-function upsertColorFavorite(list, color) {
-  const normalized = normalizeHexColor(color);
-  if (!normalized) return list;
-  const filtered = Array.isArray(list) ? list.filter((item) => item !== normalized) : [];
-  filtered.unshift(normalized);
-  return filtered.slice(0, MAX_COLOR_FAVORITES);
-}
-
-function sanitizeColorFavorites(list) {
-  if (!Array.isArray(list)) return [];
-  const seen = new Set();
-  const result = [];
-  for (const value of list) {
-    const normalized = normalizeHexColor(value);
-    if (normalized && !seen.has(normalized)) {
-      result.push(normalized);
-      seen.add(normalized);
-    }
-    if (result.length >= MAX_COLOR_FAVORITES) break;
-  }
-  return result;
-}
-
-function colorFavoritesEqual(a, b) {
-  if (a === b) return true;
-  if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
-  return a.every((value, index) => value === b[index]);
-}
 
 export default function Toolbar({ onReset, onDownloadImage, onDownloadWithPalette, downloadingType = null, onCustomFiles }) {
   const { t } = useI18n();
@@ -81,18 +40,9 @@ export default function Toolbar({ onReset, onDownloadImage, onDownloadWithPalett
     setColorMixBoost,
     overlayTint,
     setOverlayTint,
-    exportBg,
-    setExportBg,
-    exportText,
-    setExportText,
   } = useMaskSettings();
-  const [bgFavorites, setBgFavorites] = useState(() => sanitizeColorFavorites(loadJSON(STORAGE_KEYS.exportBgFavorites, [])));
-  const [textFavorites, setTextFavorites] = useState(() => sanitizeColorFavorites(loadJSON(STORAGE_KEYS.exportTextFavorites, [])));
 
   const fileRef = useRef(null);
-  const isTransparent = exportBg === 'transparent';
-  const lastSolidBgRef = useRef(isTransparent ? DEFAULTS.exportBg : exportBg);
-  const bgInputValue = isTransparent ? lastSolidBgRef.current || DEFAULTS.exportBg : exportBg;
   const [, setOverlayBlendMode] = useState(() => {
     const v = loadJSON(STORAGE_KEYS.overlayBlendMode, DEFAULTS.overlayBlendMode);
     return v === 'pastel' ? 'add' : v;
@@ -105,87 +55,6 @@ export default function Toolbar({ onReset, onDownloadImage, onDownloadWithPalett
     window.addEventListener('overlay-blend-mode-changed', onChanged);
     return () => window.removeEventListener('overlay-blend-mode-changed', onChanged);
   }, []);
-
-  useEffect(() => {
-    if (!isTransparent && typeof exportBg === 'string' && exportBg.startsWith('#') && exportBg.length === 7) {
-      lastSolidBgRef.current = exportBg;
-    }
-  }, [exportBg, isTransparent]);
-
-  const handleExportBgChange = (value) => {
-    setExportBg(value);
-  };
-
-  const handleTransparentBg = () => {
-    if (!isTransparent && typeof exportBg === 'string' && exportBg.startsWith('#') && exportBg.length === 7) {
-      lastSolidBgRef.current = exportBg;
-    }
-    setExportBg('transparent');
-  };
-
-  const updateBgFavorites = useCallback((updater) => {
-    setBgFavorites((prev) => {
-      const next = sanitizeColorFavorites(typeof updater === 'function' ? updater(prev) : updater);
-      if (colorFavoritesEqual(prev, next)) return prev;
-      saveJSON(STORAGE_KEYS.exportBgFavorites, next);
-      return next;
-    });
-  }, []);
-
-  const updateTextFavorites = useCallback((updater) => {
-    setTextFavorites((prev) => {
-      const next = sanitizeColorFavorites(typeof updater === 'function' ? updater(prev) : updater);
-      if (colorFavoritesEqual(prev, next)) return prev;
-      saveJSON(STORAGE_KEYS.exportTextFavorites, next);
-      return next;
-    });
-  }, []);
-
-  const handleBgBlur = useCallback((event) => {
-    const normalized = normalizeHexColor(event?.target?.value);
-    if (!normalized) return;
-    updateBgFavorites((prev) => upsertColorFavorite(prev, normalized));
-  }, [updateBgFavorites]);
-
-  const handleTextBlur = useCallback((event) => {
-    const normalized = normalizeHexColor(event?.target?.value);
-    if (!normalized) return;
-    updateTextFavorites((prev) => upsertColorFavorite(prev, normalized));
-  }, [updateTextFavorites]);
-
-  const handleBgFavoriteSelect = useCallback((color) => {
-    const normalized = normalizeHexColor(color);
-    if (!normalized) return;
-    setExportBg(normalized);
-    updateBgFavorites((prev) => upsertColorFavorite(prev, normalized));
-  }, [setExportBg, updateBgFavorites]);
-
-  const handleTextFavoriteSelect = useCallback((color) => {
-    const normalized = normalizeHexColor(color);
-    if (!normalized) return;
-    setExportText(normalized);
-    updateTextFavorites((prev) => upsertColorFavorite(prev, normalized));
-  }, [setExportText, updateTextFavorites]);
-
-  const handleBgFavoriteRemove = useCallback((color) => {
-    const normalized = normalizeHexColor(color);
-    if (!normalized) return;
-    updateBgFavorites((prev) => prev.filter((value) => value !== normalized));
-  }, [updateBgFavorites]);
-
-  const handleTextFavoriteRemove = useCallback((color) => {
-    const normalized = normalizeHexColor(color);
-    if (!normalized) return;
-    updateTextFavorites((prev) => prev.filter((value) => value !== normalized));
-  }, [updateTextFavorites]);
-
-  const handleBgFavoritesReordered = useCallback((next) => {
-    updateBgFavorites(next);
-  }, [updateBgFavorites]);
-
-  const handleTextFavoritesReordered = useCallback((next) => {
-    updateTextFavorites(next);
-  }, [updateTextFavorites]);
 
   const toggleOverlayBlend = () => {
     setOverlayBlendMode('add');
@@ -467,54 +336,6 @@ export default function Toolbar({ onReset, onDownloadImage, onDownloadWithPalett
           </div>
         )}
 
-        <div className="mask-toolbar__colors">
-          <span className="mask-toolbar__slider-label">{t('toolbar.export')}</span>
-          <div className="mask-toolbar__color-row">
-            <div className="mask-toolbar__color-field">
-              <span className="small subtle">{t('toolbar.bg')}</span>
-              <div className="mask-toolbar__color-picker">
-                <input
-                  type="color"
-                  value={bgInputValue}
-                  onChange={(e) => handleExportBgChange(e.target.value)}
-                  onBlur={handleBgBlur}
-                />
-                <button
-                  type="button"
-                  className={`mask-toolbar__color-clear${isTransparent ? ' is-active' : ''}`}
-                  aria-label={t('toolbar.transparentTitle')}
-                  onClick={handleTransparentBg}>
-                  <span aria-hidden>X</span>
-                </button>
-              </div>
-            </div>
-            <div className="mask-toolbar__color-field">
-              <span className="small subtle">{t('toolbar.text')}</span>
-              <div className="mask-toolbar__color-picker mask-toolbar__color-picker--plain">
-                <input
-                  type="color"
-                  value={exportText}
-                  onChange={(e) => setExportText(e.target.value)}
-                  onBlur={handleTextBlur}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        <ColorFavorites
-          label={t('toolbar.bgFavorites', { defaultValue: 'Background favorites' })}
-          colors={bgFavorites}
-          onSelect={handleBgFavoriteSelect}
-          onRemove={handleBgFavoriteRemove}
-          onReorder={handleBgFavoritesReordered}
-        />
-        <ColorFavorites
-          label={t('toolbar.textFavorites', { defaultValue: 'Text favorites' })}
-          colors={textFavorites}
-          onSelect={handleTextFavoriteSelect}
-          onRemove={handleTextFavoriteRemove}
-          onReorder={handleTextFavoritesReordered}
-        />
       </div>
 
       <div className="mask-toolbar__actions">

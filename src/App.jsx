@@ -17,7 +17,8 @@ import { ARK_PALETTE } from './utils/arkPalette.js';
 import { STORAGE_KEYS, loadJSON, saveJSON } from './utils/storage.js';
 import { hexToRgb, relLuminance } from './utils/contrast.js';
 import { idToEntry, buildVariantKey, buildSlotsColorSignature, normalizeFavoriteIds } from './utils/slotUtils.js';
-import { MaskIcon, LibraryIcon, SettingsIcon } from './components/icons/NavIcons.jsx';
+import { MaskIcon, LibraryIcon, SettingsIcon, ExtractorIcon } from './components/icons/NavIcons.jsx';
+import ExtractorPage from './components/pages/ExtractorPage.jsx';
 
 const QIDX_BP = 0; // Blueprint'...'
 const QIDX_BASE = 2; // "103,53,0,0,100,105,0,0"
@@ -515,6 +516,7 @@ export default function App() {
   const navItems = useMemo(
     () => [
       { id: 'mask', to: '/mask', end: true, label: t('nav.mask', { defaultValue: 'Mask' }), icon: <MaskIcon /> },
+      { id: 'extractor', to: '/extractor', label: t('nav.extractor', { defaultValue: 'Extractor' }), icon: <ExtractorIcon /> },
       { id: 'library', to: '/library', label: t('nav.library', { defaultValue: 'Library' }), icon: <LibraryIcon /> },
       { id: 'settings', to: '/settings', label: t('nav.settings', { defaultValue: 'Settings' }), icon: <SettingsIcon /> },
     ],
@@ -604,6 +606,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Navigate to="/mask" replace />} />
             <Route path="/mask" element={maskPageElement} />
+            <Route path="/extractor" element={<ExtractorPage t={t} />} />
             <Route path="/library" element={<LibraryPage t={t} />} />
             <Route path="/settings" element={settingsPageElement} />
             <Route path="*" element={<Navigate to="/mask" replace />} />

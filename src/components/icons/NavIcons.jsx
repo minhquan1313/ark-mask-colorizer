@@ -52,3 +52,22 @@ export function SettingsIcon() {
     </svg>
   );
 }
+
+export function ExtractorIcon() {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round">
+      <path d="M8 3h8" />
+      <path d="M10 3v6.5a4 4 0 0 1-.8 2.4l-3.4 4.7a2 2 0 0 0 1.6 3.2h9.2a2 2 0 0 0 1.6-3.2l-3.4-4.7a4 4 0 0 1-.8-2.4V3" />
+      <path d="M9 14h6" />
+      <path d="M10.5 17h3" />
+    </svg>
+  );
+}

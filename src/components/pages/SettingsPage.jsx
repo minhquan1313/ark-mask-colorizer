@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import updateNote from '../../data/updateNote.json';
+import MaskExportSettings from '../MaskExportSettings.jsx';
 
 function parseUpdateDate(key) {
   if (!key) return null;
@@ -30,54 +31,100 @@ export default function SettingsPage({ t, languageOptions, lang, onSelectLanguag
       .sort((a, b) => (b.sortValue ?? 0) - (a.sortValue ?? 0));
   }, []);
 
+  const tabs = useMemo(
+    () => [
+      { id: 'language', label: t('settings.tabs.language', { defaultValue: 'Language' }) },
+      { id: 'update', label: t('settings.tabs.update', { defaultValue: 'Updates' }) },
+      { id: 'mask', label: t('settings.tabs.mask', { defaultValue: 'Mask' }) },
+    ],
+    [t]
+  );
+  const [activeTab, setActiveTab] = useState('language');
+
+  const languageSection = (
+    <div className="settings-section">
+      <div className="settings-section__header">{t('language.selectorLabel')}</div>
+      <div className="language-switch">
+        <div className="language-switch__options">
+          {languageOptions.map((option) => (
+            <button
+              key={option.code}
+              type="button"
+              onClick={() => onSelectLanguage(option.code)}
+              aria-pressed={lang === option.code}
+              className="btn language-switch__button">
+              {option.flag && (
+                <img
+                  src={option.flag}
+                  alt={`${option.label} flag`}
+                  width={20}
+                  height={14}
+                  style={{ borderRadius: 4 }}
+                />
+              )}
+              <span>{option.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const updateSection = (
+    <div className="settings-section">
+      <div className="settings-section__header">{t('settings.updateLogTitle', { defaultValue: 'Update log' })}</div>
+      {updateLogEntries.length ? (
+        <div className="update-log">
+          {updateLogEntries.map((entry) => (
+            <article className="update-card" key={entry.dateKey}>
+              <div className="update-card__date">{entry.displayDate}</div>
+              <ul>
+                {entry.notes.map((note, noteIndex) => (
+                  <li key={`${entry.dateKey}-${noteIndex}`}>{note}</li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div className="subtle small">{t('settings.updateLogEmpty', { defaultValue: 'No updates yet.' })}</div>
+      )}
+    </div>
+  );
+
+  const maskSection = (
+    <div className="settings-section settings-section--mask">
+      <div className="settings-section__header">{t('settings.maskTabTitle', { defaultValue: 'Mask export' })}</div>
+      <MaskExportSettings t={t} />
+    </div>
+  );
+
+  const activeContent = activeTab === 'language' ? languageSection : activeTab === 'update' ? updateSection : maskSection;
+
   return (
     <div className="container container--single">
       <section className="panel settings-panel">
         <div className="title">{t('settings.title', { defaultValue: 'Settings' })}</div>
-        <div className="settings-section">
-          <div className="settings-section__header">{t('language.selectorLabel')}</div>
-          <div className="language-switch">
-            <div className="language-switch__options">
-              {languageOptions.map((option) => (
+        <div className="settings-tabs">
+          <div className="settings-tabs__nav" role="tablist" aria-orientation="vertical">
+            {tabs.map((tab) => {
+              const isActive = tab.id === activeTab;
+              return (
                 <button
-                  key={option.code}
+                  key={tab.id}
                   type="button"
-                  onClick={() => onSelectLanguage(option.code)}
-                  aria-pressed={lang === option.code}
-                  className="btn language-switch__button">
-                  {option.flag && (
-                    <img
-                      src={option.flag}
-                      alt={`${option.label} flag`}
-                      width={20}
-                      height={14}
-                      style={{ borderRadius: 4 }}
-                    />
-                  )}
-                  <span>{option.label}</span>
+                  role="tab"
+                  aria-selected={isActive}
+                  className={`settings-tabs__trigger${isActive ? ' is-active' : ''}`}
+                  onClick={() => setActiveTab(tab.id)}>
+                  {tab.label}
                 </button>
-              ))}
-            </div>
+              );
+            })}
           </div>
-        </div>
-        <div className="settings-section">
-          <div className="settings-section__header">{t('settings.updateLogTitle', { defaultValue: 'Update log' })}</div>
-          {updateLogEntries.length ? (
-            <div className="update-log">
-              {updateLogEntries.map((entry) => (
-                <article className="update-card" key={entry.dateKey}>
-                  <div className="update-card__date">{entry.displayDate}</div>
-                  <ul>
-                    {entry.notes.map((note, noteIndex) => (
-                      <li key={`${entry.dateKey}-${noteIndex}`}>{note}</li>
-                    ))}
-                  </ul>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <div className="subtle small">{t('settings.updateLogEmpty', { defaultValue: 'No updates yet.' })}</div>
-          )}
+          <div className="settings-tabs__content" role="tabpanel">
+            {activeContent}
+          </div>
         </div>
       </section>
     </div>
