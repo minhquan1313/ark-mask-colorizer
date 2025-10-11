@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Button } from 'antd';
 import { useI18n } from '../i18n/index.js';
 import { ARK_PALETTE } from '../utils/arkPalette';
 import { hexToRgb, relLuminance } from '../utils/color';
@@ -164,8 +165,10 @@ export default function SlotPicker({ slotIndex, value, onChange, disabled = fals
           readOnly={disabled || window.innerWidth < 900}
           style={inputStyle}
         />
-        <button
-          type="button"
+        <Button
+          type="text"
+          shape="circle"
+          size="small"
           className="slot-picker__clear"
           onClick={() => {
             if (!disabled) {
@@ -180,7 +183,7 @@ export default function SlotPicker({ slotIndex, value, onChange, disabled = fals
           title={disabled ? t('slotPicker.noMask') : t('slotPicker.clear')}
           disabled={disabled}>
           <span aria-hidden>X</span>
-        </button>
+        </Button>
       </div>
 
       {open && !disabled && (

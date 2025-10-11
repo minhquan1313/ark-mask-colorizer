@@ -1,23 +1,9 @@
+import { Button, Space } from 'antd';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useI18n } from '../i18n/index.js';
 import SlotPicker from './SlotPicker.jsx';
 
-export default function SlotControls({
-  slots,
-  disabledSet,
-  slotLinks = {},
-  onPickSlot,
-  onRandomAll,
-  onResetSlots,
-  extraActions,
-  onPasteCmd,
-  onCopyCmd,
-  favorites = [],
-  onToggleFavorite,
-  onResetFavorites,
-  onReorderFavorites,
-  onHighlightSlotsChange,
-}) {
+export default function SlotControls({ slots, disabledSet, slotLinks = {}, onPickSlot, onRandomAll, onResetSlots, extraActions, onPasteCmd, onCopyCmd, favorites = [], onToggleFavorite, onResetFavorites, onReorderFavorites, onHighlightSlotsChange }) {
   const { t } = useI18n();
   const [copied, setCopied] = useState(false);
   const [copyErr, setCopyErr] = useState(false);
@@ -57,10 +43,7 @@ export default function SlotControls({
 
   useEffect(() => {
     if (typeof onHighlightSlotsChange !== 'function') return;
-    const arr =
-      hoveredSlot != null && Number.isInteger(hoveredSlot) && hoveredSlot >= 0 && hoveredSlot <= 5
-        ? [Number(hoveredSlot)]
-        : [];
+    const arr = hoveredSlot != null && Number.isInteger(hoveredSlot) && hoveredSlot >= 0 && hoveredSlot <= 5 ? [Number(hoveredSlot)] : [];
     const sig = arr.join(',');
     if (sig === highlightSigRef.current) return;
     highlightSigRef.current = sig;
@@ -82,9 +65,7 @@ export default function SlotControls({
             onReorderFavorites={onReorderFavorites}
             onChange={(v) => onPickSlot(i, v)}
             highlighted={highlightSet.has(i)}
-            onHoverChange={(isHovering) =>
-              setHoveredSlot((prev) => (isHovering ? i : prev === i ? null : prev))
-            }
+            onHoverChange={(isHovering) => setHoveredSlot((prev) => (isHovering ? i : prev === i ? null : prev))}
             onOpenChange={(isOpen) => {
               setOpenSlot((prev) => {
                 if (isOpen) return i;
@@ -94,26 +75,35 @@ export default function SlotControls({
           />
         ))}
       </div>
-      <div className="slot-controls__actions">
-        <button
-          className="btn"
+
+      <Space.Compact
+        block
+        className="slot-controls__actions"
+        style={{
+          flex: 1,
+          width: '100%',
+          justifyContent: 'space-between',
+          overflowX: 'auto',
+        }}>
+        <Button
+          block
           onClick={onRandomAll}>
           {t('slotControls.random')}
-        </button>
-        <button
-          className="btn"
+        </Button>
+        <Button
+          block
           onClick={onResetSlots}>
           {t('slotControls.reset')}
-        </button>
+        </Button>
         {extraActions}
-        <button
-          className="btn"
+        <Button
+          block
           onClick={onPasteCmd}
           title={t('slotControls.pasteTitle')}>
           {t('slotControls.paste')}
-        </button>
-        <button
-          className="btn"
+        </Button>
+        <Button
+          block
           onClick={async () => {
             try {
               setCopyErr(false);
@@ -138,8 +128,8 @@ export default function SlotControls({
           title={t('slotControls.copyTitle')}
           aria-live="polite">
           {copyErr ? t('slotControls.copyFailed') : copied ? t('slotControls.copySuccess') : t('slotControls.copy')}
-        </button>
-      </div>
+        </Button>
+      </Space.Compact>
     </div>
   );
 }

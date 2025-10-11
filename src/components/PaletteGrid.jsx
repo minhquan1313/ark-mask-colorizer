@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react';
+import { Button } from 'antd';
 import { useI18n } from '../i18n/index.js';
 import { DndContext, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, rectSortingStrategy, arrayMove } from '@dnd-kit/sortable';
@@ -155,12 +156,9 @@ export default function PaletteGrid({ onPick, onToggleFavorite, onResetFavorites
           <div
             className="hstack"
             style={{ justifyContent: 'flex-end', marginBottom: 8 }}>
-            <button
-              type="button"
-              className="btn"
-              onClick={handleResetFavorites}>
+            <Button size="small" onClick={handleResetFavorites}>
               {t('paletteGrid.reset')}
-            </button>
+            </Button>
           </div>
           <div
             style={{

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Button, Card, ColorPicker, Divider, Space, Typography } from 'antd';
 import { DEFAULTS } from '../config/defaults.js';
 import { useMaskSettings } from '../context/MaskSettingsContext.jsx';
 import { useI18n } from '../i18n/index.js';
@@ -44,17 +45,15 @@ function colorFavoritesEqual(a, b) {
   return a.every((value, index) => value === b[index]);
 }
 
-export default function MaskExportSettings({ t: overrideT, className }) {
+export default function MaskExportSettings({ t: overrideT }) {
   const { t: i18nT } = useI18n();
   const t = useMemo(() => overrideT ?? i18nT, [overrideT, i18nT]);
   const { exportBg, setExportBg, exportText, setExportText } = useMaskSettings();
 
   const [bgFavorites, setBgFavorites] = useState(() => sanitizeColorFavorites(loadJSON(STORAGE_KEYS.exportBgFavorites, [])));
   const [textFavorites, setTextFavorites] = useState(() => sanitizeColorFavorites(loadJSON(STORAGE_KEYS.exportTextFavorites, [])));
-
   const isTransparent = exportBg === 'transparent';
   const lastSolidBgRef = useRef(isTransparent ? DEFAULTS.exportBg : exportBg);
-  const bgInputValue = isTransparent ? lastSolidBgRef.current || DEFAULTS.exportBg : exportBg;
 
   useEffect(() => {
     if (!isTransparent && typeof exportBg === 'string' && exportBg.startsWith('#') && exportBg.length === 7) {
@@ -80,9 +79,24 @@ export default function MaskExportSettings({ t: overrideT, className }) {
     });
   }, []);
 
-  const handleExportBgChange = useCallback((value) => {
-    setExportBg(value);
-  }, [setExportBg]);
+  const applyBgColor = useCallback(
+    (hex) => {
+      if (!hex) return;
+      lastSolidBgRef.current = hex;
+      setExportBg(hex);
+      updateBgFavorites((prev) => upsertColorFavorite(prev, hex));
+    },
+    [setExportBg, updateBgFavorites]
+  );
+
+  const applyTextColor = useCallback(
+    (hex) => {
+      if (!hex) return;
+      setExportText(hex);
+      updateTextFavorites((prev) => upsertColorFavorite(prev, hex));
+    },
+    [setExportText, updateTextFavorites]
+  );
 
   const handleTransparentBg = useCallback(() => {
     if (!isTransparent && typeof exportBg === 'string' && exportBg.startsWith('#') && exportBg.length === 7) {
@@ -91,31 +105,23 @@ export default function MaskExportSettings({ t: overrideT, className }) {
     setExportBg('transparent');
   }, [exportBg, isTransparent, setExportBg]);
 
-  const handleBgBlur = useCallback((event) => {
-    const normalized = normalizeHexColor(event?.target?.value);
-    if (!normalized) return;
-    updateBgFavorites((prev) => upsertColorFavorite(prev, normalized));
-  }, [updateBgFavorites]);
+  const handleBgFavoriteSelect = useCallback(
+    (color) => {
+      const normalized = normalizeHexColor(color);
+      if (!normalized) return;
+      applyBgColor(normalized);
+    },
+    [applyBgColor]
+  );
 
-  const handleTextBlur = useCallback((event) => {
-    const normalized = normalizeHexColor(event?.target?.value);
-    if (!normalized) return;
-    updateTextFavorites((prev) => upsertColorFavorite(prev, normalized));
-  }, [updateTextFavorites]);
-
-  const handleBgFavoriteSelect = useCallback((color) => {
-    const normalized = normalizeHexColor(color);
-    if (!normalized) return;
-    setExportBg(normalized);
-    updateBgFavorites((prev) => upsertColorFavorite(prev, normalized));
-  }, [setExportBg, updateBgFavorites]);
-
-  const handleTextFavoriteSelect = useCallback((color) => {
-    const normalized = normalizeHexColor(color);
-    if (!normalized) return;
-    setExportText(normalized);
-    updateTextFavorites((prev) => upsertColorFavorite(prev, normalized));
-  }, [setExportText, updateTextFavorites]);
+  const handleTextFavoriteSelect = useCallback(
+    (color) => {
+      const normalized = normalizeHexColor(color);
+      if (!normalized) return;
+      applyTextColor(normalized);
+    },
+    [applyTextColor]
+  );
 
   const handleBgFavoriteRemove = useCallback((color) => {
     const normalized = normalizeHexColor(color);
@@ -137,61 +143,87 @@ export default function MaskExportSettings({ t: overrideT, className }) {
     updateTextFavorites(next);
   }, [updateTextFavorites]);
 
+  const currentBgColor = isTransparent ? lastSolidBgRef.current || DEFAULTS.exportBg : exportBg;
+
   return (
-    <div className={`mask-export-settings${className ? ` ${className}` : ''}`}>
-      <div className="mask-export-settings__header">
-        <div className="mask-export-settings__title">{t('toolbar.export', { defaultValue: 'Export' })}</div>
-        <div className="mask-export-settings__description subtle small">
-          {t('settings.maskExportHint', { defaultValue: 'Choose default export colors and manage quick favorites.' })}
-        </div>
-      </div>
-      <div className="mask-export-settings__inputs">
-        <div className="mask-export-settings__field">
-          <div className="mask-export-settings__label small subtle">{t('toolbar.bg', { defaultValue: 'Background' })}</div>
-          <div className="mask-export-settings__picker">
-            <input
-              type="color"
-              value={bgInputValue}
-              onChange={(event) => handleExportBgChange(event.target.value)}
-              onBlur={handleBgBlur}
-            />
-            <button
-              type="button"
-              className={`mask-export-settings__transparent${isTransparent ? ' is-active' : ''}`}
-              onClick={handleTransparentBg}
-              aria-label={t('toolbar.transparentTitle', { defaultValue: 'Toggle transparent background' })}>
-              {t('settings.transparentToggle', { defaultValue: 'Transparent' })}
-            </button>
-          </div>
-        </div>
-        <div className="mask-export-settings__field">
-          <div className="mask-export-settings__label small subtle">{t('toolbar.text', { defaultValue: 'Text' })}</div>
-          <div className="mask-export-settings__picker">
-            <input
-              type="color"
+    <Card
+      size="small"
+      bordered={false}
+      style={{ background: 'transparent' }}
+      title={
+        <Space direction="vertical" size={0}>
+          <Typography.Title level={4} style={{ margin: 0 }}>
+            {t('settings.maskTabTitle', { defaultValue: 'Mask export' })}
+          </Typography.Title>
+          <Typography.Text type="secondary">
+            {t('settings.maskExportHint', { defaultValue: 'Choose default export colors and manage quick favorites.' })}
+          </Typography.Text>
+        </Space>
+      }>
+      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+        <Space direction="horizontal" wrap size="large">
+          <Space direction="vertical" size="small">
+            <Typography.Text type="secondary">
+              {t('toolbar.bg', { defaultValue: 'Background' })}
+            </Typography.Text>
+            <Space direction="horizontal" size="middle">
+              <ColorPicker
+                value={currentBgColor}
+                onChangeComplete={(color) => {
+                  const hex = color.toHexString().toUpperCase();
+                  applyBgColor(hex);
+                }}
+              />
+              <Button type={isTransparent ? 'primary' : 'default'} onClick={handleTransparentBg}>
+                {t('settings.transparentToggle', { defaultValue: 'Transparent' })}
+              </Button>
+            </Space>
+            <Typography.Text type="secondary">
+              {isTransparent
+                ? t('settings.transparentActive', { defaultValue: 'Transparent background will be used.' })
+                : t('settings.solidActive', { defaultValue: 'Solid background will be used.' })}
+            </Typography.Text>
+          </Space>
+
+          <Space direction="vertical" size="small">
+            <Typography.Text type="secondary">
+              {t('toolbar.text', { defaultValue: 'Text' })}
+            </Typography.Text>
+            <ColorPicker
               value={exportText}
-              onChange={(event) => setExportText(event.target.value)}
-              onBlur={handleTextBlur}
+              onChangeComplete={(color) => {
+                const hex = color.toHexString().toUpperCase();
+                applyTextColor(hex);
+              }}
             />
-          </div>
-        </div>
-      </div>
-      <div className="mask-export-settings__favorites">
-        <ColorFavorites
-          label={t('toolbar.bgFavorites', { defaultValue: 'Background favorites' })}
-          colors={bgFavorites}
-          onSelect={handleBgFavoriteSelect}
-          onRemove={handleBgFavoriteRemove}
-          onReorder={handleBgFavoritesReordered}
-        />
-        <ColorFavorites
-          label={t('toolbar.textFavorites', { defaultValue: 'Text favorites' })}
-          colors={textFavorites}
-          onSelect={handleTextFavoriteSelect}
-          onRemove={handleTextFavoriteRemove}
-          onReorder={handleTextFavoritesReordered}
-        />
-      </div>
-    </div>
+          </Space>
+        </Space>
+
+        <Divider style={{ margin: '12px 0' }} />
+
+        <Card
+          size="small"
+          title={t('toolbar.bgFavorites', { defaultValue: 'Background favorites' })}
+          bodyStyle={{ paddingInline: 0 }}>
+          <ColorFavorites
+            colors={bgFavorites}
+            onSelect={handleBgFavoriteSelect}
+            onRemove={handleBgFavoriteRemove}
+            onReorder={handleBgFavoritesReordered}
+          />
+        </Card>
+        <Card
+          size="small"
+          title={t('toolbar.textFavorites', { defaultValue: 'Text favorites' })}
+          bodyStyle={{ paddingInline: 0 }}>
+          <ColorFavorites
+            colors={textFavorites}
+            onSelect={handleTextFavoriteSelect}
+            onRemove={handleTextFavoriteRemove}
+            onReorder={handleTextFavoritesReordered}
+          />
+        </Card>
+      </Space>
+    </Card>
   );
 }

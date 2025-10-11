@@ -1,24 +1,24 @@
-// src/App.jsx
+﻿// src/App.jsx
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import BottomNav from './components/BottomNav.jsx';
-import MaskPage from './components/pages/MaskPage.jsx';
+import { ExtractorIcon, LibraryIcon, MaskIcon, SettingsIcon } from './components/icons/NavIcons.jsx';
+import ExtractorPage from './components/pages/ExtractorPage.jsx';
 import LibraryPage from './components/pages/LibraryPage.jsx';
+import MaskPage from './components/pages/MaskPage.jsx';
 import SettingsPage from './components/pages/SettingsPage.jsx';
-import { MaskSettingsProvider } from './context/MaskSettingsContext.jsx';
-import useMaskSettingsState from './hooks/useMaskSettingsState.js';
 import { DEFAULTS } from './config/defaults.js';
+import { MaskSettingsProvider } from './context/MaskSettingsContext.jsx';
 import { useCreatures } from './hooks/useCreatures.js';
 import { useImages } from './hooks/useImages.js';
+import useMaskSettingsState from './hooks/useMaskSettingsState.js';
 import { useRecolorWorker } from './hooks/useRecolorWorker.js';
 import { useI18n, useLanguageOptions } from './i18n/index.js';
 import { extractQuoted, extractSpeciesFromBlueprint, normalizeName, parseNumList, sanitizeName } from './utils/arkCmd.js';
 import { ARK_PALETTE } from './utils/arkPalette.js';
-import { STORAGE_KEYS, loadJSON, saveJSON } from './utils/storage.js';
 import { hexToRgb, relLuminance } from './utils/contrast.js';
-import { idToEntry, buildVariantKey, buildSlotsColorSignature, normalizeFavoriteIds } from './utils/slotUtils.js';
-import { MaskIcon, LibraryIcon, SettingsIcon, ExtractorIcon } from './components/icons/NavIcons.jsx';
-import ExtractorPage from './components/pages/ExtractorPage.jsx';
+import { buildSlotsColorSignature, buildVariantKey, idToEntry, normalizeFavoriteIds } from './utils/slotUtils.js';
+import { STORAGE_KEYS, loadJSON, saveJSON } from './utils/storage.js';
 
 const QIDX_BP = 0; // Blueprint'...'
 const QIDX_BASE = 2; // "103,53,0,0,100,105,0,0"
@@ -171,7 +171,7 @@ export default function App() {
           return { ...fallback };
         }
         return value;
-      }),
+      })
     );
   }, [current, customMode, defaultSlotFallback]);
 
@@ -463,26 +463,7 @@ export default function App() {
     setOverlayTint(DEFAULTS.overlayTint);
     setExportBg(DEFAULTS.exportBg);
     setExportText(DEFAULTS.exportText);
-  }, [
-    setThreshold,
-    setStrength,
-    setNeutralStrength,
-    setFeather,
-    setGamma,
-    setKeepLight,
-    setChromaBoost,
-    setChromaCurve,
-    setSpeckleClean,
-    setEdgeSmooth,
-    setBoundaryBlend,
-    setOverlayStrength,
-    setOverlayColorStrength,
-    setOverlayColorMixBoost,
-    setColorMixBoost,
-    setOverlayTint,
-    setExportBg,
-    setExportText,
-  ]);
+  }, [setThreshold, setStrength, setNeutralStrength, setFeather, setGamma, setKeepLight, setChromaBoost, setChromaCurve, setSpeckleClean, setEdgeSmooth, setBoundaryBlend, setOverlayStrength, setOverlayColorStrength, setOverlayColorMixBoost, setColorMixBoost, setOverlayTint, setExportBg, setExportText]);
 
   async function handleCustomFiles(fileList) {
     const baseName = await loadPairFromFiles(fileList);
@@ -515,10 +496,47 @@ export default function App() {
 
   const navItems = useMemo(
     () => [
-      { id: 'mask', to: '/mask', end: true, label: t('nav.mask', { defaultValue: 'Mask' }), icon: <MaskIcon /> },
-      { id: 'extractor', to: '/extractor', label: t('nav.extractor', { defaultValue: 'Extractor' }), icon: <ExtractorIcon /> },
-      { id: 'library', to: '/library', label: t('nav.library', { defaultValue: 'Library' }), icon: <LibraryIcon /> },
-      { id: 'settings', to: '/settings', label: t('nav.settings', { defaultValue: 'Settings' }), icon: <SettingsIcon /> },
+      {
+        id: 'mask',
+        to: '/mask',
+        end: true,
+        label: t('nav.mask', { defaultValue: 'Mask' }),
+        icon: (
+          <span style={{ verticalAlign: 'middle', alignItems: 'center' }}>
+            <MaskIcon style={{ fontSize: 24 }} />
+          </span>
+        ),
+      },
+      {
+        id: 'extractor',
+        to: '/extractor',
+        label: t('nav.extractor', { defaultValue: 'Extractor' }),
+        icon: (
+          <span style={{ verticalAlign: 'middle', alignItems: 'center' }}>
+            <ExtractorIcon style={{ fontSize: 24 }} />
+          </span>
+        ),
+      },
+      {
+        id: 'library',
+        to: '/library',
+        label: t('nav.library', { defaultValue: 'Library' }),
+        icon: (
+          <span style={{ verticalAlign: 'middle', alignItems: 'center' }}>
+            <LibraryIcon style={{ fontSize: 24 }} />
+          </span>
+        ),
+      },
+      {
+        id: 'settings',
+        to: '/settings',
+        label: t('nav.settings', { defaultValue: 'Settings' }),
+        icon: (
+          <span style={{ verticalAlign: 'middle', alignItems: 'center' }}>
+            <SettingsIcon style={{ fontSize: 24 }} />
+          </span>
+        ),
+      },
     ],
     [t]
   );
@@ -604,12 +622,40 @@ export default function App() {
       <div className="app-shell">
         <main className="app-main">
           <Routes>
-            <Route path="/" element={<Navigate to="/mask" replace />} />
-            <Route path="/mask" element={maskPageElement} />
-            <Route path="/extractor" element={<ExtractorPage t={t} />} />
-            <Route path="/library" element={<LibraryPage t={t} />} />
-            <Route path="/settings" element={settingsPageElement} />
-            <Route path="*" element={<Navigate to="/mask" replace />} />
+            <Route
+              path="/"
+              element={
+                <Navigate
+                  to="/mask"
+                  replace
+                />
+              }
+            />
+            <Route
+              path="/mask"
+              element={maskPageElement}
+            />
+            <Route
+              path="/extractor"
+              element={<ExtractorPage t={t} />}
+            />
+            <Route
+              path="/library"
+              element={<LibraryPage t={t} />}
+            />
+            <Route
+              path="/settings"
+              element={settingsPageElement}
+            />
+            <Route
+              path="*"
+              element={
+                <Navigate
+                  to="/mask"
+                  replace
+                />
+              }
+            />
           </Routes>
         </main>
         <BottomNav items={navItems} />
@@ -617,10 +663,3 @@ export default function App() {
     </MaskSettingsProvider>
   );
 }
-
-
-
-
-
-
-

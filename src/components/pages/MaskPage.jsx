@@ -1,3 +1,4 @@
+import { Button } from 'antd';
 import { useCallback, useEffect, useState } from 'react';
 import CanvasView from '../CanvasView.jsx';
 import CreaturePicker from '../CreaturePicker.jsx';
@@ -6,27 +7,7 @@ import Popover from '../Popover.jsx';
 import SlotControls from '../SlotControls.jsx';
 import Toolbar from '../Toolbar.jsx';
 
-export default function MaskPage({
-  t,
-  creatureName,
-  canvas,
-  slots,
-  exportBg,
-  exportText,
-  disabledSet,
-  slotLinks,
-  onPickSlot,
-  onRandomAll,
-  onResetSlots,
-  favoriteColors,
-  onToggleFavorite,
-  onResetFavorites,
-  onReorderFavorites,
-  onPasteCmd,
-  fillControls,
-  creaturePicker,
-  toolbarActions,
-}) {
+export default function MaskPage({ t, creatureName, canvas, slots, exportBg, exportText, disabledSet, slotLinks, onPickSlot, onRandomAll, onResetSlots, favoriteColors, onToggleFavorite, onResetFavorites, onReorderFavorites, onPasteCmd, fillControls, creaturePicker, toolbarActions }) {
   const { baseImg, maskImg, busy, outCanvasRef, baseCanvasRef, maskCanvasRef } = canvas;
   const { isOpen: fillOpen, anchorRef: fillBtnRef, open: openFill, close: closeFill, onPick: onFillPick } = fillControls;
   const { list, currentName, customMode, onSelect: onCreatureSelect } = creaturePicker;
@@ -48,19 +29,7 @@ export default function MaskPage({
         setHighlightSlots((prev) => (prev.length === 0 ? prev : []));
         return;
       }
-      const next = Array.from(
-        new Set(
-          indices
-            .map((value) => Number(value))
-            .filter(
-              (idx) =>
-                Number.isInteger(idx) &&
-                idx >= 0 &&
-                idx <= 5 &&
-                !(disabledSet && typeof disabledSet.has === 'function' && disabledSet.has(idx))
-            )
-        )
-      ).sort((a, b) => a - b);
+      const next = Array.from(new Set(indices.map((value) => Number(value)).filter((idx) => Number.isInteger(idx) && idx >= 0 && idx <= 5 && !(disabledSet && typeof disabledSet.has === 'function' && disabledSet.has(idx))))).sort((a, b) => a - b);
       setHighlightSlots((prev) => {
         if (prev.length === next.length && prev.every((value, index) => value === next[index])) {
           return prev;
@@ -74,7 +43,9 @@ export default function MaskPage({
   return (
     <div className="container page-mask">
       <section className="panel">
-        <div className="title" style={{ textAlign: 'center', fontWeight: 800 }}>
+        <div
+          className="title"
+          style={{ textAlign: 'center', fontWeight: 800 }}>
           ARK Mask Colorizer
         </div>
         <div style={{ textAlign: 'center', marginTop: 4, marginBottom: 8, color: 'var(--muted)' }}>{creatureName}</div>
@@ -109,11 +80,16 @@ export default function MaskPage({
             onHighlightSlotsChange={handleHighlightSlotsChange}
             extraActions={
               <>
-                <button ref={fillBtnRef} className="btn" onClick={openFill}>
+                <Button
+                  block
+                  ref={fillBtnRef}
+                  onClick={openFill}>
                   {t('app.fill')}
-                </button>
+                </Button>
                 {fillOpen && (
-                  <Popover anchorRef={fillBtnRef} onClose={closeFill}>
+                  <Popover
+                    anchorRef={fillBtnRef}
+                    onClose={closeFill}>
                     <div style={{ padding: 10 }}>
                       <PaletteGrid
                         big
@@ -141,7 +117,7 @@ export default function MaskPage({
           customMode={customMode}
           onPick={onCreatureSelect}
         />
-        <div className="toolbar-standalone">
+        <div style={{ marginTop: 0 }}>
           <Toolbar
             onReset={onReset}
             onDownloadImage={onDownloadImage}
@@ -151,8 +127,14 @@ export default function MaskPage({
           />
         </div>
 
-        <canvas ref={baseCanvasRef} style={{ display: 'none' }} />
-        <canvas ref={maskCanvasRef} style={{ display: 'none' }} />
+        <canvas
+          ref={baseCanvasRef}
+          style={{ display: 'none' }}
+        />
+        <canvas
+          ref={maskCanvasRef}
+          style={{ display: 'none' }}
+        />
       </section>
     </div>
   );

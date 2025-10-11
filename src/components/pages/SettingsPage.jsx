@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
+import { Button, Card, Empty, Space, Tabs, Timeline, Typography } from 'antd';
 import updateNote from '../../data/updateNote.json';
 import MaskExportSettings from '../MaskExportSettings.jsx';
 
@@ -12,6 +13,8 @@ function parseUpdateDate(key) {
   }
   return new Date(year, month - 1, day);
 }
+
+const { Title, Text, Paragraph } = Typography;
 
 export default function SettingsPage({ t, languageOptions, lang, onSelectLanguage }) {
   const updateLogEntries = useMemo(() => {
@@ -31,102 +34,84 @@ export default function SettingsPage({ t, languageOptions, lang, onSelectLanguag
       .sort((a, b) => (b.sortValue ?? 0) - (a.sortValue ?? 0));
   }, []);
 
-  const tabs = useMemo(
-    () => [
-      { id: 'language', label: t('settings.tabs.language', { defaultValue: 'Language' }) },
-      { id: 'update', label: t('settings.tabs.update', { defaultValue: 'Updates' }) },
-      { id: 'mask', label: t('settings.tabs.mask', { defaultValue: 'Mask' }) },
-    ],
-    [t]
-  );
-  const [activeTab, setActiveTab] = useState('language');
-
-  const languageSection = (
-    <div className="settings-section">
-      <div className="settings-section__header">{t('language.selectorLabel')}</div>
-      <div className="language-switch">
-        <div className="language-switch__options">
-          {languageOptions.map((option) => (
-            <button
-              key={option.code}
-              type="button"
-              onClick={() => onSelectLanguage(option.code)}
-              aria-pressed={lang === option.code}
-              className="btn language-switch__button">
-              {option.flag && (
+  const languageTab = (
+    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <Paragraph>{t('language.selectorLabel')}</Paragraph>
+      <Space size="small" wrap>
+        {languageOptions.map((option) => (
+          <Button
+            key={option.code}
+            type={lang === option.code ? 'primary' : 'default'}
+            onClick={() => onSelectLanguage(option.code)}
+            icon={
+              option.flag ? (
                 <img
                   src={option.flag}
-                  alt={`${option.label} flag`}
+                  alt=""
                   width={20}
                   height={14}
                   style={{ borderRadius: 4 }}
                 />
-              )}
-              <span>{option.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
+              ) : null
+            }>
+            {option.label}
+          </Button>
+        ))}
+      </Space>
+    </Space>
   );
 
-  const updateSection = (
-    <div className="settings-section">
-      <div className="settings-section__header">{t('settings.updateLogTitle', { defaultValue: 'Update log' })}</div>
-      {updateLogEntries.length ? (
-        <div className="update-log">
-          {updateLogEntries.map((entry) => (
-            <article className="update-card" key={entry.dateKey}>
-              <div className="update-card__date">{entry.displayDate}</div>
-              <ul>
-                {entry.notes.map((note, noteIndex) => (
-                  <li key={`${entry.dateKey}-${noteIndex}`}>{note}</li>
-                ))}
-              </ul>
-            </article>
-          ))}
-        </div>
-      ) : (
-        <div className="subtle small">{t('settings.updateLogEmpty', { defaultValue: 'No updates yet.' })}</div>
-      )}
-    </div>
+  const updateTab = updateLogEntries.length ? (
+    <Timeline
+      mode="left"
+      items={updateLogEntries.map((entry) => ({
+        key: entry.dateKey,
+        label: (
+          <Text strong>{entry.displayDate}</Text>
+        ),
+        children: (
+          <Space direction="vertical" size={4}>
+            {entry.notes.map((note, noteIndex) => (
+              <Text key={`${entry.dateKey}-${noteIndex}`}>- {note}</Text>
+            ))}
+          </Space>
+        ),
+      }))}
+    />
+  ) : (
+    <Empty description={t('settings.updateLogEmpty', { defaultValue: 'No updates yet.' })} />
   );
 
-  const maskSection = (
-    <div className="settings-section settings-section--mask">
-      <div className="settings-section__header">{t('settings.maskTabTitle', { defaultValue: 'Mask export' })}</div>
-      <MaskExportSettings t={t} />
-    </div>
-  );
+  const maskTab = <MaskExportSettings t={t} />;
 
-  const activeContent = activeTab === 'language' ? languageSection : activeTab === 'update' ? updateSection : maskSection;
+  const tabItems = [
+    {
+      key: 'language',
+      label: t('settings.tabs.language', { defaultValue: 'Language' }),
+      children: languageTab,
+    },
+    {
+      key: 'update',
+      label: t('settings.tabs.update', { defaultValue: 'Updates' }),
+      children: updateTab,
+    },
+    {
+      key: 'mask',
+      label: t('settings.tabs.mask', { defaultValue: 'Mask' }),
+      children: maskTab,
+    },
+  ];
 
   return (
     <div className="container container--single">
-      <section className="panel settings-panel">
-        <div className="title">{t('settings.title', { defaultValue: 'Settings' })}</div>
-        <div className="settings-tabs">
-          <div className="settings-tabs__nav" role="tablist" aria-orientation="vertical">
-            {tabs.map((tab) => {
-              const isActive = tab.id === activeTab;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  className={`settings-tabs__trigger${isActive ? ' is-active' : ''}`}
-                  onClick={() => setActiveTab(tab.id)}>
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
-          <div className="settings-tabs__content" role="tabpanel">
-            {activeContent}
-          </div>
-        </div>
-      </section>
+      <Card bordered={false} style={{ background: 'transparent' }}>
+        <Space direction="vertical" size="large" style={{ width: '100%' }}>
+          <Title level={3} style={{ margin: 0 }}>
+            {t('settings.title', { defaultValue: 'Settings' })}
+          </Title>
+          <Tabs tabPosition="left" items={tabItems} />
+        </Space>
+      </Card>
     </div>
   );
 }

@@ -1,9 +1,13 @@
 // src/components/Toolbar.jsx
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { DownloadOutlined, ExperimentOutlined, ReloadOutlined, SlidersOutlined, UploadOutlined } from '@ant-design/icons';
+import { Button, Divider, Slider, Space, Typography } from 'antd';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { DEFAULTS } from '../config/defaults.js';
+import { useMaskSettings } from '../context/MaskSettingsContext.jsx';
 import { useI18n } from '../i18n/index.js';
 import { STORAGE_KEYS, loadJSON, saveJSON } from '../utils/storage.js';
-import { useMaskSettings } from '../context/MaskSettingsContext.jsx';
+
+const { Text } = Typography;
 
 export default function Toolbar({ onReset, onDownloadImage, onDownloadWithPalette, downloadingType = null, onCustomFiles }) {
   const { t } = useI18n();
@@ -250,100 +254,136 @@ export default function Toolbar({ onReset, onDownloadImage, onDownloadWithPalett
         setter: setOverlayTint,
       },
     ],
-    [t, threshold, setThreshold, strength, setStrength, neutralStrength, setNeutralStrength, feather, setFeather, gamma, setGamma, keepLight, setKeepLight, colorMixBoost, setColorMixBoost, chromaBoost, setChromaBoost, chromaCurve, setChromaCurve, speckleClean, setSpeckleClean, edgeSmooth, setEdgeSmooth, boundaryBlend, setBoundaryBlend, overlayStrength, setOverlayStrength, overlayColorStrength, setOverlayColorStrength, overlayColorMixBoost, setOverlayColorMixBoost, overlayTint, setOverlayTint]
-  );
-
-  const IconDownload = ({ size = 14 }) => (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden>
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-      <polyline points="7 10 12 15 17 10" />
-      <line
-        x1="12"
-        y1="15"
-        x2="12"
-        y2="3"
-      />
-    </svg>
+    [
+      t,
+      threshold,
+      setThreshold,
+      strength,
+      setStrength,
+      neutralStrength,
+      setNeutralStrength,
+      feather,
+      setFeather,
+      gamma,
+      setGamma,
+      keepLight,
+      setKeepLight,
+      colorMixBoost,
+      setColorMixBoost,
+      chromaBoost,
+      setChromaBoost,
+      chromaCurve,
+      setChromaCurve,
+      speckleClean,
+      setSpeckleClean,
+      edgeSmooth,
+      setEdgeSmooth,
+      boundaryBlend,
+      setBoundaryBlend,
+      overlayStrength,
+      setOverlayStrength,
+      overlayColorStrength,
+      setOverlayColorStrength,
+      overlayColorMixBoost,
+      setOverlayColorMixBoost,
+      overlayTint,
+      setOverlayTint,
+    ]
   );
 
   const renderSlider = (config) => {
-    const id = `slider-${config.key}`;
-    const handleChange = (event) => {
-      const setter = config.setter;
-      if (typeof setter === 'function') {
-        setter(Number(event.target.value));
-      }
-    };
     const formatted = config.format ? config.format(config.value) : config.value;
     return (
-      <div
+      <Space
         key={config.key}
-        className="mask-toolbar__slider">
-        <label
-          className="mask-toolbar__slider-label"
-          htmlFor={id}>
-          {config.label}
-        </label>
-        <div className="mask-toolbar__slider-control">
-          <input
-            id={id}
-            type="range"
-            min={config.min}
-            max={config.max}
-            step={config.step}
-            value={config.value}
-            onChange={handleChange}
-          />
-          <span className="mask-toolbar__slider-value">{formatted}</span>
-        </div>
-      </div>
+        direction="vertical"
+        size={4}
+        style={{ width: '100%' }}>
+        <Space
+          align="center"
+          style={{ width: '100%', justifyContent: 'space-between' }}>
+          <Text>{config.label}</Text>
+          <Text strong>{formatted}</Text>
+        </Space>
+        <Slider
+          min={config.min}
+          max={config.max}
+          step={config.step}
+          value={config.value}
+          tooltip={{ formatter: config.format }}
+          onChange={(value) => {
+            const setter = config.setter;
+            const numeric = Array.isArray(value) ? value[0] : value;
+            if (typeof setter === 'function') {
+              setter(Number(numeric));
+            }
+          }}
+        />
+      </Space>
     );
   };
 
+  const handleReset = () => {
+    try {
+      typeof setBoundaryBlend === 'function' && setBoundaryBlend(DEFAULTS.boundaryBlend);
+      typeof setOverlayStrength === 'function' && setOverlayStrength(DEFAULTS.overlayStrength);
+      typeof setOverlayColorStrength === 'function' && setOverlayColorStrength(DEFAULTS.overlayColorStrength);
+      typeof setOverlayColorMixBoost === 'function' && setOverlayColorMixBoost(DEFAULTS.overlayColorMixBoost);
+      typeof setColorMixBoost === 'function' && setColorMixBoost(DEFAULTS.colorMixBoost);
+      typeof setOverlayTint === 'function' && setOverlayTint(DEFAULTS.overlayTint);
+    } catch {
+      /* noop */
+    }
+    if (typeof onReset === 'function') onReset();
+  };
+
+  const isDownloadingImage = downloadingType === 'image';
+  const isDownloadingPalette = downloadingType === 'palette';
+
   return (
-    <div className="mask-toolbar">
-      <div className="mask-toolbar__sliders">
-        {!isProduction && (
-          <button
-            type="button"
-            className={`btn mask-toolbar__toggle${devSlidersVisible ? ' is-active' : ''}`}
-            onClick={() => setDevSlidersVisible((prev) => !prev)}
-            aria-pressed={devSlidersVisible}>
-            {devSlidersVisible
-              ? t('toolbar.hideSliders', { defaultValue: 'Hide sliders' })
-              : t('toolbar.showSliders', { defaultValue: 'Show sliders' })}
-          </button>
-        )}
-        {showSliderControls && sliderConfigs.map(renderSlider)}
-        {showSliderControls && (
-          <div className="mask-toolbar__slider mask-toolbar__slider--button">
-            <span className="mask-toolbar__slider-label">{t('toolbar.overlayBlend')}</span>
-            <button
-              className="btn"
-              onClick={toggleOverlayBlend}
-              title={t('toolbar.overlayBlendTitle')}>
-              {t('toolbar.overlayBlendButton')}
-            </button>
-          </div>
-        )}
+    <Space
+      direction="vertical"
+      size="large"
+      style={{ width: '100%' }}>
+      {!isProduction && (
+        <Button
+          icon={<SlidersOutlined />}
+          type={devSlidersVisible ? 'primary' : 'default'}
+          onClick={() => setDevSlidersVisible((prev) => !prev)}>
+          {devSlidersVisible ? t('toolbar.hideSliders', { defaultValue: 'Hide sliders' }) : t('toolbar.showSliders', { defaultValue: 'Show sliders' })}
+        </Button>
+      )}
+      {showSliderControls && (
+        <Space
+          direction="vertical"
+          size="middle"
+          style={{ width: '100%' }}>
+          {sliderConfigs.map(renderSlider)}
+          <Button
+            icon={<ExperimentOutlined />}
+            onClick={toggleOverlayBlend}>
+            {t('toolbar.overlayBlendButton')}
+          </Button>
+        </Space>
+      )}
 
-      </div>
+      {showSliderControls && <Divider style={{ margin: '8px 0' }} />}
 
-      <div className="mask-toolbar__actions">
-        <button
-          className="btn"
+      <Space
+        size="middle"
+        wrap>
+        <Button
+          icon={<UploadOutlined />}
           onClick={() => fileRef.current?.click()}>
           {t('toolbar.customMask')}
-        </button>
+        </Button>
+
+        <Button
+          icon={<ReloadOutlined />}
+          onClick={handleReset}>
+          {t('toolbar.reset')}
+        </Button>
+
         <input
           ref={fileRef}
           type="file"
@@ -356,64 +396,23 @@ export default function Toolbar({ onReset, onDownloadImage, onDownloadWithPalett
             e.target.value = '';
           }}
         />
-        <button
-          className="btn"
-          onClick={() => {
-            try {
-              typeof setBoundaryBlend === 'function' && setBoundaryBlend(DEFAULTS.boundaryBlend);
-              typeof setOverlayStrength === 'function' && setOverlayStrength(DEFAULTS.overlayStrength);
-              typeof setOverlayColorStrength === 'function' && setOverlayColorStrength(DEFAULTS.overlayColorStrength);
-              typeof setOverlayColorMixBoost === 'function' && setOverlayColorMixBoost(DEFAULTS.overlayColorMixBoost);
-              typeof setColorMixBoost === 'function' && setColorMixBoost(DEFAULTS.colorMixBoost);
-              typeof setOverlayTint === 'function' && setOverlayTint(DEFAULTS.overlayTint);
-            } catch {
-              /* noop */
-            }
-            if (typeof onReset === 'function') onReset();
-          }}>
-          {t('toolbar.reset')}
-        </button>
-        <button
-          className="btn"
+        <Button
+          type="primary"
+          icon={<DownloadOutlined />}
           onClick={onDownloadImage}
-          disabled={downloadingType === 'image' || downloadingType === 'palette'}
-          title={t('toolbar.downloadImageTitle')}>
-          {downloadingType === 'image' ? (
-            <span className="mask-toolbar__spinner-label">
-              <span
-                aria-busy
-                className="mask-toolbar__spinner"
-              />
-              {t('toolbar.downloadingImage')}
-            </span>
-          ) : (
-            <span className="mask-toolbar__icon-label">
-              <IconDownload /> {t('toolbar.downloadImage')}
-            </span>
-          )}
-        </button>
-        <button
-          className="btn"
+          loading={isDownloadingImage}
+          disabled={isDownloadingPalette}>
+          {t('toolbar.downloadImage')}
+        </Button>
+        <Button
+          type="primary"
+          icon={<DownloadOutlined />}
           onClick={onDownloadWithPalette}
-          disabled={downloadingType === 'image' || downloadingType === 'palette'}
-          title={t('toolbar.downloadWithPaletteTitle')}>
-          {downloadingType === 'palette' ? (
-            <span className="mask-toolbar__spinner-label">
-              <span
-                aria-busy
-                className="mask-toolbar__spinner"
-              />
-              {t('toolbar.downloadingPalette')}
-            </span>
-          ) : (
-            <span className="mask-toolbar__icon-label">
-              <IconDownload /> {t('toolbar.downloadWithPalette')}
-            </span>
-          )}
-        </button>
-      </div>
-    </div>
+          loading={isDownloadingPalette}
+          disabled={isDownloadingImage}>
+          {t('toolbar.downloadWithPalette')}
+        </Button>
+      </Space>
+    </Space>
   );
 }
-
-
