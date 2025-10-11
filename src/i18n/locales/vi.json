@@ -7,6 +7,7 @@
     }
   },
   "app": {
+    "title": "ARK Mask Colorizer",
     "lastUpdate": "Cap nhat lan cuoi: {{date}}",
     "slotsTitle": "O mau (0 - 5)",
     "fill": "Do mau",
@@ -14,7 +15,13 @@
   },
   "creaturePicker": {
     "label": "Sinh vat",
-    "customOption": "Tuy chinh"
+    "customOption": "Tuy chinh",
+    "pickPlaceholder": "Chon sinh vat"
+  },
+  "colorFavorites": {
+    "empty": "Chua co mau yeu thich.",
+    "reorderAria": "Sap xep mau yeu thich",
+    "removeAria": "Xoa mau yeu thich"
   },
   "slotControls": {
     "random": "Ngau nhien",
@@ -56,6 +63,8 @@
     "overlayBlend": "Che do overlay",
     "overlayBlendTitle": "Overlay blend: Add",
     "overlayBlendButton": "Add",
+    "hideSliders": "An thanh truot",
+    "showSliders": "Hien thanh truot",
     "export": "Xuat",
     "bg": "Nen",
     "text": "Chu",
@@ -67,6 +76,8 @@
     "downloadImage": "Anh",
     "downloadWithPaletteTitle": "Tai anh kem palette",
     "downloadWithPalette": "Anh + Mau",
+    "bgFavorites": "Nen yeu thich",
+    "textFavorites": "Chu yeu thich",
     "downloadingImage": "Anh",
     "downloadingPalette": "Anh + Mau"
   },
@@ -80,14 +91,29 @@
   "nav": {
     "mask": "Mask",
     "library": "Thu vien",
-    "settings": "Cai dat"
+    "settings": "Cai dat",
+    "extractor": "Trich xuat"
+  },
+  "extractor": {
+    "comingSoon": "Cong cu trich xuat se xuat hien tai day."
   },
   "library": {
     "comingSoon": "Thu vien dang duoc xay dung."
   },
   "settings": {
     "title": "Cai dat",
+    "subtitle": "Tuy chinh trai nghiem va xem cac thay doi gan day.",
     "updateLogTitle": "Nhat ky cap nhat",
-    "updateLogEmpty": "Chua co cap nhat nao."
+    "updateLogEmpty": "Chua co cap nhat nao.",
+    "transparentToggle": "Trong suot",
+    "transparentActive": "Se su dung nen trong suot.",
+    "solidActive": "Se su dung nen dac.",
+    "maskTabTitle": "Xuat mask",
+    "maskExportHint": "Chon mau xuat mac dinh va quan ly mau yeu thich nhanh.",
+    "tabs": {
+      "language": "Ngon ngu",
+      "update": "Cap nhat",
+      "mask": "Mask"
+    }
   }
 }

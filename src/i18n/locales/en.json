@@ -7,6 +7,7 @@
     }
   },
   "app": {
+    "title": "ARK Mask Colorizer",
     "lastUpdate": "Last update: {{date}}",
     "slotsTitle": "Slots (0 - 5)",
     "fill": "Fill",
@@ -14,7 +15,13 @@
   },
   "creaturePicker": {
     "label": "Creature",
-    "customOption": "Custom"
+    "customOption": "Custom",
+    "pickPlaceholder": "Select creature"
+  },
+  "colorFavorites": {
+    "empty": "No favorite colors yet.",
+    "reorderAria": "Reorder favorite color",
+    "removeAria": "Remove favorite color"
   },
   "slotControls": {
     "random": "Random",
@@ -56,6 +63,8 @@
     "overlayBlend": "Overlay Blend",
     "overlayBlendTitle": "Overlay blend: Add",
     "overlayBlendButton": "Add",
+    "hideSliders": "Hide sliders",
+    "showSliders": "Show sliders",
     "export": "Export",
     "bg": "BG",
     "text": "Text",
@@ -67,6 +76,8 @@
     "downloadImage": "Pic",
     "downloadWithPaletteTitle": "Download image with palette",
     "downloadWithPalette": "Pic + Colors",
+    "bgFavorites": "Background favorites",
+    "textFavorites": "Text favorites",
     "downloadingImage": "Pic",
     "downloadingPalette": "Pic + Colors"
   },
@@ -80,14 +91,29 @@
   "nav": {
     "mask": "Mask",
     "library": "Library",
-    "settings": "Settings"
+    "settings": "Settings",
+    "extractor": "Extractor"
+  },
+  "extractor": {
+    "comingSoon": "Extractor tools will appear here."
   },
   "library": {
     "comingSoon": "Library page is coming soon."
   },
   "settings": {
     "title": "Settings",
+    "subtitle": "Adjust the experience and review recent changes.",
     "updateLogTitle": "Update log",
-    "updateLogEmpty": "No updates yet."
+    "updateLogEmpty": "No updates yet.",
+    "transparentToggle": "Transparent",
+    "transparentActive": "Transparent background will be used.",
+    "solidActive": "Solid background will be used.",
+    "maskTabTitle": "Mask export",
+    "maskExportHint": "Choose default export colors and manage quick favorites.",
+    "tabs": {
+      "language": "Language",
+      "update": "Updates",
+      "mask": "Mask"
+    }
   }
 }
