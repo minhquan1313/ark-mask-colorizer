@@ -1,5 +1,6 @@
 // src/App.jsx
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import BottomNav from './components/BottomNav.jsx';
 import MaskPage from './components/pages/MaskPage.jsx';
 import LibraryPage from './components/pages/LibraryPage.jsx';
@@ -26,7 +27,8 @@ const QIDX_COLORS = 8; // "76,83,83,0,83,70"
 export default function App() {
   const { t, setLang, lang } = useI18n();
   const languageOptions = useLanguageOptions();
-  const [activePage, setActivePage] = useState('mask');
+  const location = useLocation();
+  const isMaskPage = location.pathname === '/' || location.pathname.startsWith('/mask');
   const baseCanvasRef = useRef(null);
   const maskCanvasRef = useRef(null);
   const outCanvasRef = useRef(null);
@@ -186,33 +188,32 @@ export default function App() {
   }, [customMode, setCurrent]);
 
   useEffect(() => {
-    if (activePage === 'mask') {
-      setMaskRenderNonce((value) => value + 1);
-      const canvas = outCanvasRef.current;
-      const cache = cachedRenderRef.current;
-      if (canvas && cache?.url) {
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          if (cache.width && cache.height && (canvas.width !== cache.width || canvas.height !== cache.height)) {
-            canvas.width = cache.width;
-            canvas.height = cache.height;
-          }
-          const img = new Image();
-          img.onload = () => {
-            try {
-              ctx.clearRect(0, 0, canvas.width, canvas.height);
-              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            } catch {
-              /* ignore draw from cache errors */
-            }
-          };
-          img.src = cache.url;
+    if (!isMaskPage) return undefined;
+
+    setMaskRenderNonce((value) => value + 1);
+    const canvas = outCanvasRef.current;
+    const cache = cachedRenderRef.current;
+    if (canvas && cache?.url) {
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        if (cache.width && cache.height && (canvas.width !== cache.width || canvas.height !== cache.height)) {
+          canvas.width = cache.width;
+          canvas.height = cache.height;
         }
+        const img = new Image();
+        img.onload = () => {
+          try {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          } catch {
+            /* ignore draw from cache errors */
+          }
+        };
+        img.src = cache.url;
       }
     }
     const cleanupCanvas = outCanvasRef.current;
     return () => {
-      if (activePage !== 'mask') return;
       if (!cleanupCanvas || !cleanupCanvas.width || !cleanupCanvas.height) {
         cachedRenderRef.current = { url: null, width: 0, height: 0 };
         return;
@@ -227,11 +228,11 @@ export default function App() {
         cachedRenderRef.current = { url: null, width: 0, height: 0 };
       }
     };
-  }, [activePage]);
+  }, [isMaskPage]);
 
   // V? khi d? c? ?nh
   useEffect(() => {
-    if (activePage !== 'mask') return;
+    if (!isMaskPage) return;
     if (!baseImg || !maskImg) return;
     const args = { baseImg, maskImg, extraMasks, baseCanvasRef, maskCanvasRef, outCanvasRef, slots: slotsRef.current, renderNonce: maskRenderNonce };
     pendingArgsRef.current = args;
@@ -240,7 +241,7 @@ export default function App() {
       draw(pendingArgsRef.current);
       rafRef.current = 0;
     });
-  }, [activePage, maskRenderNonce, baseImg, maskImg, extraMasks, slotsColorSignature, threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, overlayStrength, overlayColorStrength, overlayColorMixBoost, colorMixBoost, overlayTint, draw]);
+  }, [isMaskPage, maskRenderNonce, baseImg, maskImg, extraMasks, slotsColorSignature, threshold, strength, feather, gamma, keepLight, chromaBoost, chromaCurve, speckleClean, edgeSmooth, boundaryBlend, overlayStrength, overlayColorStrength, overlayColorMixBoost, colorMixBoost, overlayTint, draw]);
 
   // ? Luu slots m?i khi d?i (d? an to?n v? init t? storage)
   useEffect(() => {
@@ -513,9 +514,9 @@ export default function App() {
 
   const navItems = useMemo(
     () => [
-      { id: 'mask', label: t('nav.mask', { defaultValue: 'Mask' }), icon: <MaskIcon /> },
-      { id: 'library', label: t('nav.library', { defaultValue: 'Library' }), icon: <LibraryIcon /> },
-      { id: 'settings', label: t('nav.settings', { defaultValue: 'Settings' }), icon: <SettingsIcon /> },
+      { id: 'mask', to: '/mask', end: true, label: t('nav.mask', { defaultValue: 'Mask' }), icon: <MaskIcon /> },
+      { id: 'library', to: '/library', label: t('nav.library', { defaultValue: 'Library' }), icon: <LibraryIcon /> },
+      { id: 'settings', to: '/settings', label: t('nav.settings', { defaultValue: 'Settings' }), icon: <SettingsIcon /> },
     ],
     [t]
   );
@@ -563,7 +564,7 @@ export default function App() {
     onCustomFiles: handleCustomFiles,
   };
 
-  let pageContent = (
+  const maskPageElement = (
     <MaskPage
       t={t}
       creatureName={creatureName}
@@ -587,24 +588,28 @@ export default function App() {
     />
   );
 
-  if (activePage === 'library') {
-    pageContent = <LibraryPage t={t} />;
-  } else if (activePage === 'settings') {
-    pageContent = (
-      <SettingsPage
-        t={t}
-        languageOptions={languageOptions}
-        lang={lang}
-        onSelectLanguage={setLang}
-      />
-    );
-  }
+  const settingsPageElement = (
+    <SettingsPage
+      t={t}
+      languageOptions={languageOptions}
+      lang={lang}
+      onSelectLanguage={setLang}
+    />
+  );
 
   return (
     <MaskSettingsProvider value={maskSettings}>
       <div className="app-shell">
-        <main className="app-main">{pageContent}</main>
-        <BottomNav items={navItems} activeId={activePage} onSelect={setActivePage} />
+        <main className="app-main">
+          <Routes>
+            <Route path="/" element={<Navigate to="/mask" replace />} />
+            <Route path="/mask" element={maskPageElement} />
+            <Route path="/library" element={<LibraryPage t={t} />} />
+            <Route path="/settings" element={settingsPageElement} />
+            <Route path="*" element={<Navigate to="/mask" replace />} />
+          </Routes>
+        </main>
+        <BottomNav items={navItems} />
       </div>
     </MaskSettingsProvider>
   );
