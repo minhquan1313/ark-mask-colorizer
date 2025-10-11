@@ -384,18 +384,6 @@ export default function Toolbar({ onReset, onDownloadImage, onDownloadWithPalett
           {t('toolbar.reset')}
         </Button>
 
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/png"
-          multiple
-          style={{ display: 'none' }}
-          onChange={(e) => {
-            const files = e.target.files;
-            if (files && files.length) onCustomFiles(files);
-            e.target.value = '';
-          }}
-        />
         <Button
           type="primary"
           icon={<DownloadOutlined />}
@@ -403,6 +391,18 @@ export default function Toolbar({ onReset, onDownloadImage, onDownloadWithPalett
           loading={isDownloadingImage}
           disabled={isDownloadingPalette}>
           {t('toolbar.downloadImage')}
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/png"
+            multiple
+            style={{ display: 'none' }}
+            onChange={(e) => {
+              const files = e.target.files;
+              if (files && files.length) onCustomFiles(files);
+              e.target.value = '';
+            }}
+          />
         </Button>
         <Button
           type="primary"
