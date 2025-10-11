@@ -2,35 +2,43 @@ import { Menu } from 'antd';
 import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+const { Item: MenuItem } = Menu;
+
 export default function BottomNav({ items = [] }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const menuData = useMemo(() => {
+  const entries = useMemo(() => {
     return items.filter(Boolean).map((item) => {
       const destination = item.to ?? item.path ?? '#';
       const key = item.id ?? destination;
       return {
+        ...item,
         key,
-        icon: item.icon,
-        label: item.label,
-        onClick: () => navigate(destination),
+        destination,
       };
     });
-  }, [items, navigate]);
+  }, [items]);
 
   const selectedKey = useMemo(() => {
-    const current = menuData.find((entry) => {
-      if (!entry) return false;
-      const item = items.find((itm) => (itm.id ?? itm.to ?? itm.path) === entry.key);
-      if (!item) return false;
-      const destination = item.to ?? item.path;
-      if (!destination) return false;
-      if (destination === '/' && location.pathname === '/') return true;
+    const current = entries.find(({ destination }) => {
+      if (!destination || destination === '#') return false;
+      if (destination === '/' || destination === '') {
+        return location.pathname === '/' || location.pathname === '';
+      }
       return location.pathname.startsWith(destination);
     });
     return current?.key ?? '';
-  }, [items, location.pathname, menuData]);
+  }, [entries, location.pathname]);
+
+  const handleClick = ({ key }) => {
+    const entry = entries.find((item) => item.key === key);
+    if (!entry) return;
+    const { destination } = entry;
+    if (destination && destination !== '#') {
+      navigate(destination);
+    }
+  };
 
   return (
     <nav
@@ -39,10 +47,20 @@ export default function BottomNav({ items = [] }) {
       <Menu
         mode="horizontal"
         selectedKeys={selectedKey ? [selectedKey] : []}
-        items={menuData}
-        itemType="MenuItemType"
-        className="bottom-nav__menu"
-      />
+        onClick={handleClick}
+        className="bottom-nav__menu">
+        {entries.map(({ key, icon, label }) => (
+          <MenuItem
+            key={key}
+            className="bottom-nav__item"
+            title={label}>
+            <span className="bottom-nav__content">
+              {icon ? <span className="bottom-nav__icon">{icon}</span> : null}
+              <span className="bottom-nav__label">{label}</span>
+            </span>
+          </MenuItem>
+        ))}
+      </Menu>
     </nav>
   );
 }

@@ -501,41 +501,25 @@ export default function App() {
         to: '/mask',
         end: true,
         label: t('nav.mask', { defaultValue: 'Mask' }),
-        icon: (
-          <span style={{ verticalAlign: 'middle', alignItems: 'center' }}>
-            <MaskIcon style={{ fontSize: 24 }} />
-          </span>
-        ),
+        icon: <MaskIcon style={{ fontSize: 24 }} />,
       },
       {
         id: 'extractor',
         to: '/extractor',
         label: t('nav.extractor', { defaultValue: 'Extractor' }),
-        icon: (
-          <span style={{ verticalAlign: 'middle', alignItems: 'center' }}>
-            <ExtractorIcon style={{ fontSize: 24 }} />
-          </span>
-        ),
+        icon: <ExtractorIcon style={{ fontSize: 24 }} />,
       },
       {
         id: 'library',
         to: '/library',
         label: t('nav.library', { defaultValue: 'Library' }),
-        icon: (
-          <span style={{ verticalAlign: 'middle', alignItems: 'center' }}>
-            <LibraryIcon style={{ fontSize: 24 }} />
-          </span>
-        ),
+        icon: <LibraryIcon style={{ fontSize: 24 }} />,
       },
       {
         id: 'settings',
         to: '/settings',
         label: t('nav.settings', { defaultValue: 'Settings' }),
-        icon: (
-          <span style={{ verticalAlign: 'middle', alignItems: 'center' }}>
-            <SettingsIcon style={{ fontSize: 24 }} />
-          </span>
-        ),
+        icon: <SettingsIcon style={{ fontSize: 24 }} />,
       },
     ],
     [t]
