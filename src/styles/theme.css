@@ -52,7 +52,15 @@ body {
   margin: 0;
   background: var(--surface-2);
   color: var(--text);
-  font: 14px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji';
+  font:
+    14px/1.5 system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Helvetica,
+    Arial,
+    'Apple Color Emoji',
+    'Segoe UI Emoji';
   overflow-y: scroll;
   scrollbar-gutter: stable both-edges;
 }
@@ -143,7 +151,9 @@ kbd {
   border-radius: var(--radius-sm);
   padding: 8px 12px;
   cursor: pointer;
-  transition: background var(--transition), transform var(--transition);
+  transition:
+    background var(--transition),
+    transform var(--transition);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 .btn:hover {
@@ -383,9 +393,15 @@ input[type='color'] {
 
 /* Checker background utility (nền caro cho slot null) */
 .checker {
-  background-image: linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(135deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(135deg, transparent 75%, #ccc 75%);
+  background-image:
+    linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(135deg, #ccc 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(135deg, transparent 75%, #ccc 75%);
   background-size: 8px 8px;
-  background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+  background-position:
+    0 0,
+    0 4px,
+    4px -4px,
+    -4px 0px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
 }
@@ -503,7 +519,3 @@ input[type='color'] {
     grid-auto-rows: min-content;
   }
 }
-
-
-
-

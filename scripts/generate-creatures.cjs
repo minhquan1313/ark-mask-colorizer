@@ -298,7 +298,12 @@ function main() {
       const source = Array.isArray(entry.noMask) ? entry.noMask : [];
       if (!source.length) continue;
 
-      const matches = [candidateName && nameKey.includes(candidateName), candidateName && pathKey.includes(candidateName), candidatePath && nameKey.includes(candidatePath), candidatePath && pathKey.includes(candidatePath)].some(Boolean);
+      const matches = [
+        candidateName && nameKey.includes(candidateName),
+        candidateName && pathKey.includes(candidateName),
+        candidatePath && nameKey.includes(candidatePath),
+        candidatePath && pathKey.includes(candidatePath),
+      ].some(Boolean);
 
       if (!matches) continue;
       const score = Math.max(candidateName ? candidateName.length : 0, candidatePath ? candidatePath.length : 0);

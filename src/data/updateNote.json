@@ -1,28 +1,21 @@
 {
-    "2025/10/11": [
-        "Update Elderclaw mask"
-    ],
-    "2025/10/9": [
-        "Added color hover preview behavior",
-        "Added Megaraptor, Armadoggo, Deinonychus(with blending mask)",
-        "Added Elderclaw, Chalk, Ice, Lava Elemental, Rubber Golem, Grendel (Alpha)"
-    ],
-    "2025/10/8": [
-        "Added color background history and favorite colors"
-    ],
-    "2025/9/30": [
-        "Improve UI",
-        "Add navigate bar",
-        "Add language switcher",
-        "Enhance slot picker UX",
-        "Implement sort on creature selection",
-        "Implement dragging favorite colors",
-        "Fixed default color to 36 to regions which has no color on switching creature",
-        "Added blending mask: Bison, Deinotherium, Velo, Arthropluera, Abb Arthropluera, Reaper, Veilwyn",
-        "Added female mask: Bison, Deinotherium"
-    ],
-    "2025/9/24": [
-        "Updated blending mask: Rhyniognatha, Carcha, Drakeling, Rock Drake",
-        "Added female mask: Pyromance"
-    ]
+  "2025/10/11": ["Update Elderclaw mask"],
+  "2025/10/9": [
+    "Added color hover preview behavior",
+    "Added Megaraptor, Armadoggo, Deinonychus(with blending mask)",
+    "Added Elderclaw, Chalk, Ice, Lava Elemental, Rubber Golem, Grendel (Alpha)"
+  ],
+  "2025/10/8": ["Added color background history and favorite colors"],
+  "2025/9/30": [
+    "Improve UI",
+    "Add navigate bar",
+    "Add language switcher",
+    "Enhance slot picker UX",
+    "Implement sort on creature selection",
+    "Implement dragging favorite colors",
+    "Fixed default color to 36 to regions which has no color on switching creature",
+    "Added blending mask: Bison, Deinotherium, Velo, Arthropluera, Abb Arthropluera, Reaper, Veilwyn",
+    "Added female mask: Bison, Deinotherium"
+  ],
+  "2025/9/24": ["Updated blending mask: Rhyniognatha, Carcha, Drakeling, Rock Drake", "Added female mask: Pyromance"]
 }

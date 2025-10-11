@@ -37,7 +37,9 @@
 .bottom-nav .ant-menu-horizontal > .ant-menu-item {
   margin-inline: 4px;
   border-radius: 999px;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
   padding-inline: 0 !important;
   height: auto;
 }
@@ -60,7 +62,9 @@
   gap: 4px;
   padding: 4px 8px;
   border-radius: 999px;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
   color: var(--muted);
 }
 
@@ -205,7 +209,9 @@
   background: transparent;
   color: inherit;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
   cursor: text;
 }
 .slot-picker__input-display::placeholder {
@@ -235,7 +241,9 @@
 }
 
 .slot-picker.is-highlighted .slot-picker__input-display {
-  box-shadow: 0 0 0 3px #ffffff, 0 0 0 6px #0ea5e9;
+  box-shadow:
+    0 0 0 3px #ffffff,
+    0 0 0 6px #0ea5e9;
 }
 
 .slot-picker__input-display::placeholder {
@@ -258,7 +266,9 @@
   place-items: center;
   box-shadow: 0 6px 18px rgba(15, 23, 42, 0.25);
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .slot-picker__clear span {
