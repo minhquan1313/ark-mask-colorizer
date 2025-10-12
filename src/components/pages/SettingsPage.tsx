@@ -136,7 +136,7 @@ export default function SettingsPage({ t, languageOptions, lang, onSelectLanguag
         </header>
 
         <Card
-          bordered={false}
+          variant="borderless"
           className="settings-page__card">
           <Tabs
             className="settings-page__tabs"

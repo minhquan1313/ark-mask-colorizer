@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Card, ColorPicker, Divider, Space, Switch, Typography } from 'antd';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DEFAULTS } from '../config/defaults';
 import { useMaskSettings } from '../context/MaskSettingsContext';
 import { useI18n } from '../i18n';
@@ -161,12 +161,18 @@ export default function MaskExportSettings({ t: overrideT }) {
   return (
     <Card
       size="small"
-      bordered={false}
+      variant="borderless"
       style={{ background: 'transparent' }}
+      styles={{
+        body: {
+          paddingInline: 0,
+        },
+      }}
       title={
         <Space
           direction="vertical"
-          size={0}>
+          size={0}
+          style={{ marginBottom: 16 }}>
           <Typography.Title
             level={4}
             style={{ margin: 0 }}>
@@ -184,7 +190,9 @@ export default function MaskExportSettings({ t: overrideT }) {
         <Card
           size="small"
           className="settings-mask__switch"
-          bodyStyle={{ display: 'grid', gap: 8 }}>
+          styles={{
+            body: { display: 'grid', gap: 8 },
+          }}>
           <Typography.Text strong>{t('settings.unlockAllSlots', { defaultValue: 'Unlock all slots' })}</Typography.Text>
           <Typography.Text type="secondary">
             {t('settings.unlockAllSlotsDescription', {
@@ -196,6 +204,8 @@ export default function MaskExportSettings({ t: overrideT }) {
             onChange={(checked) => setUnlockAllSlots(checked)}
           />
         </Card>
+
+        <Divider style={{ margin: '12px 0' }} />
 
         <Space
           direction="horizontal"
@@ -221,11 +231,6 @@ export default function MaskExportSettings({ t: overrideT }) {
                 {t('settings.transparentToggle', { defaultValue: 'Transparent' })}
               </Button>
             </Space>
-            <Typography.Text type="secondary">
-              {isTransparent
-                ? t('settings.transparentActive', { defaultValue: 'Transparent background will be used.' })
-                : t('settings.solidActive', { defaultValue: 'Solid background will be used.' })}
-            </Typography.Text>
           </Space>
 
           <Space
@@ -242,12 +247,18 @@ export default function MaskExportSettings({ t: overrideT }) {
           </Space>
         </Space>
 
+        <Typography.Text type="secondary">
+          {isTransparent
+            ? t('settings.transparentActive', { defaultValue: 'Transparent background will be used.' })
+            : t('settings.solidActive', { defaultValue: 'Solid background will be used.' })}
+        </Typography.Text>
+
         <Divider style={{ margin: '12px 0' }} />
 
         <Card
           size="small"
           title={t('toolbar.bgFavorites', { defaultValue: 'Background favorites' })}
-          bodyStyle={{ paddingInline: 0 }}>
+          styles={{ body: { paddingInline: 0 } }}>
           <ColorFavorites
             colors={bgFavorites}
             onSelect={handleBgFavoriteSelect}
@@ -258,7 +269,7 @@ export default function MaskExportSettings({ t: overrideT }) {
         <Card
           size="small"
           title={t('toolbar.textFavorites', { defaultValue: 'Text favorites' })}
-          bodyStyle={{ paddingInline: 0 }}>
+          styles={{ body: { paddingInline: 0 } }}>
           <ColorFavorites
             colors={textFavorites}
             onSelect={handleTextFavoriteSelect}

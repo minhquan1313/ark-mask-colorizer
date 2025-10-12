@@ -1,9 +1,7 @@
 import { Menu, type MenuProps } from 'antd';
+import type { JSX, ReactNode } from 'react';
 import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import type { ReactNode } from 'react';
-
-const { Item: MenuItem } = Menu;
 
 export interface BottomNavItem {
   id?: string;
@@ -60,10 +58,10 @@ export default function BottomNav({ items = [] }: BottomNavProps): JSX.Element {
       <Menu
         mode="horizontal"
         selectedKeys={selectedKey ? [selectedKey] : []}
-        onClick={handleClick}
-        className="bottom-nav__menu">
+        className="bottom-nav__menu"
+        onClick={handleClick}>
         {entries.map(({ key, icon, label }) => (
-          <MenuItem
+          <Menu.Item
             key={key}
             className="bottom-nav__item"
             title={typeof label === 'string' ? label : undefined}>
@@ -71,7 +69,7 @@ export default function BottomNav({ items = [] }: BottomNavProps): JSX.Element {
               {icon ? <span className="bottom-nav__icon">{icon}</span> : null}
               <span className="bottom-nav__label">{label}</span>
             </span>
-          </MenuItem>
+          </Menu.Item>
         ))}
       </Menu>
     </nav>

@@ -1,5 +1,5 @@
 {
-  "2025/10/12": ["Added unlock all slots region"],
+  "2025/10/12": ["Added unlock all slots region", "Fixed image not loading for creature has no mask", "Changed settings order"],
   "2025/10/11": [
     "Update Elderclaw mask",
     "Update UI",
