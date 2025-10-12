@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, type PropsWithChildren } from 'react';
+import { createContext, JSX, useContext, type PropsWithChildren } from 'react';
 import type { MaskSettingsStateValue } from '../hooks/useMaskSettingsState';
 
 export const MaskSettingsContext = createContext<MaskSettingsStateValue | null>(null);

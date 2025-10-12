@@ -49,6 +49,8 @@ export interface MaskSettingsStateValue {
   setColorMixBoost: Dispatch<SetStateAction<number>>;
   overlayTint: number;
   setOverlayTint: Dispatch<SetStateAction<number>>;
+  unlockAllSlots: boolean;
+  setUnlockAllSlots: Dispatch<SetStateAction<boolean>>;
   exportBg: string;
   setExportBg: (next: string) => void;
   exportText: string;
@@ -72,6 +74,7 @@ export function useMaskSettingsState(): MaskSettingsStateValue {
   const [overlayColorMixBoost, setOverlayColorMixBoost] = usePersistentValue(STORAGE_KEYS.overlayColorMixBoost, DEFAULTS.overlayColorMixBoost);
   const [colorMixBoost, setColorMixBoost] = usePersistentValue(STORAGE_KEYS.colorMixBoost, DEFAULTS.colorMixBoost);
   const [overlayTint, setOverlayTint] = usePersistentValue(STORAGE_KEYS.overlayTint, DEFAULTS.overlayTint);
+  const [unlockAllSlots, setUnlockAllSlots] = usePersistentValue(STORAGE_KEYS.unlockAllSlots, DEFAULTS.unlockAllSlots);
   const [exportBgRaw, setExportBgRaw] = usePersistentValue(STORAGE_KEYS.exportBg, DEFAULTS.exportBg);
   const [exportText, setExportText] = usePersistentValue(STORAGE_KEYS.exportTx, DEFAULTS.exportText);
 
@@ -117,6 +120,8 @@ export function useMaskSettingsState(): MaskSettingsStateValue {
       setColorMixBoost,
       overlayTint,
       setOverlayTint,
+      unlockAllSlots,
+      setUnlockAllSlots,
       exportBg: exportBgRaw,
       setExportBg,
       exportText,
@@ -138,6 +143,7 @@ export function useMaskSettingsState(): MaskSettingsStateValue {
       overlayColorStrength,
       overlayStrength,
       overlayTint,
+      unlockAllSlots,
       setBoundaryBlend,
       setChromaBoost,
       setChromaCurve,
@@ -153,6 +159,7 @@ export function useMaskSettingsState(): MaskSettingsStateValue {
       setOverlayColorStrength,
       setOverlayStrength,
       setOverlayTint,
+      setUnlockAllSlots,
       setSpeckleClean,
       setStrength,
       setThreshold,

@@ -74,6 +74,7 @@ export default function App() {
     setColorMixBoost,
     overlayTint,
     setOverlayTint,
+    unlockAllSlots,
     exportBg,
     setExportBg,
     exportText,
@@ -91,7 +92,10 @@ export default function App() {
   const [tempCreatureName, setTempCreatureName] = useState(null);
   const [customMode, setCustomMode] = useState(false);
   const creatureName = tempCreatureName ?? (current?.name || '?');
-  const disabledSet = useMemo(() => (customMode ? new Set() : new Set(current?.noMask || [])), [customMode, current]);
+  const disabledSet = useMemo(
+    () => (customMode || unlockAllSlots ? new Set() : new Set(current?.noMask || [])),
+    [customMode, current, unlockAllSlots],
+  );
 
   const { baseImg, maskImg, extraMasks, loadPairFromFiles, loadFromEntry } = useImages();
   const slotLinks = useMemo(() => {
@@ -179,7 +183,7 @@ export default function App() {
 
   // Khi d?i creature ? set null cho c?c slot b? disable
   useEffect(() => {
-    if (!current || customMode) return;
+    if (!current || customMode || unlockAllSlots) return;
     const disabled = new Set(current.noMask || []);
     const fallback = defaultSlotFallback;
     setSlots((prev) =>
@@ -191,7 +195,7 @@ export default function App() {
         return value;
       }),
     );
-  }, [current, customMode, defaultSlotFallback]);
+  }, [current, customMode, defaultSlotFallback, unlockAllSlots]);
 
   // Khi b?t customMode, clear current d? l?n ch?n creature k? ti?p lu?n t?i d?ng ?nh
   useEffect(() => {
@@ -332,7 +336,7 @@ export default function App() {
       // --- 4) M?u 6 slot -> apply (b? qua slot b? noMask)
       const colorIds = parseNumList(quoted[QIDX_COLORS], 6, 6);
       if (colorIds) {
-        const disabled = new Set(current?.noMask || []);
+        const disabled = unlockAllSlots ? new Set() : new Set(current?.noMask || []);
         setSlots(
           Array.from({ length: 6 }, (_, i) => {
             if (disabled.has(i)) return null;

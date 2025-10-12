@@ -114,6 +114,8 @@
       "language": "Language",
       "update": "Updates",
       "mask": "Mask"
-    }
+    },
+    "unlockAllSlots": "Unlock all slots",
+    "unlockAllSlotsDescription": "Allow editing all color slots regardless of creature mask availability."
   }
 }

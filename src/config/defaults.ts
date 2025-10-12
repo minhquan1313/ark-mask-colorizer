@@ -18,6 +18,7 @@ export interface AppDefaults {
   overlayColorMixBoost: number;
   overlayBlendMode: OverlayBlendMode;
   overlayTint: number;
+  unlockAllSlots: boolean;
   slots: Array<number | null>;
   paletteFavorites: number[];
   defaultCreatureName: string;
@@ -53,6 +54,7 @@ export const DEFAULTS: AppDefaults = {
   overlayBlendMode: 'add',
   // Overlay tint factor for white-partner case (0..1)
   overlayTint: 0.25,
+  unlockAllSlots: false,
   slots: [null, null, null, null, null, null],
   paletteFavorites: [1, 2, 3, 4, 5, 6, 36, 79, 68, 187, 203, 245],
   defaultCreatureName: 'Drakeling',

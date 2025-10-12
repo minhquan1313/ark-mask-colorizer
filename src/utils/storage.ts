@@ -31,6 +31,7 @@ export const STORAGE_KEYS = {
   cmdName: `${NS}:cmd:name`,
   cmdBaseStats: `${NS}:cmd:base`,
   cmdIncStats: `${NS}:cmd:inc`,
+  unlockAllSlots: `${NS}:unlockAllSlots`,
 } as const;
 
 export function saveJSON(key: string, data: unknown): void {

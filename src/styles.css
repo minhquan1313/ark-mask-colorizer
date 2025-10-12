@@ -528,3 +528,7 @@
   display: grid;
   gap: 16px;
 }
+
+.settings-mask__switch .ant-switch {
+  justify-self: flex-start;
+}

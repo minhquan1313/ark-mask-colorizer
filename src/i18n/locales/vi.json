@@ -114,6 +114,8 @@
       "language": "Ngon ngu",
       "update": "Cap nhat",
       "mask": "Mask"
-    }
+    },
+    "unlockAllSlots": "Mo khoa tat ca slot",
+    "unlockAllSlotsDescription": "Cho phep chinh sua tat ca slot mau bat chap creature co mask hay khong."
   }
 }

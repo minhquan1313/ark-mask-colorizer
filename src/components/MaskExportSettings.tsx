@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Card, ColorPicker, Divider, Space, Typography } from 'antd';
+import { Button, Card, ColorPicker, Divider, Space, Switch, Typography } from 'antd';
 import { DEFAULTS } from '../config/defaults';
 import { useMaskSettings } from '../context/MaskSettingsContext';
 import { useI18n } from '../i18n';
@@ -49,7 +49,7 @@ function colorFavoritesEqual(a, b) {
 export default function MaskExportSettings({ t: overrideT }) {
   const { t: i18nT } = useI18n();
   const t = useMemo(() => overrideT ?? i18nT, [overrideT, i18nT]);
-  const { exportBg, setExportBg, exportText, setExportText } = useMaskSettings();
+  const { exportBg, setExportBg, exportText, setExportText, unlockAllSlots, setUnlockAllSlots } = useMaskSettings();
 
   const [bgFavorites, setBgFavorites] = useState(() => sanitizeColorFavorites(loadJSON(STORAGE_KEYS.exportBgFavorites, [])));
   const [textFavorites, setTextFavorites] = useState(() => sanitizeColorFavorites(loadJSON(STORAGE_KEYS.exportTextFavorites, [])));
@@ -181,6 +181,22 @@ export default function MaskExportSettings({ t: overrideT }) {
         direction="vertical"
         size="large"
         style={{ width: '100%' }}>
+        <Card
+          size="small"
+          className="settings-mask__switch"
+          bodyStyle={{ display: 'grid', gap: 8 }}>
+          <Typography.Text strong>{t('settings.unlockAllSlots', { defaultValue: 'Unlock all slots' })}</Typography.Text>
+          <Typography.Text type="secondary">
+            {t('settings.unlockAllSlotsDescription', {
+              defaultValue: 'Allow editing all color slots regardless of creature mask availability.',
+            })}
+          </Typography.Text>
+          <Switch
+            checked={unlockAllSlots}
+            onChange={(checked) => setUnlockAllSlots(checked)}
+          />
+        </Card>
+
         <Space
           direction="horizontal"
           wrap

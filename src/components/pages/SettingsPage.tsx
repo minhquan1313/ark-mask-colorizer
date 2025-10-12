@@ -123,10 +123,14 @@ export default function SettingsPage({ t, languageOptions, lang, onSelectLanguag
     <div className="container container--single">
       <section className="settings-page">
         <header className="settings-page__header">
-          <Title level={3} className="settings-page__title">
+          <Title
+            level={3}
+            className="settings-page__title">
             {t('settings.title', { defaultValue: 'Settings' })}
           </Title>
-          <Text type="secondary" className="settings-page__subtitle">
+          <Text
+            type="secondary"
+            className="settings-page__subtitle">
             {t('settings.subtitle', { defaultValue: 'Adjust the experience and review recent changes.' })}
           </Text>
         </header>
