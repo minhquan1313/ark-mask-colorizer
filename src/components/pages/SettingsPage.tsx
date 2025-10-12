@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { useMemo } from 'react';
 import { Button, Card, Empty, Grid, Tabs, Timeline, Typography } from 'antd';
+import { useMemo } from 'react';
 import updateNote from '../../data/updateNote.json';
 import MaskExportSettings from '../MaskExportSettings';
 
@@ -103,6 +103,11 @@ export default function SettingsPage({ t, languageOptions, lang, onSelectLanguag
 
   const tabItems = [
     {
+      key: 'mask',
+      label: t('settings.tabs.mask', { defaultValue: 'Mask' }),
+      children: maskTab,
+    },
+    {
       key: 'language',
       label: t('settings.tabs.language', { defaultValue: 'Language' }),
       children: languageTab,
@@ -111,11 +116,6 @@ export default function SettingsPage({ t, languageOptions, lang, onSelectLanguag
       key: 'update',
       label: t('settings.tabs.update', { defaultValue: 'Updates' }),
       children: updateTab,
-    },
-    {
-      key: 'mask',
-      label: t('settings.tabs.mask', { defaultValue: 'Mask' }),
-      children: maskTab,
     },
   ];
 
