@@ -19,6 +19,7 @@ export default function SlotControls({
   onResetFavorites,
   onReorderFavorites,
   onHighlightSlotsChange,
+  controlsDisabled = false,
 }) {
   const { t } = useI18n();
   const [copied, setCopied] = useState(false);
@@ -74,7 +75,7 @@ export default function SlotControls({
             key={i}
             slotIndex={i}
             value={s}
-            disabled={disabledSet?.has(i)}
+            disabled={controlsDisabled || disabledSet?.has(i)}
             favorites={favorites}
             onToggleFavorite={onToggleFavorite}
             onResetFavorites={onResetFavorites}
@@ -103,23 +104,27 @@ export default function SlotControls({
         }}>
         <Button
           block
+          disabled={controlsDisabled}
           onClick={onRandomAll}>
           {t('slotControls.random')}
         </Button>
         <Button
           block
+          disabled={controlsDisabled}
           onClick={onResetSlots}>
           {t('slotControls.reset')}
         </Button>
-        {extraActions}
+        {!controlsDisabled ? extraActions : null}
         <Button
           block
+          disabled={controlsDisabled}
           onClick={onPasteCmd}
           title={t('slotControls.pasteTitle')}>
           {t('slotControls.paste')}
         </Button>
         <Button
           block
+          disabled={controlsDisabled}
           onClick={async () => {
             try {
               setCopyErr(false);

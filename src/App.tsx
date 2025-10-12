@@ -92,12 +92,25 @@ export default function App() {
   const [tempCreatureName, setTempCreatureName] = useState(null);
   const [customMode, setCustomMode] = useState(false);
   const creatureName = tempCreatureName ?? (current?.name || '?');
-  const disabledSet = useMemo(
-    () => (customMode || unlockAllSlots ? new Set() : new Set(current?.noMask || [])),
-    [customMode, current, unlockAllSlots],
-  );
+  const { baseImg, maskImg, extraMasks, loadPairFromFiles, loadFromEntry, maskAvailable } = useImages();
+  const hasMaskSources = useMemo(() => {
+    if (!current) return false;
+    const maskList = Array.isArray(current.masks) ? current.masks : [];
+    return maskList.some((value) => typeof value === 'string' && value.trim().length > 0);
+  }, [current]);
+  const baseOnlyMode = !maskAvailable && !hasMaskSources;
+  const disabledSet = useMemo(() => {
+    if (customMode) return new Set();
+    if (baseOnlyMode) return new Set([0, 1, 2, 3, 4, 5]);
+    if (unlockAllSlots) return new Set();
+    return new Set(current?.noMask || []);
+  }, [customMode, current, unlockAllSlots, baseOnlyMode]);
 
-  const { baseImg, maskImg, extraMasks, loadPairFromFiles, loadFromEntry } = useImages();
+  useEffect(() => {
+    if (baseOnlyMode && fillOpen) {
+      setFillOpen(false);
+    }
+  }, [baseOnlyMode, fillOpen]);
   const slotLinks = useMemo(() => {
     if (!Array.isArray(extraMasks) || !extraMasks.length) {
       return {};
@@ -183,7 +196,7 @@ export default function App() {
 
   // Khi d?i creature ? set null cho c?c slot b? disable
   useEffect(() => {
-    if (!current || customMode || unlockAllSlots) return;
+    if (!current || customMode || unlockAllSlots || baseOnlyMode) return;
     const disabled = new Set(current.noMask || []);
     const fallback = defaultSlotFallback;
     setSlots((prev) =>
@@ -195,7 +208,7 @@ export default function App() {
         return value;
       }),
     );
-  }, [current, customMode, defaultSlotFallback, unlockAllSlots]);
+  }, [current, customMode, defaultSlotFallback, unlockAllSlots, baseOnlyMode]);
 
   // Khi b?t customMode, clear current d? l?n ch?n creature k? ti?p lu?n t?i d?ng ?nh
   useEffect(() => {
@@ -252,6 +265,37 @@ export default function App() {
       }
     };
   }, [isMaskPage]);
+
+  useEffect(() => {
+    if (!isMaskPage) return;
+    if (!baseOnlyMode) return;
+    if (!baseImg || !baseImg.complete) return;
+    const baseCanvas = baseCanvasRef.current;
+    const maskCanvas = maskCanvasRef.current;
+    const outCanvas = outCanvasRef.current;
+    if (!baseCanvas || !outCanvas) return;
+    const width = baseImg.naturalWidth || baseImg.width || 0;
+    const height = baseImg.naturalHeight || baseImg.height || 0;
+    if (!width || !height) return;
+    baseCanvas.width = width;
+    baseCanvas.height = height;
+    const baseCtx = baseCanvas.getContext('2d', { willReadFrequently: true });
+    if (!baseCtx) return;
+    baseCtx.clearRect(0, 0, width, height);
+    baseCtx.drawImage(baseImg, 0, 0, width, height);
+    if (maskCanvas) {
+      maskCanvas.width = width;
+      maskCanvas.height = height;
+      const maskCtx = maskCanvas.getContext('2d');
+      if (maskCtx) maskCtx.clearRect(0, 0, width, height);
+    }
+    outCanvas.width = width;
+    outCanvas.height = height;
+    const outCtx = outCanvas.getContext('2d');
+    if (!outCtx) return;
+    outCtx.clearRect(0, 0, width, height);
+    outCtx.drawImage(baseCanvas, 0, 0, width, height);
+  }, [isMaskPage, baseImg, baseOnlyMode]);
 
   // V? khi d? c? ?nh
   useEffect(() => {
@@ -336,7 +380,7 @@ export default function App() {
       // --- 4) M?u 6 slot -> apply (b? qua slot b? noMask)
       const colorIds = parseNumList(quoted[QIDX_COLORS], 6, 6);
       if (colorIds) {
-        const disabled = unlockAllSlots ? new Set() : new Set(current?.noMask || []);
+        const disabled = baseOnlyMode ? new Set([0, 1, 2, 3, 4, 5]) : unlockAllSlots ? new Set() : new Set(current?.noMask || []);
         setSlots(
           Array.from({ length: 6 }, (_, i) => {
             if (disabled.has(i)) return null;
@@ -653,6 +697,7 @@ export default function App() {
       fillControls={fillControls}
       creaturePicker={creaturePickerProps}
       toolbarActions={toolbarActions}
+      slotControlsDisabled={baseOnlyMode}
     />
   );
 

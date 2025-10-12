@@ -205,6 +205,7 @@ export interface UseImagesResult {
   extraMasks: ExtraMask[];
   loadPairFromFiles: (fileList: FileList | File[] | null | undefined) => Promise<string | undefined>;
   loadFromEntry: (entry: CreatureEntry | null | undefined, slots?: SlotValue[]) => Promise<void>;
+  maskAvailable: boolean;
 }
 
 export function useImages(): UseImagesResult {
@@ -213,6 +214,7 @@ export function useImages(): UseImagesResult {
   const [extraMasks, setExtraMasks] = useState<ExtraMask[]>([]);
   const loadSeqRef = useRef(0); // race guard
   const lastSignatureRef = useRef<string | null>(null);
+  const [maskAvailable, setMaskAvailable] = useState(false);
 
   const loadPairFromFiles = useCallback<UseImagesResult['loadPairFromFiles']>(async (fileList) => {
     if (!fileList || !fileList.length) return undefined;
@@ -233,6 +235,7 @@ export function useImages(): UseImagesResult {
     // Clear immediately to avoid flashing stale content
     setBaseImg(null);
     setMaskImg(null);
+    setMaskAvailable(false);
     setExtraMasks([]);
 
     const guessFolder = (name: string): string => {
@@ -255,6 +258,7 @@ export function useImages(): UseImagesResult {
     if (loadSeqRef.current !== seq) return undefined; // newer request came; drop
     setBaseImg(b || null);
     setMaskImg(m || null);
+    setMaskAvailable(Boolean(m));
     setExtraMasks([]);
     lastSignatureRef.current = null;
 
@@ -316,6 +320,7 @@ export function useImages(): UseImagesResult {
 
     setBaseImg(null);
     setMaskImg(null);
+    setMaskAvailable(mask0Candidates.length > 0);
     setExtraMasks([]);
 
     const [b, m0, overlays] = await Promise.all([
@@ -328,8 +333,9 @@ export function useImages(): UseImagesResult {
     lastSignatureRef.current = signature || null;
     setBaseImg(b || null);
     setMaskImg(m0 || null);
+    setMaskAvailable(Boolean(m0));
     setExtraMasks((overlays || []).filter((item): item is ExtraMask => Boolean(item)));
   }, []);
 
-  return { baseImg, maskImg, extraMasks, loadPairFromFiles, loadFromEntry };
+  return { baseImg, maskImg, extraMasks, loadPairFromFiles, loadFromEntry, maskAvailable };
 }

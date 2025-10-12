@@ -28,6 +28,7 @@ export default function MaskPage({
   fillControls,
   creaturePicker,
   toolbarActions,
+  slotControlsDisabled = false,
 }) {
   const { baseImg, maskImg, busy, outCanvasRef, baseCanvasRef, maskCanvasRef } = canvas;
   const { isOpen: fillOpen, anchorRef: fillBtnRef, open: openFill, close: closeFill, onPick: onFillPick } = fillControls;
@@ -36,17 +37,21 @@ export default function MaskPage({
   const [highlightSlots, setHighlightSlots] = useState([]);
 
   useEffect(() => {
+    if (slotControlsDisabled) {
+      setHighlightSlots([]);
+      return;
+    }
     if (!disabledSet || typeof disabledSet.has !== 'function') return;
     setHighlightSlots((prev) => {
       const filtered = prev.filter((idx) => !disabledSet.has(idx));
       if (filtered.length === prev.length) return prev;
       return filtered;
     });
-  }, [disabledSet]);
+  }, [disabledSet, slotControlsDisabled]);
 
   const handleHighlightSlotsChange = useCallback(
     (indices) => {
-      if (!Array.isArray(indices) || indices.length === 0) {
+      if (slotControlsDisabled || !Array.isArray(indices) || indices.length === 0) {
         setHighlightSlots((prev) => (prev.length === 0 ? prev : []));
         return;
       }
@@ -67,7 +72,7 @@ export default function MaskPage({
         return next;
       });
     },
-    [disabledSet],
+    [disabledSet, slotControlsDisabled],
   );
 
   return (
@@ -82,7 +87,7 @@ export default function MaskPage({
 
         <CanvasView
           outCanvasRef={outCanvasRef}
-          loading={!baseImg || !maskImg}
+          loading={!baseImg}
           busy={busy}
           slots={slots}
           exportBg={exportBg}
@@ -108,32 +113,35 @@ export default function MaskPage({
             onReorderFavorites={onReorderFavorites}
             onPasteCmd={onPasteCmd}
             onHighlightSlotsChange={handleHighlightSlotsChange}
+            controlsDisabled={slotControlsDisabled}
             extraActions={
-              <>
-                <Button
-                  block
-                  ref={fillBtnRef}
-                  onClick={openFill}>
-                  {t('app.fill')}
-                </Button>
-                {fillOpen && (
-                  <Popover
-                    anchorRef={fillBtnRef}
-                    onClose={closeFill}>
-                    <div style={{ padding: 10 }}>
-                      <PaletteGrid
-                        big
-                        showIndex
-                        favorites={favoriteColors}
-                        onPick={onFillPick}
-                        onToggleFavorite={onToggleFavorite}
-                        onResetFavorites={onResetFavorites}
-                        onReorderFavorites={onReorderFavorites}
-                      />
-                    </div>
-                  </Popover>
-                )}
-              </>
+              !slotControlsDisabled ? (
+                <>
+                  <Button
+                    block
+                    ref={fillBtnRef}
+                    onClick={openFill}>
+                    {t('app.fill')}
+                  </Button>
+                  {fillOpen && (
+                    <Popover
+                      anchorRef={fillBtnRef}
+                      onClose={closeFill}>
+                      <div style={{ padding: 10 }}>
+                        <PaletteGrid
+                          big
+                          showIndex
+                          favorites={favoriteColors}
+                          onPick={onFillPick}
+                          onToggleFavorite={onToggleFavorite}
+                          onResetFavorites={onResetFavorites}
+                          onReorderFavorites={onReorderFavorites}
+                        />
+                      </div>
+                    </Popover>
+                  )}
+                </>
+              ) : null
             }
           />
         </div>
