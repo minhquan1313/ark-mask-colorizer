@@ -20,6 +20,10 @@ const SPECIAL_VARIANT_RULES = {
   },
 };
 
+const CREATURE_ALIAS_MAP = {
+  Karkinos: ['Crab'],
+};
+
 function loadExistingNoMask() {
   if (!fs.existsSync(outputPath)) {
     return new Map();
@@ -58,6 +62,51 @@ function loadExistingNoMask() {
   }
 
   return noMaskByKey;
+}
+
+function loadExistingAliases() {
+  if (!fs.existsSync(outputPath)) {
+    return new Map();
+  }
+
+  const raw = fs.readFileSync(outputPath, 'utf-8').trim();
+  if (!raw) {
+    return new Map();
+  }
+
+  const existingData = JSON.parse(raw);
+  const aliasByKey = new Map();
+
+  for (const creature of existingData) {
+    if (!creature || typeof creature !== 'object') {
+      continue;
+    }
+
+    const aliases = Array.isArray(creature.aliases) ? creature.aliases.filter((entry) => typeof entry === 'string' && entry.trim()) : [];
+
+    if (!aliases.length) {
+      continue;
+    }
+
+    const keys = new Set();
+
+    if (typeof creature.maskPath === 'string' && creature.maskPath) {
+      keys.add(creature.maskPath);
+      if (typeof creature.base === 'string' && creature.base) {
+        keys.add(`${creature.maskPath}::${creature.base}`);
+      }
+    }
+
+    if (typeof creature.name === 'string' && creature.name) {
+      keys.add(creature.name);
+    }
+
+    for (const key of keys) {
+      aliasByKey.set(key, aliases);
+    }
+  }
+
+  return aliasByKey;
 }
 
 function isFemaleVariant(fileName) {
@@ -219,6 +268,53 @@ function resolveNoMask(noMaskByKey, variant) {
   return [];
 }
 
+function resolveAliases(existingAliasByKey, folderName, variant) {
+  const baseAliases = Array.isArray(CREATURE_ALIAS_MAP[folderName]) ? CREATURE_ALIAS_MAP[folderName] : [];
+  const candidates = [];
+
+  if (variant.maskPath && variant.base) {
+    candidates.push(`${variant.maskPath}::${variant.base}`);
+  }
+  if (variant.maskPath) {
+    candidates.push(variant.maskPath);
+  }
+  if (variant.name) {
+    candidates.push(variant.name);
+  }
+
+  let existing = [];
+  for (const key of candidates) {
+    if (existingAliasByKey.has(key)) {
+      const value = existingAliasByKey.get(key);
+      if (Array.isArray(value) && value.length > 0) {
+        existing = value;
+        break;
+      }
+    }
+  }
+
+  const seen = new Set();
+  const result = [];
+
+  const append = (values) => {
+    if (!Array.isArray(values)) return;
+    for (const entry of values) {
+      if (typeof entry !== 'string') continue;
+      const trimmed = entry.trim();
+      if (!trimmed) continue;
+      const key = trimmed.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      result.push(trimmed);
+    }
+  };
+
+  append(baseAliases);
+  append(existing);
+
+  return result;
+}
+
 /**
  * @fileoverview
  * # Ark Mask Colorizer Creature Generator
@@ -254,6 +350,7 @@ function resolveNoMask(noMaskByKey, variant) {
  */
 function main() {
   const noMaskByKey = loadExistingNoMask();
+  const aliasByKey = loadExistingAliases();
 
   if (!fs.existsSync(dinoDir)) {
     throw new Error(`Missing directory: ${dinoDir}`);
@@ -271,8 +368,10 @@ function main() {
     const variants = applySpecialVariantRule(folderName, collectCreatureVariants(folderName));
     for (const variant of variants) {
       const noMask = resolveNoMask(noMaskByKey, variant);
+      const aliases = resolveAliases(aliasByKey, folderName, variant);
       creatures.push({
         ...variant,
+        aliases,
         noMask,
       });
     }

@@ -4,6 +4,7 @@
     "maskPath": "Aberrant Achatina",
     "base": "Aberrant Achatina_ASA.png",
     "masks": ["Aberrant Achatina_ASA_m.png"],
+    "aliases": ["Achatina Aberration"],
     "noMask": []
   },
   {
@@ -11,6 +12,7 @@
     "maskPath": "Aberrant Anglerfish",
     "base": "Aberrant Anglerfish_ASA.png",
     "masks": ["Aberrant Anglerfish_ASA_m.png"],
+    "aliases": ["Anglerfish Aberration"],
     "noMask": [1, 2, 3]
   },
   {
@@ -18,6 +20,7 @@
     "maskPath": "Aberrant Ankylosaurus",
     "base": "Aberrant Ankylosaurus_ASA.png",
     "masks": ["Aberrant Ankylosaurus_ASA_m.png"],
+    "aliases": ["Ankylosaurus Aberration"],
     "noMask": []
   },
   {
@@ -25,6 +28,7 @@
     "maskPath": "Aberrant Araneo",
     "base": "Aberrant Araneo_ASA.png",
     "masks": ["Aberrant Araneo_ASA_m.png"],
+    "aliases": ["Araneo Aberration"],
     "noMask": [1]
   },
   {
@@ -32,6 +36,7 @@
     "maskPath": "Aberrant Arthropluera",
     "base": "Aberrant Arthropluera_ASA.png",
     "masks": ["Aberrant Arthropluera_ASA_m_04.png", "Aberrant Arthropluera_ASA_m.png"],
+    "aliases": ["Arthropluera Aberration"],
     "noMask": []
   },
   {
@@ -39,6 +44,7 @@
     "maskPath": "Aberrant Baryonyx",
     "base": "Aberrant Baryonyx_ASA.png",
     "masks": ["Aberrant Baryonyx_ASA_m.png"],
+    "aliases": ["Baryonyx Aberration"],
     "noMask": [2, 3]
   },
   {
@@ -46,6 +52,7 @@
     "maskPath": "Aberrant Beelzebufo",
     "base": "Aberrant Beelzebufo_ASA.png",
     "masks": ["Aberrant Beelzebufo_ASA_m.png"],
+    "aliases": ["Beelzebufo Aberration"],
     "noMask": [2, 3]
   },
   {
@@ -53,6 +60,7 @@
     "maskPath": "Aberrant Carbonemys",
     "base": "Aberrant Carbonemys_ASA.png",
     "masks": ["Aberrant Carbonemys_ASA_m.png"],
+    "aliases": ["Carbonemys Aberration"],
     "noMask": [2, 3]
   },
   {
@@ -60,6 +68,7 @@
     "maskPath": "Aberrant Carnotaurus",
     "base": "Aberrant Carnotaurus_ASA.png",
     "masks": ["Aberrant Carnotaurus_ASA_m.png"],
+    "aliases": ["Carnotaurus Aberration"],
     "noMask": [2, 3]
   },
   {
@@ -67,6 +76,7 @@
     "maskPath": "Aberrant Coelacanth",
     "base": "Aberrant Coelacanth_ASA.png",
     "masks": ["Aberrant Coelacanth_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -74,6 +84,7 @@
     "maskPath": "Aberrant Dimetrodon",
     "base": "Aberrant Dimetrodon_ASA.png",
     "masks": ["Aberrant Dimetrodon_ASA_m.png"],
+    "aliases": ["Dimetrodon Aberration"],
     "noMask": [5]
   },
   {
@@ -81,6 +92,7 @@
     "maskPath": "Aberrant Dimorphodon",
     "base": "Aberrant Dimorphodon_ASA.png",
     "masks": ["Aberrant Dimorphodon_ASA_m.png"],
+    "aliases": ["Dimorphodon Aberration"],
     "noMask": [1, 2, 3]
   },
   {
@@ -88,6 +100,7 @@
     "maskPath": "Aberrant Diplocaulus",
     "base": "Aberrant Diplocaulus_ASA.png",
     "masks": ["Aberrant Diplocaulus_ASA_m.png"],
+    "aliases": ["Diplocaulus Aberration"],
     "noMask": [2, 3]
   },
   {
@@ -95,6 +108,7 @@
     "maskPath": "Aberrant Diplodocus",
     "base": "Aberrant Diplodocus_ASA.png",
     "masks": ["Aberrant Diplodocus_ASA_m.png"],
+    "aliases": ["Diplodocus Aberration"],
     "noMask": [2, 3]
   },
   {
@@ -102,6 +116,7 @@
     "maskPath": "Aberrant Dire Bear",
     "base": "Aberrant Dire Bear_ASA.png",
     "masks": ["Aberrant Dire Bear_ASA_m.png"],
+    "aliases": ["Dire Bear Aberration"],
     "noMask": [1, 2, 3, 4]
   },
   {
@@ -109,6 +124,7 @@
     "maskPath": "Aberrant Dodo",
     "base": "Aberrant Dodo_ASA.png",
     "masks": ["Aberrant Dodo_ASA_m.png"],
+    "aliases": ["Dodo Aberration"],
     "noMask": []
   },
   {
@@ -116,6 +132,7 @@
     "maskPath": "Aberrant Doedicurus",
     "base": "Aberrant Doedicurus_ASA.png",
     "masks": ["Aberrant Doedicurus_ASA_m.png"],
+    "aliases": ["Doedicurus Aberration"],
     "noMask": [2, 3]
   },
   {
@@ -123,6 +140,7 @@
     "maskPath": "Aberrant Dung Beetle",
     "base": "Aberrant Dung Beetle_ASA.png",
     "masks": ["Aberrant Dung Beetle_ASA_m.png"],
+    "aliases": ["Dung Beetle Aberration"],
     "noMask": [2]
   },
   {
@@ -130,6 +148,7 @@
     "maskPath": "Aberrant Electrophorus",
     "base": "Aberrant Electrophorus_ASA.png",
     "masks": ["Aberrant Electrophorus_ASA_m.png"],
+    "aliases": ["Electrophorus Aberration"],
     "noMask": [4]
   },
   {
@@ -137,6 +156,7 @@
     "maskPath": "Aberrant Equus",
     "base": "Aberrant Equus_ASA.png",
     "masks": ["Aberrant Equus_ASA_m.png"],
+    "aliases": ["Equus Aberration"],
     "noMask": [1, 2, 3]
   },
   {
@@ -144,6 +164,7 @@
     "maskPath": "Aberrant Fasolasuchus",
     "base": "Aberrant Fasolasuchus_ASA.png",
     "masks": ["Aberrant Fasolasuchus_ASA_m.png"],
+    "aliases": [],
     "noMask": [3]
   },
   {
@@ -151,6 +172,7 @@
     "maskPath": "Aberrant Gigantopithecus",
     "base": "Aberrant Gigantopithecus_ASA.png",
     "masks": ["Aberrant Gigantopithecus_ASA_m.png"],
+    "aliases": ["Gigantopithecus Aberration"],
     "noMask": [1, 2, 3]
   },
   {
@@ -158,6 +180,7 @@
     "maskPath": "Aberrant Gigantoraptor",
     "base": "Aberrant Gigantoraptor_ASA.png",
     "masks": ["Aberrant Gigantoraptor_ASA_m.png"],
+    "aliases": [],
     "noMask": [2]
   },
   {
@@ -165,6 +188,7 @@
     "maskPath": "Aberrant Iguanodon",
     "base": "Aberrant Iguanodon_ASA.png",
     "masks": ["Aberrant Iguanodon_ASA_m.png"],
+    "aliases": ["Iguanodon Aberration"],
     "noMask": [1, 2, 3]
   },
   {
@@ -172,6 +196,7 @@
     "maskPath": "Aberrant Lystrosaurus",
     "base": "Aberrant Lystrosaurus_ASA.png",
     "masks": ["Aberrant Lystrosaurus_ASA_m.png"],
+    "aliases": ["Lystrosaurus Aberration"],
     "noMask": [1, 2, 3]
   },
   {
@@ -179,6 +204,7 @@
     "maskPath": "Aberrant Manta",
     "base": "Aberrant Manta_ASA.png",
     "masks": ["Aberrant Manta_ASA_m.png"],
+    "aliases": ["Manta Aberration"],
     "noMask": [1, 2, 3]
   },
   {
@@ -186,6 +212,7 @@
     "maskPath": "Aberrant Megalania",
     "base": "Aberrant Megalania_ASA.png",
     "masks": ["Aberrant Megalania_ASA_m.png"],
+    "aliases": ["Megalania Aberration"],
     "noMask": [1, 2, 3]
   },
   {
@@ -193,6 +220,7 @@
     "maskPath": "Aberrant Megalosaurus",
     "base": "Aberrant Megalosaurus_ASA.png",
     "masks": ["Aberrant Megalosaurus_ASA_m.png"],
+    "aliases": ["Megalosaurus Aberration"],
     "noMask": [1, 2, 3]
   },
   {
@@ -200,6 +228,7 @@
     "maskPath": "Aberrant Meganeura",
     "base": "Aberrant Meganeura_ASA.png",
     "masks": ["Aberrant Meganeura_ASA_m.png"],
+    "aliases": ["Meganeura Aberration"],
     "noMask": [1]
   },
   {
@@ -207,6 +236,7 @@
     "maskPath": "Aberrant Moschops",
     "base": "Aberrant Moschops_ASA.png",
     "masks": ["Aberrant Moschops_ASA_m.png"],
+    "aliases": ["Moschops Aberration"],
     "noMask": [2, 3]
   },
   {
@@ -214,6 +244,7 @@
     "maskPath": "Aberrant Otter",
     "base": "Aberrant Otter_ASA.png",
     "masks": ["Aberrant Otter_ASA_m.png"],
+    "aliases": ["Otter Aberration"],
     "noMask": [1, 2, 3]
   },
   {
@@ -221,6 +252,7 @@
     "maskPath": "Aberrant Oviraptor",
     "base": "Aberrant Oviraptor_ASA.png",
     "masks": ["Aberrant Oviraptor_ASA_m.png"],
+    "aliases": [],
     "noMask": [3]
   },
   {
@@ -228,6 +260,7 @@
     "maskPath": "Aberrant Ovis",
     "base": "Aberrant Ovis_ASA.png",
     "masks": ["Aberrant Ovis_ASA_m.png"],
+    "aliases": ["Ovis Aberration"],
     "noMask": [1, 2, 3]
   },
   {
@@ -235,6 +268,7 @@
     "maskPath": "Aberrant Ovis",
     "base": "Aberrant Ovis_ASA_sf.png",
     "masks": ["Aberrant Ovis_ASA_sf_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -242,6 +276,7 @@
     "maskPath": "Aberrant Paraceratherium",
     "base": "Aberrant Paraceratherium_ASA.png",
     "masks": ["Aberrant Paraceratherium_ASA_m.png"],
+    "aliases": ["Paraceratherium Aberration"],
     "noMask": [1, 2, 3]
   },
   {
@@ -249,6 +284,7 @@
     "maskPath": "Aberrant Parasaur",
     "base": "Aberrant Parasaur_ASA.png",
     "masks": ["Aberrant Parasaur_ASA_m.png"],
+    "aliases": ["Parasaur Aberration"],
     "noMask": []
   },
   {
@@ -256,6 +292,7 @@
     "maskPath": "Aberrant Piranha",
     "base": "Aberrant Piranha_ASA.png",
     "masks": ["Aberrant Piranha_ASA_m.png"],
+    "aliases": [],
     "noMask": [3]
   },
   {
@@ -263,6 +300,7 @@
     "maskPath": "Aberrant Pulmonoscorpius",
     "base": "Aberrant Pulmonoscorpius_ASA.png",
     "masks": ["Aberrant Pulmonoscorpius_ASA_m.png"],
+    "aliases": ["Pulmonoscorpius Aberration"],
     "noMask": []
   },
   {
@@ -270,6 +308,7 @@
     "maskPath": "Aberrant Purlovia",
     "base": "Aberrant Purlovia_ASA.png",
     "masks": ["Aberrant Purlovia_ASA_m.png"],
+    "aliases": ["Purlovia Aberration"],
     "noMask": [1, 2, 3]
   },
   {
@@ -277,6 +316,7 @@
     "maskPath": "Aberrant Raptor",
     "base": "Aberrant Raptor_ASA.png",
     "masks": ["Aberrant Raptor_ASA_m.png"],
+    "aliases": ["Raptor Aberration"],
     "noMask": [2]
   },
   {
@@ -284,6 +324,7 @@
     "maskPath": "Aberrant Salmon",
     "base": "Aberrant Salmon_ASA.png",
     "masks": ["Aberrant Salmon_ASA_m.png"],
+    "aliases": [],
     "noMask": []
   },
   {
@@ -291,6 +332,7 @@
     "maskPath": "Aberrant Sarco",
     "base": "Aberrant Sarco_ASA.png",
     "masks": ["Aberrant Sarco_ASA_m.png"],
+    "aliases": ["Sarco Aberration"],
     "noMask": [1]
   },
   {
@@ -298,6 +340,7 @@
     "maskPath": "Aberrant Spino",
     "base": "Aberrant Spino_ASA.png",
     "masks": ["Aberrant Spino_ASA_m.png"],
+    "aliases": ["Spino Aberration"],
     "noMask": [2, 3]
   },
   {
@@ -305,6 +348,7 @@
     "maskPath": "Aberrant Stegosaurus",
     "base": "Aberrant Stegosaurus_ASA.png",
     "masks": ["Aberrant Stegosaurus_ASA_m.png"],
+    "aliases": ["Stegosaurus Aberration"],
     "noMask": []
   },
   {
@@ -312,6 +356,7 @@
     "maskPath": "Aberrant Titanoboa",
     "base": "Aberrant Titanoboa_ASA.png",
     "masks": ["Aberrant Titanoboa_ASA_m.png"],
+    "aliases": ["Titanoboa Aberration"],
     "noMask": []
   },
   {
@@ -319,6 +364,7 @@
     "maskPath": "Aberrant Triceratops",
     "base": "Aberrant Triceratops_ASA.png",
     "masks": ["Aberrant Triceratops_ASA_m.png"],
+    "aliases": ["Triceratops Aberration"],
     "noMask": [2]
   },
   {
@@ -326,6 +372,7 @@
     "maskPath": "Aberrant Trilobite",
     "base": "Aberrant Trilobite_ASA.png",
     "masks": [],
+    "aliases": [],
     "noMask": [0, 1, 2, 3, 4, 5]
   },
   {
@@ -333,6 +380,7 @@
     "maskPath": "Achatina",
     "base": "Achatina_ASA.png",
     "masks": ["Achatina_ASA_m.png"],
+    "aliases": ["Snail"],
     "noMask": []
   },
   {
@@ -340,6 +388,7 @@
     "maskPath": "Allosaurus",
     "base": "Allosaurus_ASA.png",
     "masks": ["Allosaurus_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2]
   },
   {
@@ -347,6 +396,7 @@
     "maskPath": "Anglerfish",
     "base": "Anglerfish_ASA.png",
     "masks": ["Anglerfish_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -354,6 +404,7 @@
     "maskPath": "Ankylosaurus",
     "base": "Ankylosaurus_ASA.png",
     "masks": ["Ankylosaurus_ASA_m.png"],
+    "aliases": [],
     "noMask": []
   },
   {
@@ -361,6 +412,7 @@
     "maskPath": "Araneo",
     "base": "Araneo_ASA.png",
     "masks": ["Araneo_ASA_m.png"],
+    "aliases": ["Araneomorphus", "Spider"],
     "noMask": [1]
   },
   {
@@ -368,6 +420,7 @@
     "maskPath": "Archaeopteryx",
     "base": "Archaeopteryx_ASA.png",
     "masks": ["Archaeopteryx_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 3]
   },
   {
@@ -375,6 +428,7 @@
     "maskPath": "Archelon",
     "base": "Archelon_ASA.png",
     "masks": ["Archelon_ASA_m.png"],
+    "aliases": [],
     "noMask": [2, 5]
   },
   {
@@ -382,6 +436,7 @@
     "maskPath": "Argentavis",
     "base": "Argentavis_ASA.png",
     "masks": ["Argentavis_ASA_m.png"],
+    "aliases": ["Argy"],
     "noMask": [1]
   },
   {
@@ -389,6 +444,7 @@
     "maskPath": "Armadoggo",
     "base": "Armadoggo_ASA.png",
     "masks": ["Armadoggo_ASA_m_14.png", "Armadoggo_ASA_m.png"],
+    "aliases": [],
     "noMask": [5]
   },
   {
@@ -396,6 +452,7 @@
     "maskPath": "Arthropluera",
     "base": "Arthropluera_ASA.png",
     "masks": ["Arthropluera_ASA_m_04.png", "Arthropluera_ASA_m.png"],
+    "aliases": ["Arthropleura"],
     "noMask": []
   },
   {
@@ -403,6 +460,7 @@
     "maskPath": "Baryonyx",
     "base": "Baryonyx_ASA.png",
     "masks": ["Baryonyx_ASA_m.png"],
+    "aliases": [],
     "noMask": [2, 3]
   },
   {
@@ -410,6 +468,7 @@
     "maskPath": "Basilisk",
     "base": "Basilisk_ASA.png",
     "masks": ["Basilisk_ASA_m_04.png", "Basilisk_ASA_m_05.png", "Basilisk_ASA_m.png"],
+    "aliases": [],
     "noMask": [3]
   },
   {
@@ -417,6 +476,7 @@
     "maskPath": "Basilosaurus",
     "base": "Basilosaurus_ASA.png",
     "masks": ["Basilosaurus_ASA_m.png"],
+    "aliases": ["Whale"],
     "noMask": [1, 2, 3, 4]
   },
   {
@@ -424,6 +484,7 @@
     "maskPath": "Beelzebufo",
     "base": "Beelzebufo_ASA.png",
     "masks": ["Beelzebufo_ASA_m.png"],
+    "aliases": ["Frog", "Toad"],
     "noMask": [2, 3]
   },
   {
@@ -431,6 +492,7 @@
     "maskPath": "Bison",
     "base": "Bison_ASA.png",
     "masks": ["Bison_ASA_m_04.png", "Bison_ASA_m_14.png", "Bison_ASA_m.png"],
+    "aliases": [],
     "noMask": [5]
   },
   {
@@ -438,6 +500,7 @@
     "maskPath": "Bison",
     "base": "Bison_ASA_sf.png",
     "masks": ["Bison_ASA_sf_m_04.png", "Bison_ASA_sf_m_14.png", "Bison_ASA_sf_m.png"],
+    "aliases": [],
     "noMask": [5]
   },
   {
@@ -445,27 +508,15 @@
     "maskPath": "Brontosaurus",
     "base": "Brontosaurus_ASA.png",
     "masks": ["Brontosaurus_ASA_m.png"],
-    "noMask": [2, 3],
-    "stats": {
-      "health": [160, 1, 0, 0, 0],
-      "stamina": [1000, 0, 0, 0, 0],
-      "oxygen": [150, 0, 0, 0, 0],
-      "food": [100, 0, 0, 0, 0],
-      "weight": [100, 0, 0, 0, 0],
-      "melee": [1, 0.05, 0.1, 0.5, 0.4],
-      "movement": [1, 0, 0, 0, 0],
-      "torpidity": [100, 0.06, 0, 0.5, 0],
-      "water": null,
-      "crafting": null,
-      "fortitude": null,
-      "temperature": null
-    }
+    "aliases": [],
+    "noMask": [2, 3]
   },
   {
     "name": "Bulbdog",
     "maskPath": "Bulbdog",
     "base": "Bulbdog_ASA.png",
     "masks": ["Bulbdog_ASA_m.png"],
+    "aliases": [],
     "noMask": [1]
   },
   {
@@ -473,6 +524,7 @@
     "maskPath": "Carbonemys",
     "base": "Carbonemys_ASA.png",
     "masks": ["Carbonemys_ASA_m.png"],
+    "aliases": ["Turtle"],
     "noMask": [2, 3]
   },
   {
@@ -480,6 +532,7 @@
     "maskPath": "Carcharodontosaurus",
     "base": "Carcharodontosaurus_ASA.png",
     "masks": ["Carcharodontosaurus_ASA_m_04.png", "Carcharodontosaurus_ASA_m_05.png", "Carcharodontosaurus_ASA_m.png"],
+    "aliases": [],
     "noMask": [1]
   },
   {
@@ -487,6 +540,7 @@
     "maskPath": "Carnotaurus",
     "base": "Carnotaurus_ASA.png",
     "masks": ["Carnotaurus_ASA_m.png"],
+    "aliases": [],
     "noMask": [2, 3]
   },
   {
@@ -494,6 +548,7 @@
     "maskPath": "Castoroides",
     "base": "Castoroides_ASA.png",
     "masks": ["Castoroides_ASA_m.png"],
+    "aliases": ["Beaver"],
     "noMask": [2, 3]
   },
   {
@@ -528,6 +583,7 @@
         ]
       }
     },
+    "aliases": [],
     "noMask": [3]
   },
   {
@@ -535,6 +591,7 @@
     "maskPath": "Ceratosaurus",
     "base": "Ceratosaurus_ASA.png",
     "masks": ["Ceratosaurus_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -542,6 +599,7 @@
     "maskPath": "Chalicotherium",
     "base": "Chalicotherium_ASA.png",
     "masks": ["Chalicotherium_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -549,6 +607,7 @@
     "maskPath": "Chalk Elemental",
     "base": "Chalk Elemental_ASA.png",
     "masks": ["Chalk Elemental_ASA_m.png"],
+    "aliases": ["Chalk Golem"],
     "noMask": [0, 2, 3, 4, 5]
   },
   {
@@ -556,6 +615,7 @@
     "maskPath": "Cnidaria",
     "base": "Cnidaria_ASA.png",
     "masks": [],
+    "aliases": [],
     "noMask": [0, 1, 2, 3, 4, 5]
   },
   {
@@ -563,6 +623,7 @@
     "maskPath": "Coelacanth",
     "base": "Coelacanth_ASA.png",
     "masks": ["Coelacanth_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -570,6 +631,7 @@
     "maskPath": "Compy",
     "base": "Compy_ASA.png",
     "masks": ["Compy_ASA_m.png"],
+    "aliases": ["Compsognathus"],
     "noMask": [1, 2]
   },
   {
@@ -577,6 +639,7 @@
     "maskPath": "Cosmo",
     "base": "Cosmo_ASA.png",
     "masks": ["Cosmo_ASA_m.png"],
+    "aliases": [],
     "noMask": []
   },
   {
@@ -584,6 +647,7 @@
     "maskPath": "Daeodon",
     "base": "Daeodon_ASA.png",
     "masks": ["Daeodon_ASA_m.png"],
+    "aliases": ["Pig"],
     "noMask": [1, 3, 4]
   },
   {
@@ -597,6 +661,7 @@
       "Deinonychus_ASA_m_14.png",
       "Deinonychus_ASA_m.png"
     ],
+    "aliases": [],
     "noMask": [2]
   },
   {
@@ -604,6 +669,7 @@
     "maskPath": "Deinosuchus",
     "base": "Deinosuchus_ASA.png",
     "masks": ["Deinosuchus_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -611,6 +677,7 @@
     "maskPath": "Deinotherium",
     "base": "Deinotherium_ASA.png",
     "masks": ["Deinotherium_ASA_m_04.png", "Deinotherium_ASA_m_05.png", "Deinotherium_ASA_m_14.png", "Deinotherium_ASA_m.png"],
+    "aliases": [],
     "noMask": [2, 3]
   },
   {
@@ -618,6 +685,7 @@
     "maskPath": "Deinotherium",
     "base": "Deinotherium_ASA_sf.png",
     "masks": ["Deinotherium_ASA_sf_m_04.png", "Deinotherium_ASA_sf_m_05.png", "Deinotherium_ASA_sf_m_14.png", "Deinotherium_ASA_sf_m.png"],
+    "aliases": [],
     "noMask": [2, 3]
   },
   {
@@ -625,6 +693,7 @@
     "maskPath": "Dimetrodon",
     "base": "Dimetrodon_ASA.png",
     "masks": ["Dimetrodon_ASA_m.png"],
+    "aliases": [],
     "noMask": [5]
   },
   {
@@ -632,6 +701,7 @@
     "maskPath": "Dimorphodon",
     "base": "Dimorphodon_ASA.png",
     "masks": ["Dimorphodon_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -639,6 +709,7 @@
     "maskPath": "Diplocaulus",
     "base": "Diplocaulus_ASA.png",
     "masks": ["Diplocaulus_ASA_m.png"],
+    "aliases": [],
     "noMask": [2, 3]
   },
   {
@@ -646,6 +717,7 @@
     "maskPath": "Diplodocus",
     "base": "Diplodocus_ASA.png",
     "masks": ["Diplodocus_ASA_m.png"],
+    "aliases": [],
     "noMask": [2, 3]
   },
   {
@@ -653,6 +725,7 @@
     "maskPath": "Dire Bear",
     "base": "Dire Bear_ASA.png",
     "masks": ["Dire Bear_ASA_m.png"],
+    "aliases": ["Direbear"],
     "noMask": [1, 2, 3, 4]
   },
   {
@@ -660,6 +733,7 @@
     "maskPath": "Direwolf",
     "base": "Direwolf_ASA.png",
     "masks": ["Direwolf_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -667,6 +741,7 @@
     "maskPath": "Dodo",
     "base": "Dodo_ASA.png",
     "masks": ["Dodo_ASA_m.png"],
+    "aliases": [],
     "noMask": []
   },
   {
@@ -674,6 +749,7 @@
     "maskPath": "Doedicurus",
     "base": "Doedicurus_ASA.png",
     "masks": ["Doedicurus_ASA_m.png"],
+    "aliases": [],
     "noMask": [2, 3]
   },
   {
@@ -686,6 +762,7 @@
       "Drakeling (Autumn)_ASA_m_25.png",
       "Drakeling (Autumn)_ASA_m.png"
     ],
+    "aliases": [],
     "noMask": [2]
   },
   {
@@ -698,6 +775,7 @@
       "Drakeling (Spring)_ASA_m_25.png",
       "Drakeling (Spring)_ASA_m.png"
     ],
+    "aliases": [],
     "noMask": [2]
   },
   {
@@ -710,6 +788,7 @@
       "Drakeling (Summer)_ASA_m_23.png",
       "Drakeling (Summer)_ASA_m.png"
     ],
+    "aliases": [],
     "noMask": [2]
   },
   {
@@ -722,6 +801,7 @@
       "Drakeling (Winter)_ASA_m_14.png",
       "Drakeling (Winter)_ASA_m.png"
     ],
+    "aliases": [],
     "noMask": [2]
   },
   {
@@ -729,6 +809,7 @@
     "maskPath": "Dreadmare",
     "base": "Dreadmare_ASA.png",
     "masks": ["Dreadmare_ASA_m.png"],
+    "aliases": [],
     "noMask": []
   },
   {
@@ -736,6 +817,7 @@
     "maskPath": "Dreadnoughtus",
     "base": "Dreadnoughtus_ASA.png",
     "masks": ["Dreadnoughtus_ASA_m.png"],
+    "aliases": [],
     "noMask": [2, 3]
   },
   {
@@ -743,6 +825,7 @@
     "maskPath": "Dung Beetle",
     "base": "Dung Beetle_ASA.png",
     "masks": ["Dung Beetle_ASA_m.png"],
+    "aliases": [],
     "noMask": [2]
   },
   {
@@ -750,6 +833,7 @@
     "maskPath": "Dunkleosteus",
     "base": "Dunkleosteus_ASA.png",
     "masks": ["Dunkleosteus_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -757,6 +841,7 @@
     "maskPath": "Elderclaw",
     "base": "Elderclaw_ASA.png",
     "masks": ["Elderclaw_ASA_m.png"],
+    "aliases": [],
     "noMask": []
   },
   {
@@ -764,6 +849,7 @@
     "maskPath": "Electrophorus",
     "base": "Electrophorus_ASA.png",
     "masks": ["Electrophorus_ASA_m.png"],
+    "aliases": ["Eel"],
     "noMask": [4]
   },
   {
@@ -771,6 +857,7 @@
     "maskPath": "Enforcer",
     "base": "Enforcer_ASA.png",
     "masks": ["Enforcer_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -778,6 +865,7 @@
     "maskPath": "Equus",
     "base": "Equus_ASA.png",
     "masks": ["Equus_ASA_m.png"],
+    "aliases": ["Horse"],
     "noMask": [1, 2, 3]
   },
   {
@@ -785,6 +873,7 @@
     "maskPath": "Fasolasuchus",
     "base": "Fasolasuchus_ASA.png",
     "masks": ["Fasolasuchus_ASA_m.png"],
+    "aliases": [],
     "noMask": [3]
   },
   {
@@ -792,6 +881,7 @@
     "maskPath": "Featherlight",
     "base": "Featherlight_ASA.png",
     "masks": ["Featherlight_ASA_m.png"],
+    "aliases": [],
     "noMask": [2]
   },
   {
@@ -799,6 +889,7 @@
     "maskPath": "Fire Wyvern",
     "base": "Fire Wyvern_ASA.png",
     "masks": ["Fire Wyvern_ASA_m.png"],
+    "aliases": ["Wyvern Fire"],
     "noMask": [1, 3]
   },
   {
@@ -806,6 +897,7 @@
     "maskPath": "Gacha",
     "base": "Gacha_ASA.png",
     "masks": ["Gacha_ASA_m.png"],
+    "aliases": [],
     "noMask": [1]
   },
   {
@@ -813,6 +905,7 @@
     "maskPath": "Gallimimus",
     "base": "Gallimimus_ASA.png",
     "masks": ["Gallimimus_ASA_m.png"],
+    "aliases": [],
     "noMask": [2]
   },
   {
@@ -820,6 +913,7 @@
     "maskPath": "Gasbags",
     "base": "Gasbags_ASA.png",
     "masks": ["Gasbags_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 3]
   },
   {
@@ -827,6 +921,7 @@
     "maskPath": "Giganotosaurus",
     "base": "Giganotosaurus_ASA.png",
     "masks": ["Giganotosaurus_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -834,6 +929,7 @@
     "maskPath": "Gigantopithecus",
     "base": "Gigantopithecus_ASA.png",
     "masks": ["Gigantopithecus_ASA_m.png"],
+    "aliases": ["Ape", "Bigfoot", "Gorilla"],
     "noMask": [1, 2, 3]
   },
   {
@@ -841,6 +937,7 @@
     "maskPath": "Gigantoraptor",
     "base": "Gigantoraptor_ASA.png",
     "masks": ["Gigantoraptor_ASA_m.png"],
+    "aliases": [],
     "noMask": [2]
   },
   {
@@ -848,6 +945,7 @@
     "maskPath": "Glowtail",
     "base": "Glowtail_ASA.png",
     "masks": ["Glowtail_ASA_m.png"],
+    "aliases": [],
     "noMask": [1]
   },
   {
@@ -855,6 +953,7 @@
     "maskPath": "Grendel (Alpha)",
     "base": "Grendel (Alpha)_ASA.png",
     "masks": [],
+    "aliases": [],
     "noMask": [0, 1, 2, 3, 4, 5]
   },
   {
@@ -862,6 +961,7 @@
     "maskPath": "Griffin",
     "base": "Griffin_ASA.png",
     "masks": ["Griffin_ASA_m_05.png", "Griffin_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -869,6 +969,7 @@
     "maskPath": "Helicoprion",
     "base": "Helicoprion_ASA.png",
     "masks": ["Helicoprion_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -876,6 +977,7 @@
     "maskPath": "Hesperornis",
     "base": "Hesperornis_ASA.png",
     "masks": ["Hesperornis_ASA_m.png"],
+    "aliases": ["Duck"],
     "noMask": [1, 3]
   },
   {
@@ -883,6 +985,7 @@
     "maskPath": "Hyaenodon",
     "base": "Hyaenodon_ASA.png",
     "masks": ["Hyaenodon_ASA_m.png"],
+    "aliases": ["Hyena"],
     "noMask": [1, 2, 3]
   },
   {
@@ -890,13 +993,15 @@
     "maskPath": "Ice Elemental",
     "base": "Ice Elemental_ASA.png",
     "masks": ["Ice Elemental_ASA_m.png"],
-    "noMask": []
+    "aliases": ["Ice Golem"],
+    "noMask": [0, 2, 3, 4, 5]
   },
   {
     "name": "Ice Wyvern",
     "maskPath": "Ice Wyvern",
     "base": "Ice Wyvern_ASA.png",
     "masks": ["Ice Wyvern_ASA_m.png"],
+    "aliases": ["Wyvern Ice"],
     "noMask": [1, 2, 3]
   },
   {
@@ -904,6 +1009,7 @@
     "maskPath": "Ichthyornis",
     "base": "Ichthyornis_ASA.png",
     "masks": ["Ichthyornis_ASA_m.png"],
+    "aliases": ["Seagull"],
     "noMask": [3]
   },
   {
@@ -911,6 +1017,7 @@
     "maskPath": "Ichthyosaurus",
     "base": "Ichthyosaurus_ASA.png",
     "masks": ["Ichthyosaurus_ASA_m.png"],
+    "aliases": ["Dolphin"],
     "noMask": [1, 2, 3]
   },
   {
@@ -918,6 +1025,7 @@
     "maskPath": "Iguanodon",
     "base": "Iguanodon_ASA.png",
     "masks": ["Iguanodon_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -925,6 +1033,7 @@
     "maskPath": "Jerboa",
     "base": "Jerboa_ASA.png",
     "masks": ["Jerboa_ASA_m.png"],
+    "aliases": [],
     "noMask": [1]
   },
   {
@@ -932,6 +1041,7 @@
     "maskPath": "Kairuku",
     "base": "Kairuku_ASA.png",
     "masks": ["Kairuku_ASA_m.png"],
+    "aliases": ["Penguin"],
     "noMask": [3]
   },
   {
@@ -939,6 +1049,7 @@
     "maskPath": "Kaprosuchus",
     "base": "Kaprosuchus_ASA.png",
     "masks": ["Kaprosuchus_ASA_m.png"],
+    "aliases": [],
     "noMask": [2, 3]
   },
   {
@@ -946,6 +1057,7 @@
     "maskPath": "Karkinos",
     "base": "Karkinos_ASA.png",
     "masks": ["Karkinos_ASA_m.png"],
+    "aliases": ["Crab"],
     "noMask": [1, 2, 3]
   },
   {
@@ -953,6 +1065,7 @@
     "maskPath": "Kentrosaurus",
     "base": "Kentrosaurus_ASA.png",
     "masks": ["Kentrosaurus_ASA_m.png"],
+    "aliases": [],
     "noMask": []
   },
   {
@@ -960,6 +1073,7 @@
     "maskPath": "Lava Elemental",
     "base": "Lava Elemental_ASA.png",
     "masks": [],
+    "aliases": ["Lava Golem"],
     "noMask": [0, 1, 2, 3, 4, 5]
   },
   {
@@ -967,6 +1081,7 @@
     "maskPath": "Lightning Wyvern",
     "base": "Lightning Wyvern_ASA.png",
     "masks": ["Lightning Wyvern_ASA_m.png"],
+    "aliases": ["Wyvern Lightning"],
     "noMask": [1]
   },
   {
@@ -974,6 +1089,7 @@
     "maskPath": "Liopleurodon",
     "base": "Liopleurodon_ASA.png",
     "masks": ["Liopleurodon_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -981,6 +1097,7 @@
     "maskPath": "Lymantria",
     "base": "Lymantria_ASA.png",
     "masks": ["Lymantria_ASA_m.png"],
+    "aliases": ["Moth"],
     "noMask": []
   },
   {
@@ -988,6 +1105,7 @@
     "maskPath": "Lystrosaurus",
     "base": "Lystrosaurus_ASA.png",
     "masks": ["Lystrosaurus_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -995,6 +1113,7 @@
     "maskPath": "Maeguana",
     "base": "Maeguana_ASA.png",
     "masks": ["Maeguana_ASA_m.png"],
+    "aliases": [],
     "noMask": [1]
   },
   {
@@ -1002,6 +1121,7 @@
     "maskPath": "Mammoth",
     "base": "Mammoth_ASA.png",
     "masks": ["Mammoth_ASA_m.png"],
+    "aliases": [],
     "noMask": [3]
   },
   {
@@ -1009,6 +1129,7 @@
     "maskPath": "Managarmr",
     "base": "Managarmr_ASA.png",
     "masks": ["Managarmr_ASA_m.png"],
+    "aliases": [],
     "noMask": []
   },
   {
@@ -1016,6 +1137,7 @@
     "maskPath": "Manta",
     "base": "Manta_ASA.png",
     "masks": ["Manta_ASA_m.png"],
+    "aliases": ["Mantaray"],
     "noMask": [1, 2, 3]
   },
   {
@@ -1023,6 +1145,7 @@
     "maskPath": "Mantis",
     "base": "Mantis_ASA.png",
     "masks": ["Mantis_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -1030,6 +1153,7 @@
     "maskPath": "Megalania",
     "base": "Megalania_ASA.png",
     "masks": ["Megalania_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -1037,6 +1161,7 @@
     "maskPath": "Megaloceros",
     "base": "Megaloceros_ASA.png",
     "masks": ["Megaloceros_ASA_m.png"],
+    "aliases": ["Moose", "Stag"],
     "noMask": [1, 3, 5]
   },
   {
@@ -1044,6 +1169,7 @@
     "maskPath": "Megaloceros",
     "base": "Megaloceros_ASA_sf.png",
     "masks": ["Megaloceros_ASA_sf_m.png"],
+    "aliases": [],
     "noMask": [1, 5, 3]
   },
   {
@@ -1051,6 +1177,7 @@
     "maskPath": "Megalodon",
     "base": "Megalodon_ASA.png",
     "masks": ["Megalodon_ASA_m.png"],
+    "aliases": ["Shark"],
     "noMask": [1, 2, 3]
   },
   {
@@ -1058,6 +1185,7 @@
     "maskPath": "Megalosaurus",
     "base": "Megalosaurus_ASA.png",
     "masks": ["Megalosaurus_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -1065,6 +1193,7 @@
     "maskPath": "Meganeura",
     "base": "Meganeura_ASA.png",
     "masks": ["Meganeura_ASA_m.png"],
+    "aliases": [],
     "noMask": [1]
   },
   {
@@ -1072,6 +1201,7 @@
     "maskPath": "Megaraptor",
     "base": "Megaraptor_ASA.png",
     "masks": ["Megaraptor_ASA_m_05.png", "Megaraptor_ASA_m_23.png", "Megaraptor_ASA_m_25.png", "Megaraptor_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 4]
   },
   {
@@ -1079,6 +1209,7 @@
     "maskPath": "Megatherium",
     "base": "Megatherium_ASA.png",
     "masks": ["Megatherium_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3, 4]
   },
   {
@@ -1086,6 +1217,7 @@
     "maskPath": "Morellatops",
     "base": "Morellatops_ASA.png",
     "masks": ["Morellatops_ASA_m.png"],
+    "aliases": ["Camel", "Camelsaurus"],
     "noMask": [2]
   },
   {
@@ -1093,6 +1225,7 @@
     "maskPath": "Mosasaurus",
     "base": "Mosasaurus_ASA.png",
     "masks": ["Mosasaurus_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 3]
   },
   {
@@ -1100,6 +1233,7 @@
     "maskPath": "Moschops",
     "base": "Moschops_ASA.png",
     "masks": ["Moschops_ASA_m.png"],
+    "aliases": [],
     "noMask": [2, 3]
   },
   {
@@ -1107,6 +1241,7 @@
     "maskPath": "Oasisaur",
     "base": "Oasisaur_ASA.png",
     "masks": ["Oasisaur_ASA_m.png"],
+    "aliases": [],
     "noMask": []
   },
   {
@@ -1114,6 +1249,7 @@
     "maskPath": "Onyc",
     "base": "Onyc_ASA.png",
     "masks": ["Onyc_ASA_m.png"],
+    "aliases": ["Bat", "Onychonycteris"],
     "noMask": [3]
   },
   {
@@ -1121,6 +1257,7 @@
     "maskPath": "Otter",
     "base": "Otter_ASA.png",
     "masks": ["Otter_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -1128,6 +1265,7 @@
     "maskPath": "Oviraptor",
     "base": "Oviraptor_ASA.png",
     "masks": ["Oviraptor_ASA_m.png"],
+    "aliases": [],
     "noMask": [3]
   },
   {
@@ -1135,6 +1273,7 @@
     "maskPath": "Ovis",
     "base": "Ovis_ASA.png",
     "masks": ["Ovis_ASA_m.png"],
+    "aliases": ["Sheep"],
     "noMask": [1, 2, 3]
   },
   {
@@ -1142,6 +1281,7 @@
     "maskPath": "Ovis",
     "base": "Ovis_ASA_sf.png",
     "masks": ["Ovis_ASA_sf_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -1149,6 +1289,7 @@
     "maskPath": "Pachyrhinosaurus",
     "base": "Pachyrhinosaurus_ASA.png",
     "masks": ["Pachyrhinosaurus_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 3]
   },
   {
@@ -1156,6 +1297,7 @@
     "maskPath": "Paraceratherium",
     "base": "Paraceratherium_ASA.png",
     "masks": ["Paraceratherium_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -1163,6 +1305,7 @@
     "maskPath": "Parasaur",
     "base": "Parasaur_ASA.png",
     "masks": ["Parasaur_ASA_m.png"],
+    "aliases": ["Parasaurolophus"],
     "noMask": []
   },
   {
@@ -1170,6 +1313,7 @@
     "maskPath": "Pegomastax",
     "base": "Pegomastax_ASA.png",
     "masks": ["Pegomastax_ASA_m.png"],
+    "aliases": ["Thief"],
     "noMask": [1, 3]
   },
   {
@@ -1177,6 +1321,7 @@
     "maskPath": "Pelagornis",
     "base": "Pelagornis_ASA.png",
     "masks": ["Pelagornis_ASA_m.png"],
+    "aliases": ["Pelican"],
     "noMask": [1, 2, 3, 4]
   },
   {
@@ -1184,6 +1329,7 @@
     "maskPath": "Phoenix",
     "base": "Phoenix_ASA.png",
     "masks": ["Phoenix_ASA_m.png"],
+    "aliases": [],
     "noMask": [2]
   },
   {
@@ -1191,6 +1337,7 @@
     "maskPath": "Piranha",
     "base": "Piranha_ASA.png",
     "masks": ["Piranha_ASA_m.png"],
+    "aliases": [],
     "noMask": [3]
   },
   {
@@ -1198,6 +1345,7 @@
     "maskPath": "Plesiosaur",
     "base": "Plesiosaur_ASA.png",
     "masks": ["Plesiosaur_ASA_m.png"],
+    "aliases": ["Plesiosaurus"],
     "noMask": [3]
   },
   {
@@ -1205,6 +1353,7 @@
     "maskPath": "Poison Wyvern",
     "base": "Poison Wyvern_ASA.png",
     "masks": ["Poison Wyvern_ASA_m.png"],
+    "aliases": ["Wyvern Poison"],
     "noMask": []
   },
   {
@@ -1212,6 +1361,7 @@
     "maskPath": "Procoptodon",
     "base": "Procoptodon_ASA.png",
     "masks": ["Procoptodon_ASA_m.png"],
+    "aliases": ["Kangaroo", "Roo"],
     "noMask": [1, 2, 3]
   },
   {
@@ -1219,6 +1369,7 @@
     "maskPath": "Pteranodon",
     "base": "Pteranodon_ASA.png",
     "masks": ["Pteranodon_ASA_m.png"],
+    "aliases": ["Ptero"],
     "noMask": []
   },
   {
@@ -1226,6 +1377,7 @@
     "maskPath": "Pulmonoscorpius",
     "base": "Pulmonoscorpius_ASA.png",
     "masks": ["Pulmonoscorpius_ASA_m.png"],
+    "aliases": ["Scorpion"],
     "noMask": []
   },
   {
@@ -1233,6 +1385,7 @@
     "maskPath": "Purlovia",
     "base": "Purlovia_ASA.png",
     "masks": ["Purlovia_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -1240,6 +1393,7 @@
     "maskPath": "Pyromane",
     "base": "Pyromane_ASA.png",
     "masks": ["Pyromane_ASA_m_23.png", "Pyromane_ASA_m_25.png", "Pyromane_ASA_m.png"],
+    "aliases": [],
     "noMask": [0, 1, 4]
   },
   {
@@ -1247,6 +1401,7 @@
     "maskPath": "Pyromane",
     "base": "Pyromane_ASA_sf.png",
     "masks": ["Pyromane_ASA_sf_m_23.png", "Pyromane_ASA_sf_m_25.png", "Pyromane_ASA_sf_m.png"],
+    "aliases": [],
     "noMask": [0, 1, 4]
   },
   {
@@ -1254,6 +1409,7 @@
     "maskPath": "Quetzal",
     "base": "Quetzal_ASA.png",
     "masks": ["Quetzal_ASA_m.png"],
+    "aliases": ["Quetzalcoatl", "Quetzalcoatlus"],
     "noMask": []
   },
   {
@@ -1261,6 +1417,7 @@
     "maskPath": "Raptor",
     "base": "Raptor_ASA.png",
     "masks": ["Raptor_ASA_m.png"],
+    "aliases": ["Utahraptor"],
     "noMask": [2]
   },
   {
@@ -1268,6 +1425,7 @@
     "maskPath": "Ravager",
     "base": "Ravager_ASA.png",
     "masks": ["Ravager_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -1275,6 +1433,7 @@
     "maskPath": "Reaper King",
     "base": "Reaper King_ASA.png",
     "masks": ["Reaper King_ASA_m_04.png", "Reaper King_ASA_m_05.png", "Reaper King_ASA_m_25.png", "Reaper King_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 3]
   },
   {
@@ -1282,6 +1441,7 @@
     "maskPath": "Rex",
     "base": "Rex_ASA.png",
     "masks": ["Rex_ASA_m.png"],
+    "aliases": ["Trex", "Tyrannosaur", "Tyrannosaurus", "Tyrannosaurus Rex"],
     "noMask": [2, 3]
   },
   {
@@ -1289,6 +1449,7 @@
     "maskPath": "Rhyniognatha",
     "base": "Rhyniognatha_ASA.png",
     "masks": ["Rhyniognatha_ASA_m_04.png", "Rhyniognatha_ASA_m_05.png", "Rhyniognatha_ASA_m_14.png", "Rhyniognatha_ASA_m.png"],
+    "aliases": [],
     "noMask": []
   },
   {
@@ -1303,6 +1464,7 @@
       "Rock Drake_ASA_m_25.png",
       "Rock Drake_ASA_m.png"
     ],
+    "aliases": [],
     "noMask": []
   },
   {
@@ -1310,6 +1472,7 @@
     "maskPath": "Rock Elemental",
     "base": "Rock Elemental_ASA.png",
     "masks": ["Rock Elemental_ASA_m.png"],
+    "aliases": ["Rock Golem", "Golem", "Rockgolem"],
     "noMask": [0, 2, 3, 4, 5]
   },
   {
@@ -1317,6 +1480,7 @@
     "maskPath": "Roll Rat",
     "base": "Roll Rat_ASA.png",
     "masks": ["Roll Rat_ASA_m.png"],
+    "aliases": [],
     "noMask": [2, 3]
   },
   {
@@ -1324,6 +1488,7 @@
     "maskPath": "Rubble Golem",
     "base": "Rubble Golem_ASA.png",
     "masks": ["Rubble Golem_ASA_m.png"],
+    "aliases": [],
     "noMask": [0, 2, 3, 4, 5]
   },
   {
@@ -1331,6 +1496,7 @@
     "maskPath": "Sabertooth",
     "base": "Sabertooth_ASA.png",
     "masks": ["Sabertooth_ASA_m.png"],
+    "aliases": ["Cat", "Sabre", "Sabretooth"],
     "noMask": [1, 2, 3]
   },
   {
@@ -1338,6 +1504,7 @@
     "maskPath": "Sabertooth Salmon",
     "base": "Sabertooth Salmon_ASA.png",
     "masks": ["Sabertooth Salmon_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -1345,6 +1512,7 @@
     "maskPath": "Sarco",
     "base": "Sarco_ASA.png",
     "masks": ["Sarco_ASA_m.png"],
+    "aliases": ["Sarcosuchus"],
     "noMask": [1]
   },
   {
@@ -1352,6 +1520,7 @@
     "maskPath": "Shastasaurus",
     "base": "Shastasaurus_ASA.png",
     "masks": ["Shastasaurus_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 3]
   },
   {
@@ -1359,6 +1528,7 @@
     "maskPath": "Shinehorn",
     "base": "Shinehorn_ASA.png",
     "masks": ["Shinehorn_ASA_m.png"],
+    "aliases": [],
     "noMask": [1]
   },
   {
@@ -1366,6 +1536,7 @@
     "maskPath": "Snow Owl",
     "base": "Snow Owl_ASA.png",
     "masks": ["Snow Owl_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 3]
   },
   {
@@ -1373,6 +1544,7 @@
     "maskPath": "Spino",
     "base": "Spino_ASA.png",
     "masks": ["Spino_ASA_m.png"],
+    "aliases": ["Spinosaur", "Spinosaurus"],
     "noMask": [2, 3]
   },
   {
@@ -1380,6 +1552,7 @@
     "maskPath": "Stegosaurus",
     "base": "Stegosaurus_ASA.png",
     "masks": ["Stegosaurus_ASA_m.png"],
+    "aliases": [],
     "noMask": []
   },
   {
@@ -1387,6 +1560,7 @@
     "maskPath": "Tapejara",
     "base": "Tapejara_ASA.png",
     "masks": ["Tapejara_ASA_m.png"],
+    "aliases": ["Tapy"],
     "noMask": [2]
   },
   {
@@ -1394,13 +1568,15 @@
     "maskPath": "Tek Giganotosaurus",
     "base": "Tek Giganotosaurus_ASA.png",
     "masks": ["Tek Giganotosaurus_ASA_m.png"],
-    "noMask": [1, 2, 3]
+    "aliases": [],
+    "noMask": []
   },
   {
     "name": "Tek Parasaur",
     "maskPath": "Tek Parasaur",
     "base": "Tek Parasaur_ASA.png",
     "masks": ["Tek Parasaur_ASA_m.png"],
+    "aliases": [],
     "noMask": []
   },
   {
@@ -1408,6 +1584,7 @@
     "maskPath": "Tek Quetzal",
     "base": "Tek Quetzal_ASA.png",
     "masks": ["Tek Quetzal_ASA_m.png"],
+    "aliases": [],
     "noMask": []
   },
   {
@@ -1415,20 +1592,23 @@
     "maskPath": "Tek Raptor",
     "base": "Tek Raptor_ASA.png",
     "masks": ["Tek Raptor_ASA_m.png"],
-    "noMask": [2]
+    "aliases": [],
+    "noMask": []
   },
   {
     "name": "Tek Rex",
     "maskPath": "Tek Rex",
     "base": "Tek Rex_ASA.png",
     "masks": ["Tek Rex_ASA_m.png"],
-    "noMask": [2, 3]
+    "aliases": [],
+    "noMask": []
   },
   {
     "name": "Tek Stegosaurus",
     "maskPath": "Tek Stegosaurus",
     "base": "Tek Stegosaurus_ASA.png",
     "masks": ["Tek Stegosaurus_ASA_m.png"],
+    "aliases": [],
     "noMask": []
   },
   {
@@ -1436,13 +1616,15 @@
     "maskPath": "Tek Triceratops",
     "base": "Tek Triceratops_ASA.png",
     "masks": ["Tek Triceratops_ASA_m.png"],
-    "noMask": [2]
+    "aliases": [],
+    "noMask": []
   },
   {
     "name": "Terror Bird",
     "maskPath": "Terror Bird",
     "base": "Terror Bird_ASA.png",
     "masks": ["Terror Bird_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -1450,6 +1632,7 @@
     "maskPath": "Therizinosaur",
     "base": "Therizinosaur_ASA.png",
     "masks": ["Therizinosaur_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 3]
   },
   {
@@ -1457,6 +1640,7 @@
     "maskPath": "Thylacoleo",
     "base": "Thylacoleo_ASA.png",
     "masks": ["Thylacoleo_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -1464,6 +1648,7 @@
     "maskPath": "Titanoboa",
     "base": "Titanoboa_ASA.png",
     "masks": ["Titanoboa_ASA_m.png"],
+    "aliases": ["Snake", "Titanboa"],
     "noMask": []
   },
   {
@@ -1471,6 +1656,7 @@
     "maskPath": "Triceratops",
     "base": "Triceratops_ASA.png",
     "masks": ["Triceratops_ASA_m.png"],
+    "aliases": ["Trike"],
     "noMask": [2]
   },
   {
@@ -1478,6 +1664,7 @@
     "maskPath": "Trilobite",
     "base": "Trilobite_ASA.png",
     "masks": [],
+    "aliases": [],
     "noMask": [0, 1, 2, 3, 4, 5]
   },
   {
@@ -1485,6 +1672,7 @@
     "maskPath": "Troodon",
     "base": "Troodon_ASA.png",
     "masks": ["Troodon_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -1492,6 +1680,7 @@
     "maskPath": "Tusoteuthis",
     "base": "Tusoteuthis_ASA.png",
     "masks": ["Tusoteuthis_ASA_m.png"],
+    "aliases": ["Squid"],
     "noMask": [2, 3]
   },
   {
@@ -1499,6 +1688,7 @@
     "maskPath": "Veilwyn",
     "base": "Veilwyn_ASA.png",
     "masks": ["Veilwyn_ASA_m_04.png", "Veilwyn_ASA_m_13.png", "Veilwyn_ASA_m.png"],
+    "aliases": [],
     "noMask": [2]
   },
   {
@@ -1506,6 +1696,7 @@
     "maskPath": "Velonasaur",
     "base": "Velonasaur_ASA.png",
     "masks": ["Velonasaur_ASA_m_05.png", "Velonasaur_ASA_m_13.png", "Velonasaur_ASA_m_25.png", "Velonasaur_ASA_m.png"],
+    "aliases": [],
     "noMask": []
   },
   {
@@ -1513,6 +1704,7 @@
     "maskPath": "Vulture",
     "base": "Vulture_ASA.png",
     "masks": ["Vulture_ASA_m.png"],
+    "aliases": [],
     "noMask": [2, 3]
   },
   {
@@ -1520,6 +1712,7 @@
     "maskPath": "Woolly Rhino",
     "base": "Woolly Rhino_ASA.png",
     "masks": ["Woolly Rhino_ASA_m.png"],
+    "aliases": ["Rhinoceros"],
     "noMask": [2, 3]
   },
   {
@@ -1527,6 +1720,7 @@
     "maskPath": "Xiphactinus",
     "base": "Xiphactinus_ASA.png",
     "masks": ["Xiphactinus_ASA_m.png"],
+    "aliases": [],
     "noMask": [1, 2, 3]
   },
   {
@@ -1534,6 +1728,7 @@
     "maskPath": "Yi Ling",
     "base": "Yi Ling_ASA.png",
     "masks": ["Yi Ling_ASA_m.png"],
+    "aliases": [],
     "noMask": [2]
   },
   {
@@ -1541,6 +1736,7 @@
     "maskPath": "Yutyrannus",
     "base": "Yutyrannus_ASA.png",
     "masks": ["Yutyrannus_ASA_m.png"],
+    "aliases": [],
     "noMask": [2, 3]
   },
   {
@@ -1548,6 +1744,7 @@
     "maskPath": "Zombie Fire Wyvern",
     "base": "Zombie Fire Wyvern_ASA.png",
     "masks": ["Zombie Fire Wyvern_ASA_m.png"],
+    "aliases": [],
     "noMask": [2, 4]
   },
   {
@@ -1555,6 +1752,7 @@
     "maskPath": "Zombie Lightning Wyvern",
     "base": "Zombie Lightning Wyvern_ASA.png",
     "masks": ["Zombie Lightning Wyvern_ASA_m.png"],
+    "aliases": [],
     "noMask": [2, 4]
   },
   {
@@ -1562,6 +1760,7 @@
     "maskPath": "Zombie Poison Wyvern",
     "base": "Zombie Poison Wyvern_ASA.png",
     "masks": ["Zombie Poison Wyvern_ASA_m.png"],
+    "aliases": [],
     "noMask": [2, 4]
   }
 ]
