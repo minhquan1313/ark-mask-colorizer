@@ -1,12 +1,13 @@
+import '@ant-design/v5-patch-for-react-19';
+import { App as AntdApp, ConfigProvider, theme } from 'antd';
+import 'antd/dist/reset.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { ConfigProvider, App as AntdApp, theme } from 'antd';
 import App from './App';
 import './i18n';
 import './styles.css';
 import './styles/theme.css';
-import 'antd/dist/reset.css';
 
 const rootElement = document.getElementById('root');
 
