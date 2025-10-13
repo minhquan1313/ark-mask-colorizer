@@ -20,6 +20,7 @@ export default function SlotControls({
   onReorderFavorites,
   onHighlightSlotsChange,
   controlsDisabled = false,
+  copyDisabledSet = null,
 }) {
   const { t } = useI18n();
   const [copied, setCopied] = useState(false);
@@ -104,38 +105,41 @@ export default function SlotControls({
         }}>
         <Button
           block
-          disabled={controlsDisabled}
           onClick={onRandomAll}>
           {t('slotControls.random')}
         </Button>
         <Button
           block
-          disabled={controlsDisabled}
           onClick={onResetSlots}>
           {t('slotControls.reset')}
         </Button>
         {!controlsDisabled ? extraActions : null}
         <Button
           block
-          disabled={controlsDisabled}
           onClick={onPasteCmd}
           title={t('slotControls.pasteTitle')}>
           {t('slotControls.paste')}
         </Button>
         <Button
           block
-          disabled={controlsDisabled}
           onClick={async () => {
             try {
               setCopyErr(false);
               if (typeof onCopyCmd === 'function') {
                 await onCopyCmd();
               } else {
-                const cmds = Array.from({ length: 6 }, (_, idx) => {
+                const skip = copyDisabledSet instanceof Set ? copyDisabledSet : null;
+                const cmds = [];
+                for (let idx = 0; idx < 6; idx++) {
+                  if (skip?.has(idx)) continue;
                   const v = slots?.[idx];
-                  const id = v && typeof v.index !== 'undefined' ? v.index : 255;
-                  return `setTargetDinoColor ${idx} ${id}`;
-                });
+                  const id = v && typeof v.index !== 'undefined' ? v.index : null;
+                  if (id == null) continue;
+                  cmds.push(`setTargetDinoColor ${idx} ${id}`);
+                }
+                if (!cmds.length) {
+                  throw new Error('No colors to copy');
+                }
                 await navigator.clipboard.writeText(cmds.join(' | '));
               }
               setCopied(true);

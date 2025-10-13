@@ -99,6 +99,11 @@ export default function App() {
     return maskList.some((value) => typeof value === 'string' && value.trim().length > 0);
   }, [current]);
   const baseOnlyMode = !maskAvailable && !hasMaskSources;
+  const copyDisabledSet = useMemo(() => {
+    if (baseOnlyMode) return new Set([0, 1, 2, 3, 4, 5]);
+    if (!unlockAllSlots) return new Set();
+    return new Set(current?.noMask || []);
+  }, [baseOnlyMode, unlockAllSlots, current]);
   const disabledSet = useMemo(() => {
     if (customMode) return new Set();
     if (baseOnlyMode) return new Set([0, 1, 2, 3, 4, 5]);
@@ -378,7 +383,25 @@ export default function App() {
       if (incStats) saveJSON(STORAGE_KEYS.cmdIncStats, incStats);
 
       // --- 4) M?u 6 slot -> apply (b? qua slot b? noMask)
-      const colorIds = parseNumList(quoted[QIDX_COLORS], 6, 6);
+      let colorIds = parseNumList(quoted[QIDX_COLORS], 6, 6);
+      if (!colorIds) {
+        const directMatches = Array.from(txt.matchAll(/setTargetDinoColor\s+(\d)\s+(\d+)/gi));
+        if (directMatches.length > 0) {
+          const direct = Array(6).fill(255);
+          let applied = false;
+          for (const match of directMatches) {
+            const slotIdx = Number(match[1]);
+            const colorId = Number(match[2]);
+            if (!Number.isInteger(slotIdx) || slotIdx < 0 || slotIdx > 5) continue;
+            if (!Number.isFinite(colorId)) continue;
+            direct[slotIdx] = colorId;
+            applied = true;
+          }
+          if (applied) {
+            colorIds = direct;
+          }
+        }
+      }
       if (colorIds) {
         const disabled = baseOnlyMode ? new Set([0, 1, 2, 3, 4, 5]) : unlockAllSlots ? new Set() : new Set(current?.noMask || []);
         setSlots(
@@ -698,6 +721,7 @@ export default function App() {
       creaturePicker={creaturePickerProps}
       toolbarActions={toolbarActions}
       slotControlsDisabled={baseOnlyMode}
+      copyDisabledSet={copyDisabledSet}
     />
   );
 

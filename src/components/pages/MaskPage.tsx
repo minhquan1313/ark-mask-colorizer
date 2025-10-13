@@ -29,6 +29,7 @@ export default function MaskPage({
   creaturePicker,
   toolbarActions,
   slotControlsDisabled = false,
+  copyDisabledSet = null,
 }) {
   const { baseImg, maskImg, busy, outCanvasRef, baseCanvasRef, maskCanvasRef } = canvas;
   const { isOpen: fillOpen, anchorRef: fillBtnRef, open: openFill, close: closeFill, onPick: onFillPick } = fillControls;
@@ -114,6 +115,7 @@ export default function MaskPage({
             onPasteCmd={onPasteCmd}
             onHighlightSlotsChange={handleHighlightSlotsChange}
             controlsDisabled={slotControlsDisabled}
+            copyDisabledSet={copyDisabledSet}
             extraActions={
               !slotControlsDisabled ? (
                 <>
