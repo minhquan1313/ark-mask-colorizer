@@ -3,11 +3,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import BottomNav from './components/BottomNav';
-import { ExtractorIcon, LibraryIcon, MaskIcon, SettingsIcon } from './components/icons/NavIcons';
+import { ExtractorIcon, LibraryIcon, MaskIcon, SettingsIcon, UtilitiesIcon } from './components/icons/NavIcons';
 import ExtractorPage from './components/pages/ExtractorPage';
 import LibraryPage from './components/pages/LibraryPage';
 import MaskPage from './components/pages/MaskPage';
 import SettingsPage from './components/pages/SettingsPage';
+import UtilitiesPage from './components/pages/UtilitiesPage';
 import { DEFAULTS } from './config/defaults';
 import { MaskSettingsProvider } from './context/MaskSettingsContext';
 import { useCreatures } from './hooks/useCreatures';
@@ -647,6 +648,12 @@ export default function App() {
         icon: <LibraryIcon style={{ fontSize: 24 }} />,
       },
       {
+        id: 'utilities',
+        to: '/utilities',
+        label: t('nav.utilities', { defaultValue: 'Utilities' }),
+        icon: <UtilitiesIcon style={{ fontSize: 24 }} />,
+      },
+      {
         id: 'settings',
         to: '/settings',
         label: t('nav.settings', { defaultValue: 'Settings' }),
@@ -759,6 +766,10 @@ export default function App() {
             <Route
               path="/library"
               element={<LibraryPage t={t} />}
+            />
+            <Route
+              path="/utilities"
+              element={<UtilitiesPage t={t} />}
             />
             <Route
               path="/settings"

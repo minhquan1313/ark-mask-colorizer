@@ -127,3 +127,29 @@ export const ExtractorIcon = (props) => (
     {...props}
   />
 );
+
+export function UtilitiesSVG() {
+  return (
+    <svg
+      width="1em"
+      height="1em"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round">
+      <path d="M5 7.5h14a1.5 1.5 0 0 1 1.5 1.5v8a2.5 2.5 0 0 1-2.5 2.5H6A2.5 2.5 0 0 1 3.5 17V9a1.5 1.5 0 0 1 1.5-1.5Z" />
+      <path d="M4 11h16" />
+      <path d="M8.5 4h7a1.5 1.5 0 0 1 1.5 1.5V7H7V5.5A1.5 1.5 0 0 1 8.5 4Z" />
+      <path d="M9.5 15.5h5" />
+    </svg>
+  );
+}
+
+export const UtilitiesIcon = (props) => (
+  <Icon
+    component={UtilitiesSVG}
+    {...props}
+  />
+);

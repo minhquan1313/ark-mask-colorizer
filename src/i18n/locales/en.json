@@ -91,6 +91,7 @@
   "nav": {
     "mask": "Mask",
     "library": "Library",
+    "utilities": "Utilities",
     "settings": "Settings",
     "extractor": "Extractor"
   },
@@ -117,5 +118,57 @@
     },
     "unlockAllSlots": "Unlock all slots",
     "unlockAllSlotsDescription": "Allow editing all color slots regardless of creature mask availability."
+  },
+  "utilities": {
+    "title": "Utilities",
+    "subtitle": "Handy helpers and quality-of-life tools for your ARK adventures.",
+    "decay": {
+      "tab": "Decay",
+      "title": "Decay",
+      "description": "This will be a clock to let you know when your base decay.",
+      "sort": {
+        "server": "Server Number",
+        "map": "Map",
+        "structure": "Structure Type"
+      },
+      "actions": {
+        "add": "Add server",
+        "search": "Search servers",
+        "delete": "Delete",
+        "update": "Update",
+        "refresh": "Refresh"
+      },
+      "empty": "No servers yet. Add your first one to start tracking decay timers.",
+      "tooltip": {
+        "decaysOn": "Decays on {{date}}"
+      },
+      "info": {
+        "serverNumber": "Server #{{number}}"
+      },
+      "time": {
+        "expired": "Expired",
+        "leftSuffix": "left"
+      },
+      "modal": {
+        "addTitle": "Add Server",
+        "editTitle": "Update Server",
+        "addButton": "Add server",
+        "saveButton": "Save changes"
+      },
+      "fields": {
+        "map": "Map",
+        "serverNumber": "Server number",
+        "structureType": "Structure type"
+      },
+      "validation": {
+        "map": "Select a map",
+        "server": "Enter a server number",
+        "serverPositive": "Server number must be positive",
+        "structure": "Select structure type"
+      },
+      "placeholders": {
+        "serverNumber": "Example: 1234"
+      }
+    }
   }
 }

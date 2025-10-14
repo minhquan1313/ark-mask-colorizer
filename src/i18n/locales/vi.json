@@ -91,6 +91,7 @@
   "nav": {
     "mask": "Mask",
     "library": "Thu vien",
+    "utilities": "Tien ich",
     "settings": "Cai dat",
     "extractor": "Trich xuat"
   },
@@ -117,5 +118,57 @@
     },
     "unlockAllSlots": "Mo khoa tat ca slot",
     "unlockAllSlotsDescription": "Cho phep chinh sua tat ca slot mau bat chap creature co mask hay khong."
+  },
+  "utilities": {
+    "title": "Tien ich",
+    "subtitle": "Cac cong cu ho tro giup ban quan ly ARK de dang hon.",
+    "decay": {
+      "tab": "Suy hao",
+      "title": "Suy hao",
+      "description": "Day la dong ho giup ban biet khi nao can cu bi suy hao.",
+      "sort": {
+        "server": "May chu",
+        "map": "Ban do",
+        "structure": "Loai cong trinh"
+      },
+      "actions": {
+        "add": "Them may chu",
+        "search": "Tim kiem may chu",
+        "delete": "Xoa",
+        "update": "Cap nhat",
+        "refresh": "Lam moi"
+      },
+      "empty": "Chua co may chu nao. Hay them mot cai de bat dau theo doi thoi gian suy hao.",
+      "tooltip": {
+        "decaysOn": "Suy hao vao {{date}}"
+      },
+      "info": {
+        "serverNumber": "May chu #{{number}}"
+      },
+      "time": {
+        "expired": "Da het",
+        "leftSuffix": "con lai"
+      },
+      "modal": {
+        "addTitle": "Them may chu",
+        "editTitle": "Cap nhat may chu",
+        "addButton": "Them may chu",
+        "saveButton": "Luu thay doi"
+      },
+      "fields": {
+        "map": "Ban do",
+        "serverNumber": "So may chu",
+        "structureType": "Loai cong trinh"
+      },
+      "validation": {
+        "map": "Hay chon ban do",
+        "server": "Hay nhap so may chu",
+        "serverPositive": "So may chu phai lon hon 0",
+        "structure": "Hay chon loai cong trinh"
+      },
+      "placeholders": {
+        "serverNumber": "Vi du: 1234"
+      }
+    }
   }
 }

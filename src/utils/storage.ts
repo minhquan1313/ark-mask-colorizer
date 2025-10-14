@@ -32,6 +32,7 @@ export const STORAGE_KEYS = {
   cmdBaseStats: `${NS}:cmd:base`,
   cmdIncStats: `${NS}:cmd:inc`,
   unlockAllSlots: `${NS}:unlockAllSlots`,
+  decayServers: `${NS}:decayServers`,
 } as const;
 
 export function saveJSON(key: string, data: unknown): void {
