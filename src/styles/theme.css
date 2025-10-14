@@ -74,6 +74,7 @@ body {
   grid-template-columns: minmax(0, 1fr) 368px; /* preview | controls */
   gap: 24px;
   padding: 32px 40px;
+  width: 100%;
   max-width: 1280px;
   margin: 32px auto;
   align-items: flex-start;
