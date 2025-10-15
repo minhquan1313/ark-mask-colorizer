@@ -1,0 +1,12 @@
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="adobeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#b45309" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#adobeGradient)" />
+  <rect x="70" y="90" width="260" height="140" rx="24" fill="#78350f" opacity="0.4" />
+  <circle cx="120" cy="170" r="22" fill="#fde68a" opacity="0.5" />
+  <text x="200" y="170" font-family="'Segoe UI', sans-serif" font-size="48" text-anchor="middle" fill="#fff" font-weight="600">Adobe</text>
+</svg>

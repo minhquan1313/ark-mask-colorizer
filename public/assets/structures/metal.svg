@@ -1,0 +1,12 @@
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="metalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#cbd5f5" />
+      <stop offset="100%" stop-color="#4f46e5" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#metalGradient)" />
+  <rect x="80" y="90" width="240" height="140" rx="24" fill="#1f2937" opacity="0.35" />
+  <path d="M80 150 L200 110 L320 150" stroke="#a5b4fc" stroke-width="12" stroke-linecap="round" opacity="0.45" />
+  <text x="200" y="170" font-family="'Segoe UI', sans-serif" font-size="48" text-anchor="middle" fill="#fff" font-weight="600">Metal</text>
+</svg>

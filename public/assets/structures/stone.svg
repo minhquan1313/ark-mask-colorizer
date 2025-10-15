@@ -1,0 +1,12 @@
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="stoneGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#94a3b8" />
+      <stop offset="100%" stop-color="#475569" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#stoneGradient)" />
+  <polygon points="80,220 160,90 240,220" fill="#1f2937" opacity="0.5" />
+  <polygon points="200,220 280,110 340,220" fill="#0f172a" opacity="0.4" />
+  <text x="200" y="170" font-family="'Segoe UI', sans-serif" font-size="48" text-anchor="middle" fill="#e2e8f0" font-weight="600">Stone</text>
+</svg>

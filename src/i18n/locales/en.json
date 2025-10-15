@@ -129,18 +129,26 @@
       "sort": {
         "server": "Server Number",
         "map": "Map",
-        "structure": "Structure Type"
+        "structure": "Structure Type",
+        "asc": "Ascending",
+        "desc": "Descending"
       },
       "actions": {
         "add": "Add server",
         "search": "Search servers",
         "delete": "Delete",
         "update": "Update",
-        "refresh": "Refresh"
+        "refresh": "Refresh",
+        "refreshAll": "Refresh all",
+        "refreshSelected": "Refresh selected",
+        "deleteSelected": "Delete selected",
+        "enabled": "On",
+        "disabled": "Off"
       },
       "empty": "No servers yet. Add your first one to start tracking decay timers.",
       "tooltip": {
-        "decaysOn": "Decays on {{date}}"
+        "decaysOn": "Decays on {{date}}",
+        "creaturesDecayOn": "Creatures decay on {{date}}"
       },
       "info": {
         "serverNumber": "Server #{{number}}"
@@ -148,6 +156,34 @@
       "time": {
         "expired": "Expired",
         "leftSuffix": "left"
+      },
+      "labels": {
+        "structure": "Structure",
+        "creatures": "Creatures",
+        "map": "Map",
+        "serverNumber": "Server number",
+        "structureDecay": "Structure decay",
+        "structureDecayDuration": "{{days}} days",
+        "creatureDecayDuration": "{{days}} days",
+        "creaturesDisabled": "Not tracking creatures",
+        "note": "Note",
+        "lastRefreshed": "Last refreshed",
+        "createdAt": "Created",
+        "days": "days"
+      },
+      "drawer": {
+        "title": "Server #{{number}} details"
+      },
+      "selection": {
+        "selectAll": "Select all"
+      },
+      "confirm": {
+        "deleteSelectedTitle": "Delete selected servers?",
+        "deleteSelectedMessage": "This cannot be undone.",
+        "deleteTitle": "Delete this server?",
+        "deleteMessage": "This action cannot be undone.",
+        "ok": "Delete",
+        "cancel": "Cancel"
       },
       "modal": {
         "addTitle": "Add Server",
@@ -158,16 +194,22 @@
       "fields": {
         "map": "Map",
         "serverNumber": "Server number",
-        "structureType": "Structure type"
+        "structureType": "Structure type",
+        "creatureToggle": "Track creature decay",
+        "creatureDecay": "Creature decay (days)",
+        "creatureDecayHint": "Default is 7 days",
+        "note": "Note"
       },
       "validation": {
         "map": "Select a map",
         "server": "Enter a server number",
         "serverPositive": "Server number must be positive",
-        "structure": "Select structure type"
+        "structure": "Select structure type",
+        "creatureDecay": "Decay must be at least 1 day"
       },
       "placeholders": {
-        "serverNumber": "Example: 1234"
+        "serverNumber": "Example: 1234",
+        "note": "Note what you have to render in this server, ex: Main base, water pen, etc"
       }
     }
   }

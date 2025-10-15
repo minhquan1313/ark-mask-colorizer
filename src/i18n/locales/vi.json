@@ -129,18 +129,26 @@
       "sort": {
         "server": "May chu",
         "map": "Ban do",
-        "structure": "Loai cong trinh"
+        "structure": "Loai cong trinh",
+        "asc": "Tang dan",
+        "desc": "Giam dan"
       },
       "actions": {
         "add": "Them may chu",
         "search": "Tim kiem may chu",
         "delete": "Xoa",
         "update": "Cap nhat",
-        "refresh": "Lam moi"
+        "refresh": "Lam moi",
+        "refreshAll": "Lam moi tat ca",
+        "refreshSelected": "Lam moi muc da chon",
+        "deleteSelected": "Xoa muc da chon",
+        "enabled": "Bat",
+        "disabled": "Tat"
       },
       "empty": "Chua co may chu nao. Hay them mot cai de bat dau theo doi thoi gian suy hao.",
       "tooltip": {
-        "decaysOn": "Suy hao vao {{date}}"
+        "decaysOn": "Suy hao vao {{date}}",
+        "creaturesDecayOn": "Sinh vat suy hao vao {{date}}"
       },
       "info": {
         "serverNumber": "May chu #{{number}}"
@@ -148,6 +156,34 @@
       "time": {
         "expired": "Da het",
         "leftSuffix": "con lai"
+      },
+      "labels": {
+        "structure": "Cong trinh",
+        "creatures": "Sinh vat",
+        "map": "Ban do",
+        "serverNumber": "So may chu",
+        "structureDecay": "Thoi gian suy hao cong trinh",
+        "structureDecayDuration": "{{days}} ngay",
+        "creatureDecayDuration": "{{days}} ngay",
+        "creaturesDisabled": "Khong theo doi sinh vat",
+        "note": "Ghi chu",
+        "lastRefreshed": "Lan lam moi gan nhat",
+        "createdAt": "Thoi gian tao",
+        "days": "ngay"
+      },
+      "drawer": {
+        "title": "Chi tiet may chu #{{number}}"
+      },
+      "selection": {
+        "selectAll": "Chon tat ca"
+      },
+      "confirm": {
+        "deleteSelectedTitle": "Xoa cac may chu da chon?",
+        "deleteSelectedMessage": "Hanh dong nay khong the hoan tac.",
+        "deleteTitle": "Xoa may chu nay?",
+        "deleteMessage": "Hanh dong nay khong the hoan tac.",
+        "ok": "Xoa",
+        "cancel": "Huy"
       },
       "modal": {
         "addTitle": "Them may chu",
@@ -158,16 +194,22 @@
       "fields": {
         "map": "Ban do",
         "serverNumber": "So may chu",
-        "structureType": "Loai cong trinh"
+        "structureType": "Loai cong trinh",
+        "creatureToggle": "Theo doi suy hao sinh vat",
+        "creatureDecay": "Suy hao sinh vat (ngay)",
+        "creatureDecayHint": "Mac dinh la 7 ngay",
+        "note": "Ghi chu"
       },
       "validation": {
         "map": "Hay chon ban do",
         "server": "Hay nhap so may chu",
         "serverPositive": "So may chu phai lon hon 0",
-        "structure": "Hay chon loai cong trinh"
+        "structure": "Hay chon loai cong trinh",
+        "creatureDecay": "Thoi gian suy hao toi thieu 1 ngay"
       },
       "placeholders": {
-        "serverNumber": "Vi du: 1234"
+        "serverNumber": "Vi du: 1234",
+        "note": "Ghi chu nhung gi ban xay dung tai day, vd: Can cu chinh, chuong nuoi nuoc, ..."
       }
     }
   }

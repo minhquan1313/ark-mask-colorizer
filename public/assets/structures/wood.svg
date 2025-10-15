@@ -1,0 +1,12 @@
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="woodGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b45309" />
+      <stop offset="100%" stop-color="#7c2d12" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#woodGradient)" />
+  <rect x="60" y="80" width="280" height="160" rx="20" fill="#451a03" opacity="0.45" />
+  <path d="M60 150 L200 110 L340 150" stroke="#f97316" stroke-width="10" stroke-linecap="round" opacity="0.35" />
+  <text x="200" y="170" font-family="'Segoe UI', sans-serif" font-size="48" text-anchor="middle" fill="#fff" font-weight="600">Wood</text>
+</svg>

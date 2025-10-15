@@ -1,0 +1,12 @@
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="tekGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22d3ee" />
+      <stop offset="100%" stop-color="#6366f1" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#tekGradient)" />
+  <polygon points="70,220 150,100 230,220" fill="#0f172a" opacity="0.5" />
+  <polygon points="200,220 270,110 330,220" fill="#1e293b" opacity="0.45" />
+  <text x="200" y="170" font-family="'Segoe UI', sans-serif" font-size="48" text-anchor="middle" fill="#ecfeff" font-weight="600">Tek</text>
+</svg>
