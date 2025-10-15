@@ -1,6 +1,5 @@
-// @ts-nocheck
-import { useMemo } from 'react';
 import { Select, Space, Typography } from 'antd';
+import { useMemo } from 'react';
 import { useI18n } from '../i18n';
 
 const { Text } = Typography;

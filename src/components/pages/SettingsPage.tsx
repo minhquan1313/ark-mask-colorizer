@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Button, Card, Empty, Grid, Tabs, Timeline, Typography } from 'antd';
 import { useMemo } from 'react';
 import updateNote from '../../data/updateNote.json';

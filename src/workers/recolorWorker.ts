@@ -1,4 +1,3 @@
-// @ts-nocheck
 /* Web Worker: recolor rendering off the main thread */
 // This mirrors the algorithm from useRecolor.js but operates on raw ImageData buffers.
 

@@ -1,8 +1,7 @@
-// @ts-nocheck
 // Worker-based recolor to avoid blocking the main thread
-import { useMemo, useRef, useState, useCallback, useEffect } from 'react';
-import { useRecolor as useRecolorSync } from './useRecolor';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { STORAGE_KEYS, loadJSON } from '../utils/storage';
+import { useRecolor as useRecolorSync } from './useRecolor';
 
 // --- OKLab helpers for pastel mixing on overlays ---
 const srgb2lin = (v) => (v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));

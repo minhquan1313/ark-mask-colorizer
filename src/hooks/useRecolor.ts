@@ -1,5 +1,3 @@
-// @ts-nocheck
-// src/hooks/useRecolor.js
 const srgb2lin = (v) => (v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)),
   lin2srgb = (v) => (v <= 0.0031308 ? v * 12.92 : 1.055 * Math.pow(v, 1 / 2.4) - 0.055);
 function rgb2oklab(r, g, b) {

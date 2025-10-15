@@ -1,5 +1,3 @@
-// @ts-nocheck
-// src/App.jsx
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import BottomNav from './components/BottomNav';

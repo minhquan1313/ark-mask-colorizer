@@ -1,4 +1,3 @@
-// @ts-nocheck
 // src/components/Toolbar.jsx
 import { DownloadOutlined, ExperimentOutlined, ReloadOutlined, SlidersOutlined, UploadOutlined } from '@ant-design/icons';
 import { Button, Divider, Slider, Space, Typography } from 'antd';

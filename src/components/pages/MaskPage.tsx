@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Button } from 'antd';
 import { useCallback, useEffect, useState } from 'react';
 import CanvasView from '../CanvasView';

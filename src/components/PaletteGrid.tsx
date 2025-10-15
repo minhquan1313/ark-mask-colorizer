@@ -1,11 +1,9 @@
-// @ts-nocheck
-import { useCallback, useMemo } from 'react';
-import { Button } from 'antd';
-import { useI18n } from '../i18n';
 import { DndContext, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
-import { SortableContext, rectSortingStrategy, arrayMove } from '@dnd-kit/sortable';
-import { useSortable } from '@dnd-kit/sortable';
+import { SortableContext, arrayMove, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Button } from 'antd';
+import { useCallback, useMemo } from 'react';
+import { useI18n } from '../i18n';
 import { ARK_PALETTE } from '../utils/arkPalette';
 import { hexToRgb, relLuminance } from '../utils/color';
 

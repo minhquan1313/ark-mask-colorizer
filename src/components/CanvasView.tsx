@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useEffect, useRef, useState } from 'react';
 import { useI18n } from '../i18n';
 import { hexToRgb, relLuminance } from '../utils/color';

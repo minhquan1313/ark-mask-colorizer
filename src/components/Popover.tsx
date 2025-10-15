@@ -1,4 +1,3 @@
-// @ts-nocheck
 // src/components/Popover.jsx
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Button, Card, ColorPicker, Divider, Space, Switch, Typography } from 'antd';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DEFAULTS } from '../config/defaults';

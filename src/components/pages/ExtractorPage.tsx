@@ -1,4 +1,3 @@
-// @ts-nocheck
 export default function ExtractorPage({ t }) {
   return (
     <div className="container container--single">

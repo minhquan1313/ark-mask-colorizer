@@ -1,6 +1,5 @@
-// @ts-nocheck
-import { useEffect, useRef, useState } from 'react';
 import { Button } from 'antd';
+import { useEffect, useRef, useState } from 'react';
 import { useI18n } from '../i18n';
 import { ARK_PALETTE } from '../utils/arkPalette';
 import { hexToRgb, relLuminance } from '../utils/color';
