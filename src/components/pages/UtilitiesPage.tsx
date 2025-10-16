@@ -1,5 +1,6 @@
 ﻿import { Card, Grid, Tabs, Typography } from 'antd';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import DecayTool from '../utilities/decay/DecayTool';
 
 const { Title, Text, Paragraph } = Typography;
@@ -17,6 +18,10 @@ export default function UtilitiesPage({ t }: UtilitiesPageProps) {
     [t],
   );
 
+  const { toolId } = useParams<{ toolId?: string }>();
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const screens = Grid.useBreakpoint();
   const isLargeUp = Boolean(screens.lg);
   const tabPosition = isLargeUp ? 'left' : 'top';
@@ -31,6 +36,25 @@ export default function UtilitiesPage({ t }: UtilitiesPageProps) {
     ],
     [t, translate],
   );
+
+  const availableKeys = useMemo(() => tabItems.map((item) => item.key), [tabItems]);
+  const defaultKey = tabItems[0]?.key ?? '';
+  const normalizedToolId = toolId ?? '';
+  const isValidKey = normalizedToolId ? availableKeys.includes(normalizedToolId) : false;
+  const activeKey = isValidKey ? normalizedToolId : defaultKey;
+
+  useEffect(() => {
+    if (!defaultKey) return;
+    if (!normalizedToolId || !isValidKey) {
+      const nextSearch = location.search ?? '';
+      navigate(`/utilities/${defaultKey}${nextSearch}`, { replace: true });
+    }
+  }, [defaultKey, isValidKey, location.search, navigate, normalizedToolId]);
+
+  const handleTabChange = (key: string) => {
+    const nextSearch = key === normalizedToolId ? (location.search ?? '') : '';
+    navigate(`/utilities/${key}${nextSearch}`);
+  };
 
   return (
     <div className="container container--single">
@@ -55,6 +79,8 @@ export default function UtilitiesPage({ t }: UtilitiesPageProps) {
             tabPosition={tabPosition}
             tabBarGutter={isLargeUp ? 24 : 16}
             className="utilities-page__tabs"
+            activeKey={activeKey}
+            onChange={handleTabChange}
             items={tabItems}
           />
         </Card>

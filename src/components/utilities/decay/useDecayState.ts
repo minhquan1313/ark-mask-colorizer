@@ -45,10 +45,7 @@ interface UseDecayStateResult {
   closeDetails: () => void;
   isModalOpen: boolean;
   openAddModal: () => void;
-  openEditModal: (serverId: string) => void;
   closeModal: () => void;
-  modalMode: 'add' | 'edit';
-  editingServer: DecayServer | null;
   addServer: (payload: Partial<DecayServer>) => DecayServer;
   updateServer: (serverId: string, payload: Partial<DecayServer>) => void;
 }
@@ -60,8 +57,6 @@ export function useDecayState({ translate, searchParams, setSearchParams }: UseD
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
-  const [editingServerId, setEditingServerId] = useState<string | null>(null);
 
   const queryServerId = searchParams.get('serverId');
   const [viewedServerId, setViewedServerId] = useState<string | null>(queryServerId);
@@ -194,24 +189,12 @@ export function useDecayState({ translate, searchParams, setSearchParams }: UseD
   };
 
   const openAddModal = () => {
-    setModalMode('add');
-    setEditingServerId(null);
-    setIsModalOpen(true);
-  };
-
-  const openEditModal = (serverId: string) => {
-    setModalMode('edit');
-    setEditingServerId(serverId);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setEditingServerId(null);
-    setModalMode('add');
   };
-
-  const editingServer = editingServerId ? (servers.find((server) => server.id === editingServerId) ?? null) : null;
 
   const addServer = (payload: Partial<DecayServer>): DecayServer => {
     const now = Date.now();
@@ -263,10 +246,7 @@ export function useDecayState({ translate, searchParams, setSearchParams }: UseD
     closeDetails,
     isModalOpen,
     openAddModal,
-    openEditModal,
     closeModal,
-    modalMode,
-    editingServer,
     addServer,
     updateServer,
   };

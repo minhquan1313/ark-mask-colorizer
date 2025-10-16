@@ -1,5 +1,5 @@
 ﻿import { ReloadOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Flex, Tag, Tooltip, Typography } from 'antd';
+import { Button, Checkbox, Flex, Tooltip, Typography } from 'antd';
 import type { DecayServerView } from './decayTypes';
 import { formatDecayDate } from './decayUtils';
 
@@ -29,9 +29,7 @@ export default function DecayServerCard({ translate, server, selected, onToggleS
         />
       </div>
       <div className="decay-tool__server-shell">
-        <div
-          className="decay-tool__media"
-          style={{ backgroundImage: `url(${server.map.image})` }}>
+        <div className="decay-tool__media">
           <img
             src={server.map.image}
             alt={server.map.name}
@@ -51,11 +49,17 @@ export default function DecayServerCard({ translate, server, selected, onToggleS
                       number: server.serverNumber,
                     })}
                   </span>
-                  <Tag
-                    className="decay-tool__structure-tag"
-                    color="cyan">
-                    {server.structure.name}
-                  </Tag>
+                  <div className="decay-tool__structure-chip">
+                    <span className="decay-tool__structure-chip-thumb">
+                      <img
+                        src={server.structure.image}
+                        alt={translate('utilities.decay.labels.structureIconAlt', '{{structure}} icon', {
+                          structure: server.structure.name,
+                        })}
+                      />
+                    </span>
+                    <span className="decay-tool__structure-chip-label">{server.structure.name}</span>
+                  </div>
                 </div>
               </div>
             </div>

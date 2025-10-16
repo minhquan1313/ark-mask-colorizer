@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { DEFAULT_ARK_MAP } from '../../../data/arkMaps';
 import { DEFAULT_STRUCTURE_TYPE, STRUCTURE_TYPES } from '../../../data/structureTypes';
+import type { DecayFormValues } from './decayTypes';
 import DecayControls from './DecayControls';
 import DecayDetailDrawer from './DecayDetailDrawer';
 import DecayModal from './DecayModal';
@@ -30,7 +31,6 @@ export default function DecayTool({ t }: DecayToolProps) {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const {
-    servers,
     searchTerm,
     setSearchTerm,
     sortField,
@@ -53,10 +53,7 @@ export default function DecayTool({ t }: DecayToolProps) {
     closeDetails,
     isModalOpen,
     openAddModal,
-    openEditModal,
     closeModal,
-    modalMode,
-    editingServer,
     addServer,
     updateServer,
   } = useDecayState({ translate, searchParams, setSearchParams });
@@ -73,18 +70,6 @@ export default function DecayTool({ t }: DecayToolProps) {
     openAddModal();
   };
 
-  const handleOpenEdit = (serverId: string) => {
-    const target = servers.find((server) => server.id === serverId);
-    if (!target) return;
-    form.setFieldsValue({
-      mapId: target.mapId,
-      structureId: target.structureId,
-      serverNumber: target.serverNumber,
-      note: target.note,
-    });
-    openEditModal(serverId);
-  };
-
   const handleSubmit = () => {
     form
       .validateFields()
@@ -95,11 +80,7 @@ export default function DecayTool({ t }: DecayToolProps) {
           serverNumber: Number(values.serverNumber ?? 0),
           note: values.note ? String(values.note).trim() : '',
         };
-        if (modalMode === 'edit' && editingServer) {
-          updateServer(editingServer.id, payload);
-        } else {
-          addServer(payload);
-        }
+        addServer(payload);
         closeModal();
         form.resetFields();
       })
@@ -111,6 +92,15 @@ export default function DecayTool({ t }: DecayToolProps) {
   const handleModalCancel = () => {
     closeModal();
     form.resetFields();
+  };
+
+  const handleSaveDetails = (serverId: string, values: DecayFormValues) => {
+    updateServer(serverId, {
+      mapId: values.mapId,
+      structureId: values.structureId,
+      serverNumber: Number(values.serverNumber ?? 0),
+      note: values.note ? String(values.note).trim() : '',
+    });
   };
 
   return (
@@ -187,19 +177,17 @@ export default function DecayTool({ t }: DecayToolProps) {
         open={Boolean(activeServer)}
         onClose={closeDetails}
         onRefresh={handleRefresh}
-        onEdit={handleOpenEdit}
+        onSave={handleSaveDetails}
+        onDelete={handleDelete}
       />
 
       <DecayModal
         translate={translate}
         form={form}
         open={isModalOpen}
-        mode={modalMode}
         selectedMapId={selectedMapId}
         onCancel={handleModalCancel}
         onSubmit={handleSubmit}
-        editingServerId={editingServer?.id ?? null}
-        onDelete={editingServer ? () => handleDelete(editingServer.id) : undefined}
       />
     </div>
   );

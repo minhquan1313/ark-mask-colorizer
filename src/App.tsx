@@ -691,7 +691,7 @@ export default function App() {
       },
       {
         id: 'utilities',
-        to: '/utilities',
+        to: '/utilities/decay',
         label: t('nav.utilities', { defaultValue: 'Utilities' }),
         icon: <UtilitiesIcon style={{ fontSize: 24 }} />,
       },
@@ -811,6 +811,15 @@ export default function App() {
             />
             <Route
               path="/utilities"
+              element={
+                <Navigate
+                  to="/utilities/decay"
+                  replace
+                />
+              }
+            />
+            <Route
+              path="/utilities/:toolId"
               element={<UtilitiesPage t={t} />}
             />
             <Route

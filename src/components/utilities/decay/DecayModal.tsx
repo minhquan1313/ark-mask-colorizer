@@ -1,5 +1,4 @@
-﻿import { DeleteOutlined } from '@ant-design/icons';
-import { Button, Form, Input, InputNumber, Modal, Popconfirm, Select } from 'antd';
+import { Form, Input, InputNumber, Modal, Select } from 'antd';
 import { ARK_MAPS, DEFAULT_ARK_MAP } from '../../../data/arkMaps';
 import { STRUCTURE_TYPES } from '../../../data/structureTypes';
 import { DAY_SECONDS } from './decayUtils';
@@ -10,29 +9,25 @@ interface DecayModalProps {
   translate: (key: string, fallback: string, values?: Record<string, unknown>) => string;
   form: any;
   open: boolean;
-  mode: 'add' | 'edit';
   selectedMapId: string;
   onCancel: () => void;
   onSubmit: () => void;
-  editingServerId: string | null;
-  onDelete?: () => void;
 }
 
-export default function DecayModal({ translate, form, open, mode, selectedMapId, onCancel, onSubmit, editingServerId, onDelete }: DecayModalProps) {
+export default function DecayModal({ translate, form, open, selectedMapId, onCancel, onSubmit }: DecayModalProps) {
   const selectedMap = ARK_MAPS.find((map) => map.id === selectedMapId) ?? DEFAULT_ARK_MAP;
 
   return (
     <Modal
-      title={
-        mode === 'edit' ? translate('utilities.decay.modal.editTitle', 'Update Server') : translate('utilities.decay.modal.addTitle', 'Add Server')
-      }
+      title={translate('utilities.decay.modal.addTitle', 'Add Server')}
       open={open}
       onCancel={onCancel}
       onOk={onSubmit}
-      okText={
-        mode === 'edit' ? translate('utilities.decay.modal.saveButton', 'Save changes') : translate('utilities.decay.modal.addButton', 'Add server')
-      }
+      okText={translate('utilities.decay.modal.addButton', 'Add server')}
       destroyOnHidden
+      style={{
+        top: 40,
+      }}
       maskClosable>
       <div className="decay-tool__map-preview">
         <img
@@ -96,24 +91,6 @@ export default function DecayModal({ translate, form, open, mode, selectedMapId,
           />
         </Form.Item>
       </Form>
-
-      {mode === 'edit' && editingServerId && onDelete ? (
-        <div className="decay-tool__modal-danger">
-          <Popconfirm
-            title={translate('utilities.decay.confirm.deleteTitle', 'Delete this server?')}
-            description={translate('utilities.decay.confirm.deleteMessage', 'This action cannot be undone.')}
-            okText={translate('utilities.decay.confirm.ok', 'Delete')}
-            cancelText={translate('utilities.decay.confirm.cancel', 'Cancel')}
-            onConfirm={onDelete}>
-            <Button
-              danger
-              icon={<DeleteOutlined />}
-              block>
-              {translate('utilities.decay.actions.delete', 'Delete')}
-            </Button>
-          </Popconfirm>
-        </div>
-      ) : null}
     </Modal>
   );
 }
