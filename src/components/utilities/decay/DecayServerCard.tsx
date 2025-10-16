@@ -1,9 +1,9 @@
-﻿import { ReloadOutlined } from '@ant-design/icons';
+import { EyeOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Button, Checkbox, Col, Row, Tooltip, Typography } from 'antd';
 import type { DecayServerView } from './decayTypes';
 import { formatDecayDate } from './decayUtils';
 
-const { Text, Paragraph } = Typography;
+const { Text } = Typography;
 
 interface DecayServerCardProps {
   translate: (key: string, fallback: string, values?: Record<string, unknown>) => string;
@@ -16,9 +16,7 @@ interface DecayServerCardProps {
 
 export default function DecayServerCard({ translate, server, selected, onToggleSelect, onOpenDetails, onRefresh }: DecayServerCardProps) {
   return (
-    <div
-      className="decay-tool__server-content"
-      onClick={onOpenDetails}>
+    <div className="decay-tool__server-content">
       <div
         className="decay-tool__select-wrap"
         onClick={(event) => event.stopPropagation()}>
@@ -44,14 +42,14 @@ export default function DecayServerCard({ translate, server, selected, onToggleS
               lg={{ flex: '1' }}>
               <div className="decay-tool__server-header">
                 <div className="decay-tool__map-block">
-                  <span className="decay-tool__eyebrow">{translate('utilities.decay.labels.map', 'Map')}</span>
-                  <Text className="decay-tool__map-name">{server.map.name}</Text>
+                  <span className="decay-tool__eyebrow">{translate('utilities.decay.labels.serverNumber', 'Server number')}</span>
+                  <Text className="decay-tool__map-name">
+                    {translate('utilities.decay.info.serverNumber', 'Server #{{number}}', {
+                      number: server.serverNumber,
+                    })}
+                  </Text>
                   <div className="decay-tool__server-subtitle">
-                    <span className="decay-tool__server-number">
-                      {translate('utilities.decay.info.serverNumber', 'Server #{{number}}', {
-                        number: server.serverNumber,
-                      })}
-                    </span>
+                    <Text className="decay-tool__server-number">{server.map.name}</Text>
                     <div className="decay-tool__structure-chip">
                       <span className="decay-tool__structure-chip-thumb">
                         <img
@@ -85,17 +83,30 @@ export default function DecayServerCard({ translate, server, selected, onToggleS
             </Col>
           </Row>
 
-          <Button
-            type="primary"
-            size="middle"
-            icon={<ReloadOutlined />}
-            className="decay-tool__refresh-button"
-            onClick={(event) => {
-              event.stopPropagation();
-              onRefresh();
-            }}>
-            {translate('utilities.decay.actions.refresh', 'Refresh')}
-          </Button>
+          <Row gutter={[8, 8]}>
+            <Col>
+              <Button
+                icon={<EyeOutlined />}
+                onClick={onOpenDetails}>
+                {translate('utilities.decay.actions.view', 'View')}
+              </Button>
+            </Col>
+
+            <Col xs={{ flex: 1 }}>
+              <Button
+                block
+                type="primary"
+                size="middle"
+                icon={<ReloadOutlined />}
+                className="decay-tool__refresh-button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onRefresh();
+                }}>
+                {translate('utilities.decay.actions.refresh', 'Refresh')}
+              </Button>
+            </Col>
+          </Row>
         </div>
       </div>
     </div>

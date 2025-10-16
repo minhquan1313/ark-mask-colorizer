@@ -302,9 +302,7 @@ export default function DecayDetailDrawer({ translate, server, open, onClose, on
           </Badge.Ribbon>
 
           <Row gutter={[16, 16]}>
-            <Col
-              xs={24}
-              md={12}>
+            <Col xs={24}>
               <Card size="small">
                 <Space
                   direction="vertical"
@@ -327,7 +325,7 @@ export default function DecayDetailDrawer({ translate, server, open, onClose, on
             </Col>
             <Col
               xs={24}
-              md={12}>
+              lg={12}>
               <Card size="small">
                 <Statistic
                   title={translate('utilities.decay.labels.lastRefreshed', 'Last refreshed')}
@@ -339,7 +337,7 @@ export default function DecayDetailDrawer({ translate, server, open, onClose, on
             </Col>
             <Col
               xs={24}
-              md={12}>
+              lg={12}>
               <Card size="small">
                 <Statistic
                   title={translate('utilities.decay.labels.createdAt', 'Created')}
