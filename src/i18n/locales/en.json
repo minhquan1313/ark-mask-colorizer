@@ -150,6 +150,9 @@
         "decaysOn": "Decays on {{date}}",
         "creaturesDecayOn": "Creatures decay on {{date}}"
       },
+      "messages": {
+        "noteEmpty": "No note yet. Add one below!"
+      },
       "info": {
         "serverNumber": "Server #{{number}}"
       },

@@ -1,215 +1,218 @@
 {
   "language": {
-    "selectorLabel": "Ngon ngu",
+    "selectorLabel": "Ngôn ngữ",
     "options": {
-      "en": "Tieng Anh",
-      "vi": "Tieng Viet"
+      "en": "Tiếng Anh",
+      "vi": "Tiếng Việt"
     }
   },
   "app": {
     "title": "ARK Mask Colorizer",
-    "lastUpdate": "Cap nhat lan cuoi: {{date}}",
-    "slotsTitle": "O mau (0 - 5)",
-    "fill": "Do mau",
-    "customCreature": "Tuy chinh"
+    "lastUpdate": "Cập nhật cuối: {{date}}",
+    "slotsTitle": "Ô màu (0 - 5)",
+    "fill": "Tô màu",
+    "customCreature": "Tùy chỉnh"
   },
   "creaturePicker": {
-    "label": "Sinh vat",
-    "customOption": "Tuy chinh",
-    "pickPlaceholder": "Chon sinh vat"
+    "label": "Sinh vật",
+    "customOption": "Tùy chỉnh",
+    "pickPlaceholder": "Chọn sinh vật"
   },
   "colorFavorites": {
-    "empty": "Chua co mau yeu thich.",
-    "reorderAria": "Sap xep mau yeu thich",
-    "removeAria": "Xoa mau yeu thich"
+    "empty": "Chưa có màu yêu thích.",
+    "reorderAria": "Sắp xếp màu yêu thích",
+    "removeAria": "Xóa màu yêu thích"
   },
   "slotControls": {
-    "random": "Ngau nhien",
-    "reset": "Dat lai",
-    "paste": "Dan mau",
-    "pasteTitle": "Dan mau",
-    "copy": "Sao chep mau",
-    "copyTitle": "Sao chep mau",
-    "copyFailed": "That bai",
-    "copySuccess": "Da sao chep"
+    "random": "Ngẫu nhiên",
+    "reset": "Đặt lại",
+    "paste": "Dán màu",
+    "pasteTitle": "Dán màu",
+    "copy": "Sao chép màu",
+    "copyTitle": "Sao chép màu",
+    "copyFailed": "Thất bại",
+    "copySuccess": "Đã sao chép"
   },
   "slotPicker": {
-    "noMask": "Slot khong co mask",
-    "pickColor": "Chon mau...",
+    "noMask": "Ô không có mask",
+    "pickColor": "Chọn màu...",
     "idPlaceholder": "ID",
-    "clear": "Bo mau",
-    "clearLabel": "Bo mau"
+    "clear": "Xóa màu",
+    "clearLabel": "Xóa màu"
   },
   "paletteGrid": {
-    "reset": "Dat lai"
+    "reset": "Đặt lại"
   },
   "toolbar": {
-    "threshold": "Nguong",
-    "strength": "Do manh",
-    "neutralStrength": "Do manh trung tinh",
-    "feather": "Lam min bien",
+    "threshold": "Ngưỡng",
+    "strength": "Độ mạnh",
+    "neutralStrength": "Độ mạnh trung tính",
+    "feather": "Làm mịn biên",
     "gamma": "Gamma",
-    "keepLight": "Giu sang",
-    "colorMixBoost": "Tang phoi mau",
-    "chromaBoost": "Tang sac do",
-    "chromaCurve": "Duong cong sac do",
-    "speckleClean": "Lam sach hat",
-    "edgeSmooth": "Lam muot bien",
-    "boundaryBlend": "Hoa tron ranh gioi",
-    "overlayStrength": "Do manh overlay",
-    "overlayColorStrength": "Do manh mau overlay",
-    "overlayColorMixBoost": "Tang phoi mau overlay",
-    "overlayTint": "Overlay Tint (trang+mau)",
-    "overlayBlend": "Che do overlay",
-    "overlayBlendTitle": "Overlay blend: Add",
-    "overlayBlendButton": "Add",
-    "hideSliders": "An thanh truot",
-    "showSliders": "Hien thanh truot",
-    "export": "Xuat",
-    "bg": "Nen",
-    "text": "Chu",
-    "transparent": "Trong suot",
-    "transparentTitle": "Nen trong suot",
-    "customMask": "Mask tuy chinh",
-    "reset": "Dat lai",
-    "downloadImageTitle": "Tai anh",
-    "downloadImage": "Anh",
-    "downloadWithPaletteTitle": "Tai anh kem palette",
-    "downloadWithPalette": "Anh + Mau",
-    "bgFavorites": "Nen yeu thich",
-    "textFavorites": "Chu yeu thich",
-    "downloadingImage": "Anh",
-    "downloadingPalette": "Anh + Mau"
+    "keepLight": "Giữ sáng",
+    "colorMixBoost": "Tăng pha màu",
+    "chromaBoost": "Tăng sắc độ",
+    "chromaCurve": "Đường cong màu",
+    "speckleClean": "Làm sạch hạt",
+    "edgeSmooth": "Làm mượt biên",
+    "boundaryBlend": "Pha ranh giới",
+    "overlayStrength": "Độ mạnh overlay",
+    "overlayColorStrength": "Độ mạnh màu overlay",
+    "overlayColorMixBoost": "Tăng pha màu overlay",
+    "overlayTint": "Pha màu overlay (trắng+màu)",
+    "overlayBlend": "Chế độ overlay",
+    "overlayBlendTitle": "Kiểu pha: Cộng",
+    "overlayBlendButton": "Cộng",
+    "hideSliders": "Ẩn thanh trượt",
+    "showSliders": "Hiện thanh trượt",
+    "export": "Xuất",
+    "bg": "Nền",
+    "text": "Chữ",
+    "transparent": "Trong suốt",
+    "transparentTitle": "Nền trong suốt",
+    "customMask": "Mask tùy chỉnh",
+    "reset": "Đặt lại",
+    "downloadImageTitle": "Tải ảnh",
+    "downloadImage": "Ảnh",
+    "downloadWithPaletteTitle": "Tải ảnh kèm bảng màu",
+    "downloadWithPalette": "Ảnh + Màu",
+    "bgFavorites": "Background favorites",
+    "textFavorites": "Text favorites",
+    "downloadingImage": "Ảnh",
+    "downloadingPalette": "Ảnh + Màu"
   },
   "canvas": {
-    "copyImageSuccess": "Da copy anh!",
-    "copyWithPaletteSuccess": "Da copy anh kem palette!",
-    "copyError": "Copy that bai",
-    "hint": "Nhap: copy | Chuot phai: copy + palette",
+    "copyImageSuccess": "Đã sao chép ảnh!",
+    "copyWithPaletteSuccess": "Đã sao chép ảnh kèm bảng màu!",
+    "copyError": "Sao chép thất bại",
+    "hint": "Nhấp: sao chép | Chuột phải: sao chép + bảng màu",
     "slotLabel": "Slot {{index}}"
   },
   "nav": {
     "mask": "Mask",
-    "library": "Thu vien",
-    "utilities": "Tien ich",
-    "settings": "Cai dat",
-    "extractor": "Trich xuat"
+    "library": "Thư viện",
+    "utilities": "Tiện ích",
+    "settings": "Cài đặt",
+    "extractor": "Trích xuất"
   },
   "extractor": {
-    "comingSoon": "Cong cu trich xuat se xuat hien tai day."
+    "comingSoon": "Công cụ trích xuất sẽ hiển thị ở đây."
   },
   "library": {
-    "comingSoon": "Thu vien dang duoc xay dung."
+    "comingSoon": "Trang thư viện sắp có."
   },
   "settings": {
-    "title": "Cai dat",
-    "subtitle": "Tuy chinh trai nghiem va xem cac thay doi gan day.",
-    "updateLogTitle": "Nhat ky cap nhat",
-    "updateLogEmpty": "Chua co cap nhat nao.",
-    "transparentToggle": "Trong suot",
-    "transparentActive": "Se su dung nen trong suot.",
-    "solidActive": "Se su dung nen dac.",
-    "maskTabTitle": "Xuat mask",
-    "maskExportHint": "Chon mau xuat mac dinh va quan ly mau yeu thich nhanh.",
+    "title": "Cài đặt",
+    "subtitle": "Tùy chỉnh trải nghiệm và xem thay đổi gần đây.",
+    "updateLogTitle": "Nhật ký cập nhật",
+    "updateLogEmpty": "Chưa có bản cập nhật.",
+    "transparentToggle": "Trong suốt",
+    "transparentActive": "Sẽ dùng nền trong suốt.",
+    "solidActive": "Sẽ dùng nền đặc.",
+    "maskTabTitle": "Xuất mask",
+    "maskExportHint": "Chọn màu mặc định khi xuất và quản lý nhanh.",
     "tabs": {
-      "language": "Ngon ngu",
-      "update": "Cap nhat",
+      "language": "Ngôn ngữ",
+      "update": "Cập nhật",
       "mask": "Mask"
     },
-    "unlockAllSlots": "Mo khoa tat ca slot",
-    "unlockAllSlotsDescription": "Cho phep chinh sua tat ca slot mau bat chap creature co mask hay khong."
+    "unlockAllSlots": "Mở khóa tất cả ô",
+    "unlockAllSlotsDescription": "Cho phép chỉnh mọi ô màu dù sinh vật có mask hay không."
   },
   "utilities": {
-    "title": "Tien ich",
-    "subtitle": "Cac cong cu ho tro giup ban quan ly ARK de dang hon.",
+    "title": "Tiện ích",
+    "subtitle": "Các công cụ tiện ích cho chuyến phiêu lưu ARK.",
     "decay": {
-      "tab": "Suy hao",
-      "title": "Suy hao",
-      "description": "Day la dong ho giup ban biet khi nao can cu bi suy hao.",
+      "tab": "Hư hại",
+      "title": "Hư hại",
+      "description": "Đồng hồ giúp bạn biết khi nào căn cứ hư.",
       "sort": {
-        "server": "May chu",
-        "map": "Ban do",
-        "structure": "Loai cong trinh",
-        "asc": "Tang dan",
-        "desc": "Giam dan"
+        "server": "Số máy chủ",
+        "map": "Bản đồ",
+        "structure": "Loại công trình",
+        "asc": "Tăng dần",
+        "desc": "Giảm dần"
       },
       "actions": {
-        "add": "Them may chu",
-        "search": "Tim kiem may chu",
-        "delete": "Xoa",
-        "update": "Cap nhat",
-        "refresh": "Lam moi",
-        "refreshAll": "Lam moi tat ca",
-        "refreshSelected": "Lam moi muc da chon",
-        "deleteSelected": "Xoa muc da chon",
-        "enabled": "Bat",
-        "disabled": "Tat"
+        "add": "Thêm máy chủ",
+        "search": "Tìm máy chủ",
+        "delete": "Xóa",
+        "update": "Cập nhật",
+        "refresh": "Làm mới",
+        "refreshAll": "Làm mới tất cả",
+        "refreshSelected": "Làm mới đã chọn",
+        "deleteSelected": "Xóa đã chọn",
+        "enabled": "Bật",
+        "disabled": "Tắt"
       },
-      "empty": "Chua co may chu nao. Hay them mot cai de bat dau theo doi thoi gian suy hao.",
+      "empty": "Chưa có máy chủ nào. Thêm một cái để theo dõi.",
       "tooltip": {
-        "decaysOn": "Suy hao vao {{date}}",
-        "creaturesDecayOn": "Sinh vat suy hao vao {{date}}"
+        "decaysOn": "Hư vào {{date}}",
+        "creaturesDecayOn": "Sinh vật hư vào {{date}}"
+      },
+      "messages": {
+        "noteEmpty": "Chua co ghi chu. Hay them ben duoi!"
       },
       "info": {
-        "serverNumber": "May chu #{{number}}"
+        "serverNumber": "Máy chủ #{{number}}"
       },
       "time": {
-        "expired": "Da het",
-        "leftSuffix": "con lai"
+        "expired": "Đã hư",
+        "leftSuffix": "còn lại"
       },
       "labels": {
-        "structure": "Cong trinh",
-        "creatures": "Sinh vat",
-        "map": "Ban do",
-        "serverNumber": "So may chu",
-        "structureDecay": "Thoi gian suy hao cong trinh",
-        "structureDecayDuration": "{{days}} ngay",
-        "creatureDecayDuration": "{{days}} ngay",
-        "creaturesDisabled": "Khong theo doi sinh vat",
-        "note": "Ghi chu",
-        "lastRefreshed": "Lan lam moi gan nhat",
-        "createdAt": "Thoi gian tao",
-        "days": "ngay"
+        "structure": "Công trình",
+        "creatures": "Sinh vật",
+        "map": "Bản đồ",
+        "serverNumber": "Server number",
+        "structureDecay": "Structure decay",
+        "structureDecayDuration": "{{days}} ngày",
+        "creatureDecayDuration": "{{days}} ngày",
+        "creaturesDisabled": "Không theo dõi sinh vật",
+        "note": "Ghi chú",
+        "lastRefreshed": "Làm mới gần nhất",
+        "createdAt": "Tạo lúc",
+        "days": "ngày"
       },
       "drawer": {
-        "title": "Chi tiet may chu #{{number}}"
+        "title": "Chi tiết máy chủ #{{number}}"
       },
       "selection": {
-        "selectAll": "Chon tat ca"
+        "selectAll": "Chọn tất cả"
       },
       "confirm": {
-        "deleteSelectedTitle": "Xoa cac may chu da chon?",
-        "deleteSelectedMessage": "Hanh dong nay khong the hoan tac.",
-        "deleteTitle": "Xoa may chu nay?",
-        "deleteMessage": "Hanh dong nay khong the hoan tac.",
-        "ok": "Xoa",
-        "cancel": "Huy"
+        "deleteSelectedTitle": "Xóa máy chủ đã chọn?",
+        "deleteSelectedMessage": "Hành động này không thể hoàn tác.",
+        "deleteTitle": "Xóa máy chủ này?",
+        "deleteMessage": "This action cannot be undone.",
+        "ok": "Xóa",
+        "cancel": "Hủy"
       },
       "modal": {
-        "addTitle": "Them may chu",
-        "editTitle": "Cap nhat may chu",
-        "addButton": "Them may chu",
-        "saveButton": "Luu thay doi"
+        "addTitle": "Thêm máy chủ",
+        "editTitle": "Cập nhật máy chủ",
+        "addButton": "Thêm máy chủ",
+        "saveButton": "Lưu thay đổi"
       },
       "fields": {
-        "map": "Ban do",
-        "serverNumber": "So may chu",
-        "structureType": "Loai cong trinh",
-        "creatureToggle": "Theo doi suy hao sinh vat",
-        "creatureDecay": "Suy hao sinh vat (ngay)",
-        "creatureDecayHint": "Mac dinh la 7 ngay",
-        "note": "Ghi chu"
+        "map": "Bản đồ",
+        "serverNumber": "Server number",
+        "structureType": "Loại công trình",
+        "creatureToggle": "Theo dõi sinh vật",
+        "creatureDecay": "Hư sinh vật (ngày)",
+        "creatureDecayHint": "Mặc định 7 ngày",
+        "note": "Ghi chú"
       },
       "validation": {
-        "map": "Hay chon ban do",
-        "server": "Hay nhap so may chu",
-        "serverPositive": "So may chu phai lon hon 0",
-        "structure": "Hay chon loai cong trinh",
-        "creatureDecay": "Thoi gian suy hao toi thieu 1 ngay"
+        "map": "Chọn bản đồ",
+        "server": "Nhập số máy chủ",
+        "serverPositive": "Số máy chủ phải lớn hơn 0",
+        "structure": "Chọn loại công trình",
+        "creatureDecay": "Phải ít nhất 1 ngày"
       },
       "placeholders": {
-        "serverNumber": "Vi du: 1234",
-        "note": "Ghi chu nhung gi ban xay dung tai day, vd: Can cu chinh, chuong nuoi nuoc, ..."
+        "serverNumber": "Ví dụ: 1234",
+        "note": "Ghi chú căn cứ của bạn, ví dụ: căn cứ chính, khu nước, v.v."
       }
     }
   }
