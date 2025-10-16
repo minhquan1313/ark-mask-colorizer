@@ -138,6 +138,9 @@
         "search": "Search servers",
         "delete": "Delete",
         "update": "Update",
+        "save": "Save changes",
+        "close": "Close",
+        "view": "View",
         "refresh": "Refresh",
         "refreshAll": "Refresh all",
         "refreshSelected": "Refresh selected",
@@ -150,11 +153,15 @@
         "decaysOn": "Decays on {{date}}",
         "creaturesDecayOn": "Creatures decay on {{date}}"
       },
+      "toast": {
+        "saved": "Server updated"
+      },
       "messages": {
         "noteEmpty": "No note yet. Add one below!"
       },
       "info": {
-        "serverNumber": "Server #{{number}}"
+        "serverNumber": "Server #{{number}}",
+        "selectedCount": "{{count}} selected"
       },
       "time": {
         "expired": "Expired",
@@ -172,7 +179,9 @@
         "note": "Note",
         "lastRefreshed": "Last refreshed",
         "createdAt": "Created",
-        "days": "days"
+        "days": "days",
+        "decayWindow": "{{days}} days decay",
+        "structureIconAlt": "{{structure}} icon"
       },
       "drawer": {
         "title": "Server #{{number}} details"
@@ -201,14 +210,16 @@
         "creatureToggle": "Track creature decay",
         "creatureDecay": "Creature decay (days)",
         "creatureDecayHint": "Default is 7 days",
-        "note": "Note"
+        "note": "Note",
+        "lastRefreshed": "Last refreshed"
       },
       "validation": {
         "map": "Select a map",
         "server": "Enter a server number",
         "serverPositive": "Server number must be positive",
         "structure": "Select structure type",
-        "creatureDecay": "Decay must be at least 1 day"
+        "creatureDecay": "Decay must be at least 1 day",
+        "lastRefreshed": "Select the last refresh time"
       },
       "placeholders": {
         "serverNumber": "Example: 1234",

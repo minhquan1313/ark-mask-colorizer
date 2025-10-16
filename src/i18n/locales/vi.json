@@ -138,6 +138,9 @@
         "search": "Tìm máy chủ",
         "delete": "Xóa",
         "update": "Cập nhật",
+        "save": "Lưu thay đổi",
+        "close": "Đóng",
+        "view": "Xem",
         "refresh": "Làm mới",
         "refreshAll": "Làm mới tất cả",
         "refreshSelected": "Làm mới đã chọn",
@@ -145,16 +148,20 @@
         "enabled": "Bật",
         "disabled": "Tắt"
       },
-      "empty": "Chưa có máy chủ nào. Thêm một cái để theo dõi.",
+      "empty": "Chưa có máy chủ nào. Thêm một cái để bắt đầu theo dõi.",
       "tooltip": {
         "decaysOn": "Hư vào {{date}}",
         "creaturesDecayOn": "Sinh vật hư vào {{date}}"
       },
+      "toast": {
+        "saved": "Đã cập nhật máy chủ"
+      },
       "messages": {
-        "noteEmpty": "Chua co ghi chu. Hay them ben duoi!"
+        "noteEmpty": "Chưa có ghi chú. Thêm bên dưới!"
       },
       "info": {
-        "serverNumber": "Máy chủ #{{number}}"
+        "serverNumber": "Máy chủ #{{number}}",
+        "selectedCount": "{{count}} đã chọn"
       },
       "time": {
         "expired": "Đã hư",
@@ -172,7 +179,9 @@
         "note": "Ghi chú",
         "lastRefreshed": "Làm mới gần nhất",
         "createdAt": "Tạo lúc",
-        "days": "ngày"
+        "days": "ngày",
+        "decayWindow": "{{days}} ngày hư",
+        "structureIconAlt": "Biểu tượng {{structure}}"
       },
       "drawer": {
         "title": "Chi tiết máy chủ #{{number}}"
@@ -201,14 +210,16 @@
         "creatureToggle": "Theo dõi sinh vật",
         "creatureDecay": "Hư sinh vật (ngày)",
         "creatureDecayHint": "Mặc định 7 ngày",
-        "note": "Ghi chú"
+        "note": "Ghi chú",
+        "lastRefreshed": "Làm mới gần nhất"
       },
       "validation": {
         "map": "Chọn bản đồ",
         "server": "Nhập số máy chủ",
         "serverPositive": "Số máy chủ phải lớn hơn 0",
         "structure": "Chọn loại công trình",
-        "creatureDecay": "Phải ít nhất 1 ngày"
+        "creatureDecay": "Phải ít nhất 1 ngày",
+        "lastRefreshed": "Chọn thời gian làm mới gần nhất"
       },
       "placeholders": {
         "serverNumber": "Ví dụ: 1234",
