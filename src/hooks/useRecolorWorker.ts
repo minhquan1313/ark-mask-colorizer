@@ -1,12 +1,47 @@
 // Worker-based recolor to avoid blocking the main thread
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { RecolorDrawArgs } from '../types/mask';
+import type { SlotValue } from '../utils/slotUtils';
 import { STORAGE_KEYS, loadJSON } from '../utils/storage';
-import { useRecolor as useRecolorSync } from './useRecolor';
+import type { ExtraMask } from './useImages';
+import { useRecolor as useRecolorSync, type UseRecolorOptions, type UseRecolorResult } from './useRecolor';
+
+type RGB = [number, number, number];
+type OverlayBlendMode = 'add' | 'oklab' | 'pastel';
+
+type WorkerWithAlive = Worker & { _alive?: boolean };
+
+interface PastelBlendOptions {
+  kappa?: number;
+  Wdeg?: number;
+  beta?: number;
+  cmin?: number;
+}
+
+type SlotInput = SlotValue | RGB | null | undefined;
+type SlotArray = Array<SlotInput>;
+
+type WorkerParams = (UseRecolorOptions & { overlayBlendMode: OverlayBlendMode }) & Record<string, unknown>;
+type WorkerParamOverrides = Partial<WorkerParams> & Record<string, unknown>;
+type WorkerDrawArgs = RecolorDrawArgs & { extraMasks?: ExtraMask[] | null; renderNonce?: number };
+
+interface UseRecolorWorkerOptions extends UseRecolorOptions {
+  overlayStrength?: number;
+  overlayColorStrength?: number;
+  overlayColorMixBoost?: number;
+  overlayTint?: number;
+  overlayBlendMode?: OverlayBlendMode;
+}
+
+interface UseRecolorWorkerResult {
+  draw: (args: WorkerDrawArgs) => void;
+  busy: boolean;
+}
 
 // --- OKLab helpers for pastel mixing on overlays ---
-const srgb2lin = (v) => (v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
-const lin2srgb = (v) => (v <= 0.0031308 ? v * 12.92 : 1.055 * Math.pow(v, 1 / 2.4) - 0.055);
-function rgb2oklab01(r, g, b) {
+const srgb2lin = (v: number): number => (v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+const lin2srgb = (v: number): number => (v <= 0.0031308 ? v * 12.92 : 1.055 * Math.pow(v, 1 / 2.4) - 0.055);
+function rgb2oklab01(r: number, g: number, b: number): { L: number; a: number; b: number } {
   const rl = srgb2lin(r),
     gl = srgb2lin(g),
     bl = srgb2lin(b);
@@ -22,15 +57,15 @@ function rgb2oklab01(r, g, b) {
     b: 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s,
   };
 }
-function oklabToLch(L, a, b) {
+function oklabToLch(L: number, a: number, b: number): { L: number; C: number; h: number } {
   const C = Math.hypot(a, b),
     h = Math.atan2(b, a);
   return { L, C, h };
 }
-function lchToOklab(L, C, h) {
+function lchToOklab(L: number, C: number, h: number): { L: number; a: number; b: number } {
   return { L, a: C * Math.cos(h), b: C * Math.sin(h) };
 }
-function oklab2rgb01(L, a, b) {
+function oklab2rgb01(L: number, a: number, b: number): RGB {
   const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
   const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
   const s_ = L - 0.0894841775 * a - 1.291485548 * b;
@@ -42,7 +77,7 @@ function oklab2rgb01(L, a, b) {
   const bl = 0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s;
   return [Math.max(0, Math.min(1, lin2srgb(rl))), Math.max(0, Math.min(1, lin2srgb(gl))), Math.max(0, Math.min(1, lin2srgb(bl)))];
 }
-const wrapPi = (a) => {
+const wrapPi = (a: number): number => {
   while (a > Math.PI) a -= 2 * Math.PI;
   while (a < -Math.PI) a += 2 * Math.PI;
   return a;
@@ -66,11 +101,11 @@ export function useRecolorWorker({
   colorMixBoost = 0.6,
   overlayTint = 0.25,
   overlayBlendMode = 'add',
-} = {}) {
-  const workerRef = useRef(null);
-  const jobRef = useRef(0);
+}: UseRecolorWorkerOptions = {}): UseRecolorWorkerResult {
+  const workerRef = useRef<WorkerWithAlive | null>(null);
+  const jobRef = useRef<number>(0);
   const [busy, setBusy] = useState(false);
-  const [overlayBlendModeLocal, setOverlayBlendModeLocal] = useState(() => {
+  const [overlayBlendModeLocal, setOverlayBlendModeLocal] = useState<OverlayBlendMode>(() => {
     try {
       const v = loadJSON(STORAGE_KEYS.overlayBlendMode, overlayBlendMode) || overlayBlendMode;
       return v === 'pastel' ? 'add' : v;
@@ -80,30 +115,31 @@ export function useRecolorWorker({
   });
 
   useEffect(() => {
-    const onChanged = (e) => {
+    const onChanged = (e: CustomEvent<{ mode: OverlayBlendMode }>) => {
       const m = e?.detail?.mode;
       if (m === 'add') setOverlayBlendModeLocal('add');
     };
-    window.addEventListener('overlay-blend-mode-changed', onChanged);
-    return () => window.removeEventListener('overlay-blend-mode-changed', onChanged);
+    window.addEventListener('overlay-blend-mode-changed', onChanged as EventListener);
+    return () => window.removeEventListener('overlay-blend-mode-changed', onChanged as EventListener);
   }, []);
 
-  const params = useMemo(
-    () => ({
-      threshold,
-      strength,
-      neutralStrength,
-      feather,
-      gamma,
-      keepLight,
-      chromaBoost,
-      chromaCurve,
-      speckleClean,
-      edgeSmooth,
-      boundaryBlend,
-      colorMixBoost,
-      overlayBlendMode: overlayBlendModeLocal,
-    }),
+  const params = useMemo<WorkerParams>(
+    () =>
+      ({
+        threshold,
+        strength,
+        neutralStrength,
+        feather,
+        gamma,
+        keepLight,
+        chromaBoost,
+        chromaCurve,
+        speckleClean,
+        edgeSmooth,
+        boundaryBlend,
+        colorMixBoost,
+        overlayBlendMode: overlayBlendModeLocal,
+      }) as WorkerParams,
     [
       threshold,
       strength,
@@ -120,34 +156,44 @@ export function useRecolorWorker({
       overlayBlendModeLocal,
     ],
   );
-  const sync = useRecolorSync(params);
-  const debounceRef = useRef(0);
-  const pendingArgsRef = useRef(null);
-  const lastJobKeyRef = useRef(null);
-  const imageIdentityRef = useRef(new WeakMap());
+  const sync: UseRecolorResult = useRecolorSync(params);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingArgsRef = useRef<WorkerDrawArgs | null>(null);
+  const lastJobKeyRef = useRef<string | null>(null);
+  const imageIdentityRef = useRef(new WeakMap<HTMLImageElement, string>());
   const imageIdentitySeqRef = useRef(0);
 
-  const getWorker = () => {
+  const getWorker = (): WorkerWithAlive => {
     if (workerRef.current && workerRef.current._alive) return workerRef.current;
     // Use classic worker for broader compatibility with dev servers
-    const w = new Worker(new URL('../workers/recolorWorker.ts', import.meta.url));
+    const w = new Worker(new URL('../workers/recolorWorker.ts', import.meta.url), {
+      type: 'module',
+    }) as WorkerWithAlive;
     w._alive = true;
     workerRef.current = w;
     return w;
   };
 
   // Coerce slot entry -> [r,g,b] or null
-  const coerceRGB = useCallback((v) => {
+  const coerceRGB = useCallback((v: SlotInput): RGB | null => {
     if (!v) return null;
-    if (Array.isArray(v)) return v;
+    if (Array.isArray(v)) {
+      const [r, g, b] = v;
+      if ([r, g, b].every((c) => typeof c === 'number' && Number.isFinite(c))) {
+        return [r as number, g as number, b as number];
+      }
+      return null;
+    }
     if (typeof v === 'string') {
       const h = v[0] === '#' ? v.slice(1) : v;
       if (h.length !== 6) return null;
       const n = parseInt(h, 16);
       return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
     }
-    if (typeof v === 'object' && v.hex) {
-      const h = v.hex[0] === '#' ? v.hex.slice(1) : v.hex;
+    if (typeof v === 'object' && v !== null && 'hex' in v && v.hex) {
+      const hexValue = v.hex;
+      if (typeof hexValue !== 'string') return null;
+      const h = hexValue[0] === '#' ? hexValue.slice(1) : hexValue;
       if (h.length !== 6) return null;
       const n = parseInt(h, 16);
       return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
@@ -155,7 +201,7 @@ export function useRecolorWorker({
     return null;
   }, []);
 
-  const getImageSignature = useCallback((img) => {
+  const getImageSignature = useCallback((img: HTMLImageElement | null | undefined): string => {
     if (!img) return 'null';
     const map = imageIdentityRef.current;
     let id = map.get(img);
@@ -169,7 +215,7 @@ export function useRecolorWorker({
   }, []);
 
   const getOverlaySignature = useCallback(
-    (extraMasks = []) => {
+    (extraMasks: ExtraMask[] | null | undefined = []) => {
       if (!Array.isArray(extraMasks) || extraMasks.length === 0) {
         return '';
       }
@@ -187,7 +233,7 @@ export function useRecolorWorker({
   );
 
   const getSlotsSignature = useCallback(
-    (slots = []) => {
+    (slots: SlotArray | null | undefined = []) => {
       if (!Array.isArray(slots) || slots.length === 0) {
         return '';
       }
@@ -202,7 +248,7 @@ export function useRecolorWorker({
     [coerceRGB],
   );
 
-  const pastelBlendRGB = useCallback((aRGB, bRGB, opts) => {
+  const pastelBlendRGB = useCallback((aRGB: RGB | null, bRGB: RGB | null, opts: PastelBlendOptions | null | undefined): RGB | null => {
     if (!aRGB || !bRGB) return aRGB || bRGB;
     const rA = (aRGB[0] | 0) / 255,
       gA = (aRGB[1] | 0) / 255,
@@ -240,13 +286,13 @@ export function useRecolorWorker({
     return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
   }, []);
 
-  const addMix = (a, b) => {
+  const addMix = (a: RGB | null, b: RGB | null): RGB | null => {
     if (!a || !b) return null;
     return [Math.min(255, (a[0] | 0) + (b[0] | 0)), Math.min(255, (a[1] | 0) + (b[1] | 0)), Math.min(255, (a[2] | 0) + (b[2] | 0))];
   };
 
   const runDraw = useCallback(
-    ({ baseImg, maskImg, extraMasks = [], baseCanvasRef, maskCanvasRef, outCanvasRef, slots, renderNonce = 0 }) => {
+    ({ baseImg, maskImg, extraMasks = [], baseCanvasRef, maskCanvasRef, outCanvasRef, slots, renderNonce = 0 }: WorkerDrawArgs) => {
       const src = baseImg || maskImg;
       if (!src) return;
 
@@ -283,10 +329,13 @@ export function useRecolorWorker({
         O.width = w;
         O.height = h;
       }
-      const bctx = B.getContext('2d', { willReadFrequently: !0 });
-      const mctx = M.getContext('2d', { willReadFrequently: !0 });
+      const bctx = B.getContext('2d', { willReadFrequently: true });
+      const mctx = M.getContext('2d', { willReadFrequently: true });
       const octx = O.getContext('2d');
-      bctx.imageSmoothingEnabled = mctx.imageSmoothingEnabled = octx.imageSmoothingEnabled = !1;
+      if (!bctx || !mctx || !octx) return;
+      bctx.imageSmoothingEnabled = false;
+      mctx.imageSmoothingEnabled = false;
+      octx.imageSmoothingEnabled = false;
       bctx.clearRect(0, 0, w, h);
       mctx.clearRect(0, 0, w, h);
       if (!sameSize) octx.clearRect(0, 0, w, h);
@@ -303,7 +352,7 @@ export function useRecolorWorker({
 
       lastJobKeyRef.current = jobKey;
 
-      let worker;
+      let worker: WorkerWithAlive;
       try {
         worker = getWorker();
       } catch (e) {
@@ -317,10 +366,15 @@ export function useRecolorWorker({
         return;
       }
 
-      const recolorOnce = (baseImageData, maskImageData, slotsOverride, paramsOverride) => {
-        return new Promise((resolve, reject) => {
+      const recolorOnce = (
+        baseImageData: ImageData,
+        maskImageData: ImageData,
+        slotsOverride: SlotArray | null | undefined,
+        paramsOverride?: WorkerParamOverrides,
+      ): Promise<ImageData> => {
+        return new Promise<ImageData>((resolve, reject) => {
           const jobId = ++jobRef.current;
-          const onMessage = (ev) => {
+          const onMessage = (ev: MessageEvent<any>) => {
             const msg = ev.data || {};
             if (msg.jobId !== jobId) return;
             if (msg.type === 'recolor:done') {
@@ -331,7 +385,7 @@ export function useRecolorWorker({
               reject(new Error(String(msg.error || 'worker error')));
             }
           };
-          const onError = (e) => {
+          const onError = (e: ErrorEvent) => {
             worker.removeEventListener('message', onMessage);
             worker.removeEventListener('error', onError);
             reject(e);
@@ -372,18 +426,18 @@ export function useRecolorWorker({
             mctx.clearRect(0, 0, w, h);
             mctx.drawImage(item.img, 0, 0, w, h);
             const maskN = mctx.getImageData(0, 0, w, h);
-            const overlaySlots = [null, null, null, null, null, null];
+            const overlaySlots: SlotArray = [null, null, null, null, null, null];
             const [ia, ib] = Array.isArray(item.pair) ? item.pair : [];
             if (ia == null || ib == null) continue;
             const ca = coerceRGB(slots?.[ia]);
             const cb = coerceRGB(slots?.[ib]);
             if (!ca && !cb) continue;
             const sameColor = !!(ca && cb && ca[0] === cb[0] && ca[1] === cb[1] && ca[2] === cb[2]);
-            const isWhite = (c) => c && c[0] >= 245 && c[1] >= 245 && c[2] >= 245;
-            const isBlack = (c) => c && c[0] <= 5 && c[1] <= 5 && c[2] <= 5;
-            const hasWhitePartner = !!(ca && cb && isWhite(ca) ^ isWhite(cb));
-            const hasBlackPartner = !!(ca && cb && isBlack(ca) ^ isBlack(cb));
-            let mix = null;
+            const isWhite = (c: RGB | null): boolean => !!(c && c[0] >= 245 && c[1] >= 245 && c[2] >= 245);
+            const isBlack = (c: RGB | null): boolean => !!(c && c[0] <= 5 && c[1] <= 5 && c[2] <= 5);
+            const hasWhitePartner = !!(ca && cb && isWhite(ca) !== isWhite(cb));
+            const hasBlackPartner = !!(ca && cb && isBlack(ca) !== isBlack(cb));
+            let mix: RGB | null = null;
             const usePastel = params && params.overlayBlendMode === 'pastel';
             if (hasWhitePartner) {
               mix = isWhite(ca) ? cb : ca;
@@ -424,7 +478,7 @@ export function useRecolorWorker({
             const sOV = Math.max(0, Math.min(3, overlayStrength));
             const sEff = Math.min(1, sOV);
             const F_OV = 0.6;
-            let overlayParams;
+            let overlayParams: WorkerParamOverrides;
             if (hasWhitePartner) {
               overlayParams = {
                 ...params,
@@ -515,12 +569,12 @@ export function useRecolorWorker({
   );
 
   const draw = useCallback(
-    (args) => {
+    (args: WorkerDrawArgs) => {
       pendingArgsRef.current = args;
       if (debounceRef.current) clearTimeout(debounceRef.current);
       // Debounce to wait until user stops sliding
       debounceRef.current = setTimeout(() => {
-        debounceRef.current = 0;
+        debounceRef.current = null;
         const a = pendingArgsRef.current;
         if (a) runDraw(a);
       }, 160);

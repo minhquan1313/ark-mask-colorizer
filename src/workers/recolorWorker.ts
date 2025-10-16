@@ -1,10 +1,51 @@
+/// <reference lib="webworker" />
+
 /* Web Worker: recolor rendering off the main thread */
 // This mirrors the algorithm from useRecolor.js but operates on raw ImageData buffers.
 
+import type { UseRecolorOptions } from '../hooks/useRecolor';
+import type { SlotValue } from '../utils/slotUtils';
+
+type RGB = [number, number, number];
+type OKLab = { L: number; a: number; b: number };
+type OKLch = { L: number; C: number; h: number };
+type SlotInput = SlotValue | RGB | null | undefined | { hex?: string | null; index?: unknown; id?: unknown; value?: unknown };
+
+interface RecolorWorkerParams extends UseRecolorOptions {
+  minChroma?: number;
+  blendMode?: 'oklab' | 'rgb' | 'multiplyRGB' | 'autoRGB';
+}
+
+interface RenderArgs {
+  base: Uint8ClampedArray;
+  mask: Uint8ClampedArray;
+  w: number;
+  h: number;
+  slots?: SlotInput[] | null | undefined;
+  params?: RecolorWorkerParams | null | undefined;
+}
+
+interface WorkerRequestPayload {
+  jobId: number;
+  width: number;
+  height: number;
+  baseBuffer?: ArrayBuffer;
+  maskBuffer?: ArrayBuffer;
+  base?: Uint8ClampedArray | ArrayBufferLike;
+  mask?: Uint8ClampedArray | ArrayBufferLike;
+  slots?: SlotInput[] | null | undefined;
+  params?: RecolorWorkerParams | null | undefined;
+}
+
+interface WorkerRequestMessage {
+  type?: string;
+  payload?: WorkerRequestPayload | null;
+}
+
 // Color space helpers (OKLab)
-const srgb2lin = (v) => (v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
-const lin2srgb = (v) => (v <= 0.0031308 ? v * 12.92 : 1.055 * Math.pow(v, 1 / 2.4) - 0.055);
-function rgb2oklab(r, g, b) {
+const srgb2lin = (v: number): number => (v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+const lin2srgb = (v: number): number => (v <= 0.0031308 ? v * 12.92 : 1.055 * Math.pow(v, 1 / 2.4) - 0.055);
+function rgb2oklab(r: number, g: number, b: number): OKLab {
   const rl = srgb2lin(r),
     gl = srgb2lin(g),
     bl = srgb2lin(b);
@@ -20,7 +61,7 @@ function rgb2oklab(r, g, b) {
     b: 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s,
   };
 }
-function oklab2rgb(L, a, b) {
+function oklab2rgb(L: number, a: number, b: number): RGB {
   const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
   const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
   const s_ = L - 0.0894841775 * a - 1.291485548 * b;
@@ -32,15 +73,15 @@ function oklab2rgb(L, a, b) {
   const bl = 0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s;
   return [Math.max(0, Math.min(1, lin2srgb(rl))), Math.max(0, Math.min(1, lin2srgb(gl))), Math.max(0, Math.min(1, lin2srgb(bl)))];
 }
-function oklabToLch(L, a, b) {
+function oklabToLch(L: number, a: number, b: number): OKLch {
   const C = Math.hypot(a, b),
     h = Math.atan2(b, a);
   return { L, C, h };
 }
-function lchToOklab(L, C, h) {
+function lchToOklab(L: number, C: number, h: number): OKLab {
   return { L, a: C * Math.cos(h), b: C * Math.sin(h) };
 }
-const smoothstep = (a, b, x) => {
+const smoothstep = (a: number, b: number, x: number): number => {
   if (b <= a) return x < a ? 0 : 1;
   const t = Math.max(0, Math.min(1, (x - a) / (b - a)));
   return t * t * (3 - 2 * t);
@@ -52,22 +93,30 @@ const REF = [
   [0, 1, 1],
   [1, 1, 0],
   [1, 0, 1],
-].map((v) => {
+].map((v): RGB => {
   const L = Math.hypot(v[0], v[1], v[2]);
   return [v[0] / L, v[1] / L, v[2] / L];
 });
 
-function coerceRGB(v) {
+function coerceRGB(v: SlotInput): RGB | null {
   if (!v) return null;
-  if (Array.isArray(v)) return v;
+  if (Array.isArray(v)) {
+    const [r, g, b] = v;
+    if ([r, g, b].every((c) => typeof c === 'number' && Number.isFinite(c))) {
+      return [r as number, g as number, b as number];
+    }
+    return null;
+  }
   if (typeof v === 'string') {
     const h = v[0] === '#' ? v.slice(1) : v;
     if (h.length !== 6) return null;
     const n = parseInt(h, 16);
     return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
   }
-  if (typeof v === 'object' && v.hex) {
-    const h = v.hex[0] === '#' ? v.hex.slice(1) : v.hex;
+  if (typeof v === 'object' && v !== null && 'hex' in v && v.hex) {
+    const hexValue = v.hex;
+    if (typeof hexValue !== 'string') return null;
+    const h = hexValue[0] === '#' ? hexValue.slice(1) : hexValue;
     if (h.length !== 6) return null;
     const n = parseInt(h, 16);
     return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
@@ -75,7 +124,7 @@ function coerceRGB(v) {
   return null;
 }
 
-function render({ base, mask, w, h, slots, params }) {
+function render({ base, mask, w, h, slots, params }: RenderArgs): ArrayBuffer {
   const {
     threshold = 80,
     strength = 1,
@@ -94,7 +143,7 @@ function render({ base, mask, w, h, slots, params }) {
   } = params || {};
 
   const out = new Uint8ClampedArray(w * h * 4);
-  const pal = new Array(6);
+  const pal: Array<RGB | null> = new Array<RGB | null>(6);
   for (let s = 0; s < 6; s++) pal[s] = coerceRGB(slots?.[s]);
 
   const mixBoostClamped = Math.max(0, Math.min(1.5, Number.isFinite(colorMixBoost) ? colorMixBoost : 0));
@@ -151,7 +200,7 @@ function render({ base, mask, w, h, slots, params }) {
       const i = y * w + x;
       let d = dist[i],
         l = lab[i];
-      const relax = (nx, ny, cost) => {
+      const relax = (nx: number, ny: number, cost: number): void => {
         if (nx < 0 || ny < 0 || nx >= w || ny >= h) return;
         const k = ny * w + nx,
           nd = dist[k] + cost;
@@ -173,7 +222,7 @@ function render({ base, mask, w, h, slots, params }) {
       const i = y * w + x;
       let d = dist[i],
         l = lab[i];
-      const relax = (nx, ny, cost) => {
+      const relax = (nx: number, ny: number, cost: number): void => {
         if (nx < 0 || ny < 0 || nx >= w || ny >= h) return;
         const k = ny * w + nx,
           nd = dist[k] + cost;
@@ -318,7 +367,9 @@ function render({ base, mask, w, h, slots, params }) {
       }
     }
 
-    let tR, tG, tB;
+    let tR: number | undefined;
+    let tG: number | undefined;
+    let tB: number | undefined;
     if (weights) {
       let sumW = 0,
         aR = 0,
@@ -328,6 +379,7 @@ function render({ base, mask, w, h, slots, params }) {
         const wv = weights[s];
         if (wv <= 0) continue;
         const pv = pal[s];
+        if (!pv) continue;
         aR += wv * (pv[0] / 255);
         aG += wv * (pv[1] / 255);
         aB += wv * (pv[2] / 255);
@@ -340,7 +392,7 @@ function render({ base, mask, w, h, slots, params }) {
         tB = aB * inv;
       }
     }
-    if (tR === undefined) {
+    if (tR === undefined || tG === undefined || tB === undefined) {
       const tgt = pal[si];
       if (!tgt) {
         out[j] = br;
@@ -349,9 +401,10 @@ function render({ base, mask, w, h, slots, params }) {
         out[j + 3] = ba;
         continue;
       }
-      tR = tgt[0] / 255;
-      tG = tgt[1] / 255;
-      tB = tgt[2] / 255;
+      [tR, tG, tB] = [tgt[0] / 255, tgt[1] / 255, tgt[2] / 255];
+    }
+    if (tR === undefined || tG === undefined || tB === undefined) {
+      continue;
     }
 
     // Boundary color band: soften seams between different labels by gently
@@ -386,7 +439,7 @@ function render({ base, mask, w, h, slots, params }) {
       if (nb >= 0 && pal[nb] && BSTR > 0.0001) {
         const ratio = cnt > 0 ? cntOther / cnt : 0;
         const a = Math.max(0, Math.min(1, BSTR * ratio));
-        const nbCol = pal[nb];
+        const nbCol = pal[nb]!;
         const nr = nbCol[0] / 255,
           ng = nbCol[1] / 255,
           nbv = nbCol[2] / 255;
@@ -396,7 +449,7 @@ function render({ base, mask, w, h, slots, params }) {
       }
     }
 
-    const targetOK = rgb2oklab(tR || 0, tG || 0, tB || 0);
+    const targetOK = rgb2oklab(tR, tG, tB);
     const targetLCH = oklabToLch(targetOK.L, targetOK.a, targetOK.b);
     if (targetLCH.C <= 0.03 && wMask < 0.999) {
       const cf = conf[i] || 0;
@@ -428,8 +481,8 @@ function render({ base, mask, w, h, slots, params }) {
     let kAdj = coverageBoost > 0 ? Math.min(1, kBase + (1 - kBase) * coverageBoost) : kBase;
     let o0, o1, o2;
     if (blendMode !== 'oklab') {
-      const ov = (B, T) => (B <= 0.5 ? 2 * B * T : 1 - 2 * (1 - B) * (1 - T));
-      const mul = (B, T) => B * T;
+      const ov = (B: number, T: number): number => (B <= 0.5 ? 2 * B * T : 1 - 2 * (1 - B) * (1 - T));
+      const mul = (B: number, T: number): number => B * T;
       let rMix, gMix, bMix;
       if (blendMode === 'multiplyRGB') {
         rMix = mul(bL, tR);
@@ -585,20 +638,39 @@ function render({ base, mask, w, h, slots, params }) {
   return out.buffer;
 }
 
-self.onmessage = async (ev) => {
-  const msg = ev.data || {};
+self.onmessage = async (ev: MessageEvent): Promise<void> => {
+  const msg = (ev.data || {}) as WorkerRequestMessage;
   if (msg.type !== 'recolor') return;
   // Stash jobId early for error reporting
-  let jid = (msg && msg.payload && msg.payload.jobId) || 0;
+  let jid = msg.payload?.jobId ?? 0;
   try {
-    const { jobId, width, height, baseBuffer, maskBuffer, base, mask, slots, params } = msg.payload || {};
+    const payload = msg.payload;
+    if (!payload) {
+      throw new Error('Missing payload');
+    }
+    const { jobId, width, height, baseBuffer, maskBuffer, base, mask, slots, params } = payload;
     jid = jobId;
-    const baseArr = base instanceof Uint8ClampedArray ? base : baseBuffer ? new Uint8ClampedArray(baseBuffer) : new Uint8ClampedArray(base);
-    const maskArr = mask instanceof Uint8ClampedArray ? mask : maskBuffer ? new Uint8ClampedArray(maskBuffer) : new Uint8ClampedArray(mask);
+    const baseArr =
+      base instanceof Uint8ClampedArray
+        ? base
+        : baseBuffer
+          ? new Uint8ClampedArray(baseBuffer)
+          : base
+            ? new Uint8ClampedArray(base as ArrayBufferLike)
+            : new Uint8ClampedArray(width * height * 4);
+    const maskArr =
+      mask instanceof Uint8ClampedArray
+        ? mask
+        : maskBuffer
+          ? new Uint8ClampedArray(maskBuffer)
+          : mask
+            ? new Uint8ClampedArray(mask as ArrayBufferLike)
+            : new Uint8ClampedArray(width * height * 4);
     const outBuffer = render({ base: baseArr, mask: maskArr, w: width, h: height, slots, params });
     // Post back with transferable
     self.postMessage({ type: 'recolor:done', jobId, width, height, outBuffer }, [outBuffer]);
-  } catch (e) {
-    self.postMessage({ type: 'recolor:error', jobId: jid, error: String(e && e.message ? e.message : e) });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    self.postMessage({ type: 'recolor:error', jobId: jid, error: errorMessage });
   }
 };

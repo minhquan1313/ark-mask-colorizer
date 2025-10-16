@@ -1,16 +1,26 @@
 import Icon from '@ant-design/icons';
+import type { CustomIconComponentProps } from '@ant-design/icons/lib/components/Icon';
+import type { SVGProps } from 'react';
 
-export function MaskSVG() {
+type NavIconProps = Partial<CustomIconComponentProps>;
+
+const baseSvgProps = {
+  width: '1em',
+  height: '1em',
+  viewBox: '0 0 24 24',
+  fill: 'currentColor',
+  stroke: 'currentColor',
+  strokeWidth: 1.5,
+  strokeLinecap: 'round' as const,
+  strokeLinejoin: 'round' as const,
+};
+
+export function MaskSVG(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
-      width="1em"
-      height="1em"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round">
+      {...baseSvgProps}
+      {...props}
+      fill="none">
       <path d="M4 9c0-3 4-5 8-5s8 2 8 5v3c0 3.5-3.5 6-8 6s-8-2.5-8-6V9Z" />
       <path d="M8.5 13c.9.8 2.1 1.2 3.5 1.2s2.6-.4 3.5-1.2" />
       <circle
@@ -30,24 +40,20 @@ export function MaskSVG() {
     </svg>
   );
 }
-export const MaskIcon = (props) => (
+
+export const MaskIcon = (props: NavIconProps) => (
   <Icon
     component={MaskSVG}
     {...props}
   />
 );
 
-export function LibrarySVG() {
+export function LibrarySVG(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
-      width="1em"
-      height="1em"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round">
+      {...baseSvgProps}
+      {...props}
+      fill="none">
       <path d="M5 6.5h5a2.5 2.5 0 0 1 2.5 2.5v10.5l-3-1.6-3 1.6V9A2.5 2.5 0 0 1 9.5 6.5Z" />
       <path d="M12.5 9A2.5 2.5 0 0 1 15 6.5h4a1.5 1.5 0 0 1 1.5 1.5v11l-3-1.6-3 1.6Z" />
       <line
@@ -66,24 +72,19 @@ export function LibrarySVG() {
   );
 }
 
-export const LibraryIcon = (props) => (
+export const LibraryIcon = (props: NavIconProps) => (
   <Icon
     component={LibrarySVG}
     {...props}
   />
 );
 
-export function SettingsSVG() {
+export function SettingsSVG(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
-      width="1em"
-      height="1em"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round">
+      {...baseSvgProps}
+      {...props}
+      fill="none">
       <circle
         cx="12"
         cy="12"
@@ -94,24 +95,19 @@ export function SettingsSVG() {
   );
 }
 
-export const SettingsIcon = (props) => (
+export const SettingsIcon = (props: NavIconProps) => (
   <Icon
     component={SettingsSVG}
     {...props}
   />
 );
 
-export function ExtractorSVG() {
+export function ExtractorSVG(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
-      width="1em"
-      height="1em"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round">
+      {...baseSvgProps}
+      {...props}
+      fill="none">
       <path d="M8 3h8" />
       <path d="M10 3v6.5a4 4 0 0 1-.8 2.4l-3.4 4.7a2 2 0 0 0 1.6 3.2h9.2a2 2 0 0 0 1.6-3.2l-3.4-4.7a4 4 0 0 1-.8-2.4V3" />
       <path d="M9 14h6" />
@@ -120,24 +116,19 @@ export function ExtractorSVG() {
   );
 }
 
-export const ExtractorIcon = (props) => (
+export const ExtractorIcon = (props: NavIconProps) => (
   <Icon
     component={ExtractorSVG}
     {...props}
   />
 );
 
-export function UtilitiesSVG() {
+export function UtilitiesSVG(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
-      width="1em"
-      height="1em"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round">
+      {...baseSvgProps}
+      {...props}
+      fill="none">
       <path d="M5 7.5h14a1.5 1.5 0 0 1 1.5 1.5v8a2.5 2.5 0 0 1-2.5 2.5H6A2.5 2.5 0 0 1 3.5 17V9a1.5 1.5 0 0 1 1.5-1.5Z" />
       <path d="M4 11h16" />
       <path d="M8.5 4h7a1.5 1.5 0 0 1 1.5 1.5V7H7V5.5A1.5 1.5 0 0 1 8.5 4Z" />
@@ -146,7 +137,7 @@ export function UtilitiesSVG() {
   );
 }
 
-export const UtilitiesIcon = (props) => (
+export const UtilitiesIcon = (props: NavIconProps) => (
   <Icon
     component={UtilitiesSVG}
     {...props}

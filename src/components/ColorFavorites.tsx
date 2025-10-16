@@ -1,17 +1,36 @@
-import { DndContext, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
+import { DndContext, PointerSensor, closestCenter, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, arrayMove, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Tooltip, Typography } from 'antd';
+import type { MouseEvent as ReactMouseEvent } from 'react';
 import { useI18n } from '../i18n';
+import type { TranslateFn } from '../types/mask';
 
 const { Text } = Typography;
 
-function normalizeColor(value) {
+interface ColorFavoritesProps {
+  label?: string;
+  colors?: string[];
+  onSelect?: (color: string) => void;
+  onRemove?: (color: string) => void;
+  onReorder?: (colors: string[]) => void;
+}
+
+interface SortableColorSwatchProps {
+  id: string;
+  color: string;
+  disabled: boolean;
+  onSelect?: () => void;
+  onRemove?: () => void;
+  t: TranslateFn;
+}
+
+function normalizeColor(value: unknown): string {
   if (typeof value !== 'string') return '';
   return value.trim();
 }
 
-export default function ColorFavorites({ label, colors = [], onSelect, onRemove, onReorder }) {
+export default function ColorFavorites({ label, colors = [], onSelect, onRemove, onReorder }: ColorFavoritesProps) {
   const { t } = useI18n();
   const items = colors.map((color, index) => ({ id: `${color}-${index}`, color: normalizeColor(color) }));
   const sensors = useSensors(
@@ -21,7 +40,7 @@ export default function ColorFavorites({ label, colors = [], onSelect, onRemove,
   );
   const canReorder = typeof onReorder === 'function' && items.length > 1;
 
-  const handleDragEnd = (event) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     if (!canReorder) return;
     const { active, over } = event;
     if (!over || active.id === over.id) return;
@@ -71,7 +90,7 @@ export default function ColorFavorites({ label, colors = [], onSelect, onRemove,
   );
 }
 
-function SortableColorSwatch({ id, color, disabled, onSelect, onRemove, t }) {
+function SortableColorSwatch({ id, color, disabled, onSelect, onRemove, t }: SortableColorSwatchProps) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
     id,
     disabled,
@@ -82,7 +101,9 @@ function SortableColorSwatch({ id, color, disabled, onSelect, onRemove, t }) {
     transition,
   };
 
-  const stopPropagation = (event) => {
+  const { role, tabIndex, ...restAttributes } = attributes;
+
+  const stopPropagation = (event: ReactMouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     event.preventDefault();
   };
@@ -92,11 +113,11 @@ function SortableColorSwatch({ id, color, disabled, onSelect, onRemove, t }) {
       ref={setNodeRef}
       style={style}
       className={`color-favorites__item${isDragging ? ' is-dragging' : ''}`}
-      role="button"
-      tabIndex={0}
+      role={role ?? 'button'}
+      tabIndex={tabIndex ?? 0}
       onClick={onSelect}
       {...listeners}
-      {...attributes}
+      {...restAttributes}
       onKeyDown={(event) => {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();

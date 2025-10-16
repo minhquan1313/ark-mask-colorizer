@@ -1,4 +1,10 @@
-export default function ExtractorPage({ t }) {
+import type { TranslateFn } from '../../types/mask';
+
+interface ExtractorPageProps {
+  t: TranslateFn;
+}
+
+export default function ExtractorPage({ t }: ExtractorPageProps) {
   return (
     <div className="container container--single">
       <section className="panel">

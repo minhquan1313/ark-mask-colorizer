@@ -1,17 +1,34 @@
-// src/components/Popover.jsx
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from 'react';
 
 const MARGIN = 8;
 const MAX_WIDTH = 360;
 const MAX_HEIGHT = 480;
 
-export default function Popover({ anchorRef, onClose, children, className = '', style = {} }) {
-  const panelRef = useRef(null);
-  const [pos, setPos] = useState({ top: 0, left: 0, width: MAX_WIDTH, maxHeight: MAX_HEIGHT });
+type AnchorRef = RefObject<Element | null> | { current: Element | null };
+
+interface PopoverProps {
+  anchorRef: AnchorRef;
+  onClose?: () => void;
+  children: ReactNode;
+  className?: string;
+  style?: CSSProperties;
+}
+
+interface PopoverPosition {
+  top: number;
+  left: number;
+  width: number;
+  maxHeight: number;
+}
+
+export default function Popover({ anchorRef, onClose, children, className = '', style }: PopoverProps) {
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const [pos, setPos] = useState<PopoverPosition>({ top: 0, left: 0, width: MAX_WIDTH, maxHeight: MAX_HEIGHT });
 
   useLayoutEffect(() => {
     const updatePosition = () => {
-      const anchor = anchorRef?.current;
+      const rawAnchor = anchorRef?.current ?? null;
+      const anchor = rawAnchor instanceof HTMLElement ? rawAnchor : null;
       const panel = panelRef.current;
       if (!anchor || !panel) return;
 
@@ -29,11 +46,11 @@ export default function Popover({ anchorRef, onClose, children, className = '', 
       const spaceRight = window.innerWidth - anchorRect.right - MARGIN;
       const spaceLeft = anchorRect.left - MARGIN;
 
-      const clampHorizontal = (value) => Math.min(Math.max(MARGIN, value), Math.max(MARGIN, window.innerWidth - panelWidth - MARGIN));
-      const clampVertical = (value) => Math.min(Math.max(MARGIN, value), Math.max(MARGIN, window.innerHeight - panelHeight - MARGIN));
+      const clampHorizontal = (value: number) => Math.min(Math.max(MARGIN, value), Math.max(MARGIN, window.innerWidth - panelWidth - MARGIN));
+      const clampVertical = (value: number) => Math.min(Math.max(MARGIN, value), Math.max(MARGIN, window.innerHeight - panelHeight - MARGIN));
 
-      let top;
-      let left;
+      let top: number;
+      let left: number;
 
       if (spaceBelow >= panelHeight) {
         top = clampVertical(anchorRect.bottom + MARGIN);
@@ -54,7 +71,12 @@ export default function Popover({ anchorRef, onClose, children, className = '', 
 
     updatePosition();
 
-    const resizeObserver = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updatePosition) : null;
+    const resizeObserver =
+      typeof ResizeObserver !== 'undefined'
+        ? new ResizeObserver(() => {
+            updatePosition();
+          })
+        : null;
     if (resizeObserver && panelRef.current) {
       resizeObserver.observe(panelRef.current);
     }
@@ -70,13 +92,22 @@ export default function Popover({ anchorRef, onClose, children, className = '', 
   }, [anchorRef]);
 
   useEffect(() => {
-    const onKey = (e) => e.key === 'Escape' && onClose?.();
-    const onClick = (e) => {
-      if (!panelRef.current) return;
-      const anchor = anchorRef?.current;
-      const clickedInsidePanel = panelRef.current.contains(e.target);
-      const clickedAnchor = anchor ? anchor.contains(e.target) : false;
-      if (!clickedInsidePanel && !clickedAnchor) onClose?.();
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose?.();
+      }
+    };
+    const onClick = (event: MouseEvent) => {
+      const panel = panelRef.current;
+      if (!panel) return;
+      const rawAnchor = anchorRef?.current ?? null;
+      const anchor = rawAnchor instanceof HTMLElement ? rawAnchor : null;
+      const target = event.target as Node | null;
+      const clickedInsidePanel = panel.contains(target);
+      const clickedAnchor = anchor ? anchor.contains(target) : false;
+      if (!clickedInsidePanel && !clickedAnchor) {
+        onClose?.();
+      }
     };
     window.addEventListener('keydown', onKey);
     window.addEventListener('mousedown', onClick);
@@ -103,7 +134,7 @@ export default function Popover({ anchorRef, onClose, children, className = '', 
         border: '1px solid var(--border)',
         borderRadius: 12,
         boxShadow: 'var(--shadow)',
-        ...(style || {}),
+        ...(style ?? {}),
       }}>
       {children}
     </div>

@@ -1,4 +1,10 @@
-export default function LibraryPage({ t }) {
+import type { TranslateFn } from '../../types/mask';
+
+interface LibraryPageProps {
+  t: TranslateFn;
+}
+
+export default function LibraryPage({ t }: LibraryPageProps) {
   return (
     <div className="container container--single">
       <section className="panel">

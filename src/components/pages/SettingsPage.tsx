@@ -1,9 +1,29 @@
-import { Button, Card, Empty, Grid, Tabs, Timeline, Typography } from 'antd';
+import { Button, Card, Empty, Grid, Tabs, Timeline, Typography, type TabsProps, type TimelineProps } from 'antd';
 import { useMemo } from 'react';
-import updateNote from '../../data/updateNote.json';
+import updateNoteRaw from '../../data/updateNote.json';
+import { useLanguageOptions } from '../../i18n';
+import type { TranslateFn } from '../../types/mask';
 import MaskExportSettings from '../MaskExportSettings';
 
-function parseUpdateDate(key) {
+type LanguageOption = ReturnType<typeof useLanguageOptions>[number];
+
+interface SettingsPageProps {
+  t: TranslateFn;
+  languageOptions: LanguageOption[];
+  lang: string;
+  onSelectLanguage: (code: LanguageOption['code']) => void;
+}
+
+interface UpdateLogEntry {
+  dateKey: string;
+  displayDate: string;
+  sortValue: number;
+  notes: string[];
+}
+
+const { Title, Text, Paragraph } = Typography;
+
+const parseUpdateDate = (key: string | null | undefined): Date | null => {
   if (!key) return null;
   const parts = String(key).split('/');
   if (parts.length !== 3) return null;
@@ -12,17 +32,17 @@ function parseUpdateDate(key) {
     return null;
   }
   return new Date(year, month - 1, day);
-}
+};
 
-const { Title, Text, Paragraph } = Typography;
+const updateNote = updateNoteRaw as Record<string, string[]>;
 
-export default function SettingsPage({ t, languageOptions, lang, onSelectLanguage }) {
+export default function SettingsPage({ t, languageOptions, lang, onSelectLanguage }: SettingsPageProps) {
   const screens = Grid.useBreakpoint();
   const isMediumUp = Boolean(screens.md);
   const isLargeUp = Boolean(screens.lg);
-  const tabPosition = isLargeUp ? 'left' : 'top';
+  const tabPosition: TabsProps['tabPosition'] = isLargeUp ? 'left' : 'top';
 
-  const updateLogEntries = useMemo(() => {
+  const updateLogEntries = useMemo<UpdateLogEntry[]>(() => {
     if (!updateNote || typeof updateNote !== 'object') {
       return [];
     }
@@ -69,12 +89,10 @@ export default function SettingsPage({ t, languageOptions, lang, onSelectLanguag
     </div>
   );
 
-  const updateTab = updateLogEntries.length ? (
-    <div className="settings-update">
-      <Timeline
-        mode={isMediumUp ? 'left' : 'alternate'}
-        className="settings-update__timeline"
-        items={updateLogEntries.map((entry) => ({
+  const timelineItems: TimelineProps['items'] =
+    updateLogEntries.length === 0
+      ? []
+      : updateLogEntries.map((entry) => ({
           key: entry.dateKey,
           label: <Text strong>{entry.displayDate}</Text>,
           children: (
@@ -84,15 +102,23 @@ export default function SettingsPage({ t, languageOptions, lang, onSelectLanguag
               ))}
             </div>
           ),
-        }))}
+        }));
+
+  const updateTab =
+    timelineItems.length > 0 ? (
+      <div className="settings-update">
+        <Timeline
+          mode={isMediumUp ? 'left' : 'alternate'}
+          className="settings-update__timeline"
+          items={timelineItems}
+        />
+      </div>
+    ) : (
+      <Empty
+        className="settings-update__empty"
+        description={t('settings.updateLogEmpty', { defaultValue: 'No updates yet.' })}
       />
-    </div>
-  ) : (
-    <Empty
-      className="settings-update__empty"
-      description={t('settings.updateLogEmpty', { defaultValue: 'No updates yet.' })}
-    />
-  );
+    );
 
   const maskTab = (
     <div className="settings-mask">
@@ -100,7 +126,7 @@ export default function SettingsPage({ t, languageOptions, lang, onSelectLanguag
     </div>
   );
 
-  const tabItems = [
+  const tabItems: TabsProps['items'] = [
     {
       key: 'mask',
       label: t('settings.tabs.mask', { defaultValue: 'Mask' }),

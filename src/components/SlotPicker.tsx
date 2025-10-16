@@ -1,12 +1,33 @@
 import { Button } from 'antd';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react';
 import { useI18n } from '../i18n';
-import { ARK_PALETTE } from '../utils/arkPalette';
+import { ARK_PALETTE, type ArkPaletteEntry } from '../utils/arkPalette';
 import { hexToRgb, relLuminance } from '../utils/color';
+import { idToEntry } from '../utils/slotUtils';
 import PaletteGrid from './PaletteGrid';
 import Popover from './Popover';
 
-const findByIndex = (idx) => ARK_PALETTE.find((p) => String(p.index) === String(idx)) || null;
+interface SlotPickerProps {
+  slotIndex: number;
+  value: ArkPaletteEntry | null;
+  onChange: (entry: ArkPaletteEntry | null) => void;
+  disabled?: boolean;
+  favorites?: string[];
+  onToggleFavorite?: (entry: ArkPaletteEntry) => void;
+  onResetFavorites?: () => void;
+  onReorderFavorites?: (ids: string[]) => void;
+  onHoverChange?: (isHovering: boolean) => void;
+  onOpenChange?: (isOpen: boolean) => void;
+  highlighted?: boolean;
+}
+
+const findByIndex = (idx: string | number): ArkPaletteEntry | null => ARK_PALETTE.find((p) => String(p.index) === String(idx)) ?? null;
+
+const getEntryFromValue = (value: ArkPaletteEntry | null | undefined): ArkPaletteEntry | null => {
+  if (!value) return null;
+  const entry = idToEntry(value.index);
+  return entry ?? null;
+};
 
 export default function SlotPicker({
   slotIndex,
@@ -20,23 +41,24 @@ export default function SlotPicker({
   onHoverChange,
   onOpenChange,
   highlighted = false,
-}) {
+}: SlotPickerProps) {
+  const entry = getEntryFromValue(value);
   const { t } = useI18n();
-  const anchorRef = useRef(null);
+  const anchorRef = useRef<HTMLInputElement | null>(null);
   const [open, setOpen] = useState(false);
-  const [idDraft, setIdDraft] = useState(value ? String(value.index) : '');
+  const [idDraft, setIdDraft] = useState(entry ? String(entry.index) : '');
   const [hasTyped, setHasTyped] = useState(false);
 
-  const prevValueRef = useRef(value ? String(value.index) : '');
+  const prevValueRef = useRef(entry ? String(entry.index) : '');
 
   useEffect(() => {
-    const currentValueId = value ? String(value.index) : '';
+    const currentValueId = entry ? String(entry.index) : '';
     const prevValueId = prevValueRef.current;
     if (!hasTyped && currentValueId !== prevValueId) {
       setIdDraft(currentValueId);
     }
     prevValueRef.current = currentValueId;
-  }, [value, hasTyped]);
+  }, [entry, hasTyped]);
 
   useEffect(() => {
     if (typeof onOpenChange === 'function') {
@@ -48,13 +70,11 @@ export default function SlotPicker({
     if (!open) setHasTyped(false);
   }, [open]);
 
-  const notifyHover = (state) => {
-    if (typeof onHoverChange === 'function') {
-      onHoverChange(state);
-    }
+  const notifyHover = (state: boolean) => {
+    onHoverChange?.(state);
   };
 
-  const applyDraft = (draft) => {
+  const applyDraft = (draft: string) => {
     const sanitized = draft.replace(/[^0-9]/g, '').slice(0, 3);
     setIdDraft(sanitized);
     if (sanitized === '') {
@@ -93,16 +113,16 @@ export default function SlotPicker({
     const lookup = idDraft.replace(/^0+/, '') || idDraft;
     const found = findByIndex(lookup);
     if (!found) {
-      const fallback = value ? String(value.index) : '';
+      const fallback = entry ? String(entry.index) : '';
       setIdDraft(fallback);
       setHasTyped(false);
       prevValueRef.current = fallback;
     }
   };
 
-  const handlePick = (entryOrNull) => {
+  const handlePick = (entryOrNull: ArkPaletteEntry | null) => {
     if (disabled) return;
-    onChange(entryOrNull || null);
+    onChange(entryOrNull);
     const nextId = entryOrNull ? String(entryOrNull.index) : '';
     setIdDraft(nextId);
     prevValueRef.current = nextId;
@@ -111,19 +131,19 @@ export default function SlotPicker({
   };
 
   const idTextColor = (() => {
-    if (!value?.hex) return '#fff';
-    const [r, g, b] = hexToRgb(value.hex);
+    if (!entry?.hex) return '#fff';
+    const [r, g, b] = hexToRgb(entry.hex);
     return relLuminance(r, g, b) > 0.55 ? '#111' : '#fff';
   })();
 
   const inputStyle = {
-    background: value?.hex || 'transparent',
+    background: entry?.hex || 'transparent',
     color: idTextColor,
   };
 
-  const displayText = idDraft !== '' ? idDraft : (value?.index ?? '');
+  const displayText = idDraft !== '' ? idDraft : (entry?.index ?? '');
 
-  const handleKeyDown = (event) => {
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (disabled) return;
     if (event.key === 'Enter') {
       event.preventDefault();
@@ -131,12 +151,12 @@ export default function SlotPicker({
       setOpen(false);
     } else if (event.key === 'Escape') {
       event.preventDefault();
-      setIdDraft(value ? String(value.index) : '');
+      setIdDraft(entry ? String(entry.index) : '');
       setOpen(false);
     }
   };
 
-  const handleChange = (event) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (disabled) return;
     applyDraft(event.target.value);
     setHasTyped(true);
@@ -148,6 +168,8 @@ export default function SlotPicker({
   const containerClass = ['slot-picker'];
   if (disabled) containerClass.push('is-disabled');
   if (highlighted) containerClass.push('is-highlighted');
+
+  const isReadonly = typeof window !== 'undefined' ? window.innerWidth < 900 : false;
 
   return (
     <div
@@ -173,8 +195,8 @@ export default function SlotPicker({
             notifyHover(false);
             confirmDraft();
           }}
-          title={value ? `${value.index} - ${value.name}` : disabled ? t('slotPicker.noMask') : t('slotPicker.pickColor')}
-          readOnly={disabled || window.innerWidth < 900}
+          title={entry ? `${entry.index} - ${entry.name}` : disabled ? t('slotPicker.noMask') : t('slotPicker.pickColor')}
+          readOnly={disabled || isReadonly}
           style={inputStyle}
         />
         <Button

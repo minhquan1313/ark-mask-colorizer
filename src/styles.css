@@ -827,7 +827,9 @@
 
 .decay-tool__media {
   position: relative;
-  border-radius: 22px;
+  border-radius: calc(var(--utilities-decay-server-card-border-radius) - 4px);
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
   aspect-ratio: 4 / 3;
   overflow: hidden;
   max-height: 200px;

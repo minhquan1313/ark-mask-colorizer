@@ -6,7 +6,7 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 import globals from 'globals';
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'vite.config.d.ts']),
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {

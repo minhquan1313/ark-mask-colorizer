@@ -7,31 +7,34 @@ type SlotObject = {
   hex?: string | null;
 };
 
-export type SlotValue = number | string | SlotObject | null | undefined;
+type SlotLike = SlotObject | ArkPaletteEntry;
+
+export type SlotValue = number | string | SlotLike | null | undefined;
 
 export const idToEntry = (id: number | string | null | undefined): ArkPaletteEntry | null =>
   ARK_PALETTE.find((p) => String(p.index) === String(id)) ?? null;
+
+const pickNumeric = (candidate: unknown): number | null => {
+  const numeric = Number(candidate);
+  return Number.isFinite(numeric) ? numeric : null;
+};
 
 export function toVariantColorId(slotValue: SlotValue): number | null {
   if (slotValue == null) {
     return null;
   }
   if (typeof slotValue === 'number' || typeof slotValue === 'string') {
-    const parsed = Number(slotValue);
-    return Number.isFinite(parsed) ? parsed : null;
+    return pickNumeric(slotValue);
   }
   if (typeof slotValue === 'object') {
-    if (slotValue.index != null) {
-      const parsed = Number(slotValue.index);
-      return Number.isFinite(parsed) ? parsed : null;
+    if ('index' in slotValue && slotValue.index != null) {
+      return pickNumeric(slotValue.index);
     }
-    if (slotValue.id != null) {
-      const parsed = Number(slotValue.id);
-      return Number.isFinite(parsed) ? parsed : null;
+    if ('id' in slotValue && slotValue.id != null) {
+      return pickNumeric(slotValue.id);
     }
-    if (slotValue.value != null) {
-      const parsed = Number(slotValue.value);
-      return Number.isFinite(parsed) ? parsed : null;
+    if ('value' in slotValue && slotValue.value != null) {
+      return pickNumeric(slotValue.value);
     }
   }
   return null;

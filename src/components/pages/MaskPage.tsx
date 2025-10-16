@@ -1,5 +1,6 @@
 import { Button } from 'antd';
 import { useCallback, useEffect, useState } from 'react';
+import type { MaskPageProps } from '../../types/mask';
 import CanvasView from '../CanvasView';
 import CreaturePicker from '../CreaturePicker';
 import PaletteGrid from '../PaletteGrid';
@@ -29,19 +30,18 @@ export default function MaskPage({
   toolbarActions,
   slotControlsDisabled = false,
   copyDisabledSet = null,
-}) {
+}: MaskPageProps) {
   const { baseImg, maskImg, busy, outCanvasRef, baseCanvasRef, maskCanvasRef } = canvas;
   const { isOpen: fillOpen, anchorRef: fillBtnRef, open: openFill, close: closeFill, onPick: onFillPick } = fillControls;
   const { list, currentName, customMode, onSelect: onCreatureSelect } = creaturePicker;
   const { onReset, onDownloadImage, onDownloadWithPalette, downloadingType, onCustomFiles } = toolbarActions;
-  const [highlightSlots, setHighlightSlots] = useState([]);
+  const [highlightSlots, setHighlightSlots] = useState<number[]>([]);
 
   useEffect(() => {
     if (slotControlsDisabled) {
       setHighlightSlots([]);
       return;
     }
-    if (!disabledSet || typeof disabledSet.has !== 'function') return;
     setHighlightSlots((prev) => {
       const filtered = prev.filter((idx) => !disabledSet.has(idx));
       if (filtered.length === prev.length) return prev;
@@ -50,20 +50,13 @@ export default function MaskPage({
   }, [disabledSet, slotControlsDisabled]);
 
   const handleHighlightSlotsChange = useCallback(
-    (indices) => {
+    (indices: unknown) => {
       if (slotControlsDisabled || !Array.isArray(indices) || indices.length === 0) {
         setHighlightSlots((prev) => (prev.length === 0 ? prev : []));
         return;
       }
       const next = Array.from(
-        new Set(
-          indices
-            .map((value) => Number(value))
-            .filter(
-              (idx) =>
-                Number.isInteger(idx) && idx >= 0 && idx <= 5 && !(disabledSet && typeof disabledSet.has === 'function' && disabledSet.has(idx)),
-            ),
-        ),
+        new Set(indices.map((value) => Number(value)).filter((idx) => Number.isInteger(idx) && idx >= 0 && idx <= 5 && !disabledSet.has(idx))),
       ).sort((a, b) => a - b);
       setHighlightSlots((prev) => {
         if (prev.length === next.length && prev.every((value, index) => value === next[index])) {

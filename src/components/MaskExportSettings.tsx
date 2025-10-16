@@ -1,25 +1,33 @@
 import { Button, Card, ColorPicker, Divider, Space, Switch, Typography } from 'antd';
+import type { Color } from 'antd/es/color-picker';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DEFAULTS } from '../config/defaults';
 import { useMaskSettings } from '../context/MaskSettingsContext';
 import { useI18n } from '../i18n';
+import type { TranslateFn } from '../types/mask';
 import { STORAGE_KEYS, loadJSON, saveJSON } from '../utils/storage';
 import ColorFavorites from './ColorFavorites';
 
 const MAX_COLOR_FAVORITES = 6;
 const HEX_COLOR_REGEX = /^#[0-9a-f]{6}$/i;
 
-function normalizeHexColor(value) {
+type FavoritesUpdater = string[] | ((prev: string[]) => string[]);
+
+interface MaskExportSettingsProps {
+  t?: TranslateFn;
+}
+
+const normalizeHexColor = (value: unknown): string | null => {
   if (typeof value !== 'string') return null;
   const trimmed = value.trim();
   if (!HEX_COLOR_REGEX.test(trimmed)) return null;
   return trimmed.toUpperCase();
-}
+};
 
-function sanitizeColorFavorites(list) {
+const sanitizeColorFavorites = (list: unknown): string[] => {
   if (!Array.isArray(list)) return [];
-  const seen = new Set();
-  const result = [];
+  const seen = new Set<string>();
+  const result: string[] = [];
   for (const value of list) {
     const normalized = normalizeHexColor(value);
     if (normalized && !seen.has(normalized)) {
@@ -29,31 +37,37 @@ function sanitizeColorFavorites(list) {
     if (result.length >= MAX_COLOR_FAVORITES) break;
   }
   return result;
-}
+};
 
-function upsertColorFavorite(list, color) {
+const upsertColorFavorite = (list: string[] | undefined, color: unknown): string[] => {
   const normalized = normalizeHexColor(color);
-  if (!normalized) return list;
-  const filtered = Array.isArray(list) ? list.filter((item) => item !== normalized) : [];
+  if (!normalized) return list ?? [];
+  const filtered = (list ?? []).filter((item) => item !== normalized);
   filtered.unshift(normalized);
   return filtered.slice(0, MAX_COLOR_FAVORITES);
-}
+};
 
-function colorFavoritesEqual(a, b) {
+const colorFavoritesEqual = (a: string[] | undefined, b: string[] | undefined): boolean => {
   if (a === b) return true;
   if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
   return a.every((value, index) => value === b[index]);
-}
+};
 
-export default function MaskExportSettings({ t: overrideT }) {
+const resolveFavoritesUpdate = (updater: FavoritesUpdater, prev: string[]): string[] => {
+  const source = typeof updater === 'function' ? updater(prev) : updater;
+  return sanitizeColorFavorites(source);
+};
+
+export default function MaskExportSettings({ t: overrideT }: MaskExportSettingsProps) {
   const { t: i18nT } = useI18n();
   const t = useMemo(() => overrideT ?? i18nT, [overrideT, i18nT]);
   const { exportBg, setExportBg, exportText, setExportText, unlockAllSlots, setUnlockAllSlots } = useMaskSettings();
 
-  const [bgFavorites, setBgFavorites] = useState(() => sanitizeColorFavorites(loadJSON(STORAGE_KEYS.exportBgFavorites, [])));
-  const [textFavorites, setTextFavorites] = useState(() => sanitizeColorFavorites(loadJSON(STORAGE_KEYS.exportTextFavorites, [])));
+  const [bgFavorites, setBgFavorites] = useState<string[]>(() => sanitizeColorFavorites(loadJSON(STORAGE_KEYS.exportBgFavorites, [])));
+  const [textFavorites, setTextFavorites] = useState<string[]>(() => sanitizeColorFavorites(loadJSON(STORAGE_KEYS.exportTextFavorites, [])));
+
   const isTransparent = exportBg === 'transparent';
-  const lastSolidBgRef = useRef(isTransparent ? DEFAULTS.exportBg : exportBg);
+  const lastSolidBgRef = useRef<string>(isTransparent && typeof exportBg === 'string' ? DEFAULTS.exportBg : (exportBg as string));
 
   useEffect(() => {
     if (!isTransparent && typeof exportBg === 'string' && exportBg.startsWith('#') && exportBg.length === 7) {
@@ -61,18 +75,18 @@ export default function MaskExportSettings({ t: overrideT }) {
     }
   }, [exportBg, isTransparent]);
 
-  const updateBgFavorites = useCallback((updater) => {
+  const updateBgFavorites = useCallback((updater: FavoritesUpdater) => {
     setBgFavorites((prev) => {
-      const next = sanitizeColorFavorites(typeof updater === 'function' ? updater(prev) : updater);
+      const next = resolveFavoritesUpdate(updater, prev);
       if (colorFavoritesEqual(prev, next)) return prev;
       saveJSON(STORAGE_KEYS.exportBgFavorites, next);
       return next;
     });
   }, []);
 
-  const updateTextFavorites = useCallback((updater) => {
+  const updateTextFavorites = useCallback((updater: FavoritesUpdater) => {
     setTextFavorites((prev) => {
-      const next = sanitizeColorFavorites(typeof updater === 'function' ? updater(prev) : updater);
+      const next = resolveFavoritesUpdate(updater, prev);
       if (colorFavoritesEqual(prev, next)) return prev;
       saveJSON(STORAGE_KEYS.exportTextFavorites, next);
       return next;
@@ -80,7 +94,7 @@ export default function MaskExportSettings({ t: overrideT }) {
   }, []);
 
   const applyBgColor = useCallback(
-    (hex) => {
+    (hex: string | null) => {
       if (!hex) return;
       lastSolidBgRef.current = hex;
       setExportBg(hex);
@@ -90,7 +104,7 @@ export default function MaskExportSettings({ t: overrideT }) {
   );
 
   const applyTextColor = useCallback(
-    (hex) => {
+    (hex: string | null) => {
       if (!hex) return;
       setExportText(hex);
       updateTextFavorites((prev) => upsertColorFavorite(prev, hex));
@@ -106,7 +120,7 @@ export default function MaskExportSettings({ t: overrideT }) {
   }, [exportBg, isTransparent, setExportBg]);
 
   const handleBgFavoriteSelect = useCallback(
-    (color) => {
+    (color: string) => {
       const normalized = normalizeHexColor(color);
       if (!normalized) return;
       applyBgColor(normalized);
@@ -115,7 +129,7 @@ export default function MaskExportSettings({ t: overrideT }) {
   );
 
   const handleTextFavoriteSelect = useCallback(
-    (color) => {
+    (color: string) => {
       const normalized = normalizeHexColor(color);
       if (!normalized) return;
       applyTextColor(normalized);
@@ -124,32 +138,32 @@ export default function MaskExportSettings({ t: overrideT }) {
   );
 
   const handleBgFavoriteRemove = useCallback(
-    (color) => {
+    (color: string) => {
       const normalized = normalizeHexColor(color);
       if (!normalized) return;
-      updateBgFavorites((prev) => prev.filter((value) => value !== normalized));
+      updateBgFavorites((prev) => prev.filter((item) => item !== normalized));
     },
     [updateBgFavorites],
   );
 
   const handleTextFavoriteRemove = useCallback(
-    (color) => {
+    (color: string) => {
       const normalized = normalizeHexColor(color);
       if (!normalized) return;
-      updateTextFavorites((prev) => prev.filter((value) => value !== normalized));
+      updateTextFavorites((prev) => prev.filter((item) => item !== normalized));
     },
     [updateTextFavorites],
   );
 
   const handleBgFavoritesReordered = useCallback(
-    (next) => {
+    (next: string[]) => {
       updateBgFavorites(next);
     },
     [updateBgFavorites],
   );
 
   const handleTextFavoritesReordered = useCallback(
-    (next) => {
+    (next: string[]) => {
       updateTextFavorites(next);
     },
     [updateTextFavorites],
@@ -200,7 +214,7 @@ export default function MaskExportSettings({ t: overrideT }) {
           </Typography.Text>
           <Switch
             checked={unlockAllSlots}
-            onChange={(checked) => setUnlockAllSlots(checked)}
+            onChange={(checked: boolean) => setUnlockAllSlots(checked)}
           />
         </Card>
 
@@ -219,7 +233,7 @@ export default function MaskExportSettings({ t: overrideT }) {
               size="middle">
               <ColorPicker
                 value={currentBgColor}
-                onChangeComplete={(color) => {
+                onChangeComplete={(color: Color) => {
                   const hex = color.toHexString().toUpperCase();
                   applyBgColor(hex);
                 }}
@@ -238,7 +252,7 @@ export default function MaskExportSettings({ t: overrideT }) {
             <Typography.Text type="secondary">{t('toolbar.text', { defaultValue: 'Text' })}</Typography.Text>
             <ColorPicker
               value={exportText}
-              onChangeComplete={(color) => {
+              onChangeComplete={(color: Color) => {
                 const hex = color.toHexString().toUpperCase();
                 applyTextColor(hex);
               }}

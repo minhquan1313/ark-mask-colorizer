@@ -14,10 +14,19 @@ import { useImages } from './hooks/useImages';
 import useMaskSettingsState from './hooks/useMaskSettingsState';
 import { useRecolorWorker } from './hooks/useRecolorWorker';
 import { useI18n, useLanguageOptions } from './i18n';
+import type {
+  CanvasState,
+  CreaturePickerControls,
+  FillControls as FillControlState,
+  RecolorDrawArgs,
+  SlotLinkMap,
+  ToolbarActions as ToolbarActionState,
+} from './types/mask';
 import { extractQuoted, extractSpeciesFromBlueprint, normalizeName, parseNumList, sanitizeName } from './utils/arkCmd';
-import { ARK_PALETTE } from './utils/arkPalette';
+import { ARK_PALETTE, type ArkPaletteEntry } from './utils/arkPalette';
 import { hexToRgb, relLuminance } from './utils/contrast';
-import { buildSlotsColorSignature, buildVariantKey, idToEntry, normalizeFavoriteIds } from './utils/slotUtils';
+import { cloneSlotValue, slotHex, slotIndexString } from './utils/slotDisplay';
+import { buildSlotsColorSignature, buildVariantKey, idToEntry, normalizeFavoriteIds, type SlotValue } from './utils/slotUtils';
 import { STORAGE_KEYS, loadJSON, saveJSON } from './utils/storage';
 
 const QIDX_BP = 0; // Blueprint'...'
@@ -25,14 +34,21 @@ const QIDX_BASE = 2; // "103,53,0,0,100,105,0,0"
 const QIDX_INC = 3; // "0,0,0,0,0,0,0,0"
 const QIDX_NAME = 4; // "T?n dino do user d?t"
 const QIDX_COLORS = 8; // "76,83,83,0,83,70"
+
+type CachedRender = {
+  url: string | null;
+  width: number;
+  height: number;
+};
+
 export default function App() {
   const { t, setLang, lang } = useI18n();
   const languageOptions = useLanguageOptions();
   const location = useLocation();
   const isMaskPage = location.pathname === '/' || location.pathname.startsWith('/mask');
-  const baseCanvasRef = useRef(null);
-  const maskCanvasRef = useRef(null);
-  const outCanvasRef = useRef(null);
+  const baseCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const maskCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const outCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // ? KH?I T?O t? localStorage ngay l?p t?c (tr?nh overwrite)
   const initialSlots = useMemo(() => loadJSON(STORAGE_KEYS.slots, DEFAULTS.slots), []);
@@ -81,15 +97,20 @@ export default function App() {
   } = maskSettings;
   const defaultSlotFallback = useMemo(() => idToEntry(36), []);
 
-  const [slots, setSlots] = useState(Array.isArray(initialSlots) && initialSlots.length === 6 ? initialSlots : DEFAULTS.slots);
-  const [favoriteColors, setFavoriteColors] = useState(initialPaletteFavorites);
-  const [fillOpen, setFillOpen] = useState(false);
-  const fillBtnRef = useRef(null);
+  const [slots, setSlots] = useState<SlotValue[]>(() => {
+    if (Array.isArray(initialSlots) && initialSlots.length === 6) {
+      return initialSlots as SlotValue[];
+    }
+    return (DEFAULTS.slots as SlotValue[]).slice();
+  });
+  const [favoriteColors, setFavoriteColors] = useState<string[]>(initialPaletteFavorites);
+  const [fillOpen, setFillOpen] = useState<boolean>(false);
+  const fillBtnRef = useRef<HTMLButtonElement | null>(null);
   const openFill = useCallback(() => setFillOpen(true), []);
   const closeFill = useCallback(() => setFillOpen(false), []);
   const { list, current, selectByName, setCurrent } = useCreatures(preferredCreature);
-  const [tempCreatureName, setTempCreatureName] = useState(null);
-  const [customMode, setCustomMode] = useState(false);
+  const [tempCreatureName, setTempCreatureName] = useState<string | null>(null);
+  const [customMode, setCustomMode] = useState<boolean>(false);
   const creatureName = tempCreatureName ?? (current?.name || '?');
   const { baseImg, maskImg, extraMasks, loadPairFromFiles, loadFromEntry, maskAvailable } = useImages();
   const hasMaskSources = useMemo(() => {
@@ -98,16 +119,16 @@ export default function App() {
     return maskList.some((value) => typeof value === 'string' && value.trim().length > 0);
   }, [current]);
   const baseOnlyMode = !maskAvailable && !hasMaskSources;
-  const copyDisabledSet = useMemo(() => {
+  const copyDisabledSet = useMemo<Set<number>>(() => {
     if (baseOnlyMode) return new Set([0, 1, 2, 3, 4, 5]);
     if (!unlockAllSlots) return new Set();
-    return new Set(current?.noMask || []);
+    return new Set<number>(current?.noMask || []);
   }, [baseOnlyMode, unlockAllSlots, current]);
-  const disabledSet = useMemo(() => {
+  const disabledSet = useMemo<Set<number>>(() => {
     if (customMode) return new Set();
     if (baseOnlyMode) return new Set([0, 1, 2, 3, 4, 5]);
     if (unlockAllSlots) return new Set();
-    return new Set(current?.noMask || []);
+    return new Set<number>(current?.noMask || []);
   }, [customMode, current, unlockAllSlots, baseOnlyMode]);
 
   useEffect(() => {
@@ -115,11 +136,11 @@ export default function App() {
       setFillOpen(false);
     }
   }, [baseOnlyMode, fillOpen]);
-  const slotLinks = useMemo(() => {
+  const slotLinks = useMemo<SlotLinkMap>(() => {
     if (!Array.isArray(extraMasks) || !extraMasks.length) {
       return {};
     }
-    const map = {};
+    const map: SlotLinkMap = {};
     for (const mask of extraMasks) {
       const pair = Array.isArray(mask?.pair) ? mask.pair : [];
       if (pair.length !== 2) continue;
@@ -156,13 +177,13 @@ export default function App() {
     colorMixBoost,
     overlayTint,
   });
-  const rafRef = useRef(0);
-  const pendingArgsRef = useRef(null);
-  const slotsRef = useRef(slots);
-  const cachedRenderRef = useRef({ url: null, width: 0, height: 0 });
-  const [maskRenderNonce, setMaskRenderNonce] = useState(0);
+  const rafRef = useRef<number | null>(null);
+  const pendingArgsRef = useRef<RecolorDrawArgs | null>(null);
+  const slotsRef = useRef<SlotValue[]>(slots);
+  const cachedRenderRef = useRef<CachedRender>({ url: null, width: 0, height: 0 });
+  const [maskRenderNonce, setMaskRenderNonce] = useState<number>(0);
   slotsRef.current = slots;
-  const toggleFavoriteColor = useCallback((entry) => {
+  const toggleFavoriteColor = useCallback((entry: ArkPaletteEntry | null | undefined) => {
     if (!entry || entry.index == null) return;
     const id = String(entry.index);
     setFavoriteColors((prevRaw) => {
@@ -179,7 +200,7 @@ export default function App() {
     saveJSON(STORAGE_KEYS.paletteFavorites, next);
   }, []);
 
-  const reorderFavoriteColors = useCallback((nextOrder) => {
+  const reorderFavoriteColors = useCallback((nextOrder: Array<string | number | null | undefined>) => {
     if (!Array.isArray(nextOrder)) return;
     setFavoriteColors((prevRaw) => {
       const prev = Array.isArray(prevRaw) ? prevRaw.map((id) => String(id)) : [];
@@ -207,7 +228,7 @@ export default function App() {
       prev.map((value, index) => {
         if (disabled.has(index)) return null;
         if ((value == null || value === undefined) && fallback) {
-          return { ...fallback };
+          return cloneSlotValue(fallback);
         }
         return value;
       }),
@@ -305,12 +326,24 @@ export default function App() {
   useEffect(() => {
     if (!isMaskPage) return;
     if (!baseImg || !maskImg) return;
-    const args = { baseImg, maskImg, extraMasks, baseCanvasRef, maskCanvasRef, outCanvasRef, slots: slotsRef.current, renderNonce: maskRenderNonce };
+    const args: RecolorDrawArgs = {
+      baseImg,
+      maskImg,
+      extraMasks,
+      baseCanvasRef,
+      maskCanvasRef,
+      outCanvasRef,
+      slots: slotsRef.current,
+      renderNonce: maskRenderNonce,
+    };
     pendingArgsRef.current = args;
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => {
-      draw(pendingArgsRef.current);
-      rafRef.current = 0;
+      const pending = pendingArgsRef.current;
+      if (pending) {
+        draw(pending);
+      }
+      rafRef.current = null;
     });
   }, [
     isMaskPage,
@@ -407,7 +440,7 @@ export default function App() {
           Array.from({ length: 6 }, (_, i) => {
             if (disabled.has(i)) return null;
             const id = colorIds[i];
-            return id === 255 || id == null ? null : idToEntry(id);
+            return id === 255 || id == null ? null : cloneSlotValue(idToEntry(id));
           }),
         );
       }
@@ -418,7 +451,7 @@ export default function App() {
     }
   }
 
-  const [downloadingType, setDownloadingType] = useState(null); // 'image' | 'palette' | null
+  const [downloadingType, setDownloadingType] = useState<'image' | 'palette' | null>(null);
 
   function handleDownloadImage() {
     const src = outCanvasRef.current;
@@ -429,6 +462,7 @@ export default function App() {
     off.width = W;
     off.height = H;
     const ctx = off.getContext('2d');
+    if (!ctx) return;
     if (exportBg && exportBg !== 'transparent') {
       ctx.fillStyle = exportBg;
       ctx.fillRect(0, 0, W, H);
@@ -439,6 +473,7 @@ export default function App() {
     setDownloadingType('image');
     off.toBlob((blob) => {
       try {
+        if (!blob) return;
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
         a.download = 'recolor.png';
@@ -473,6 +508,7 @@ export default function App() {
     off.width = W;
     off.height = totalH;
     const ctx = off.getContext('2d');
+    if (!ctx) return;
     if (exportBg && exportBg !== 'transparent') {
       ctx.fillStyle = exportBg;
       ctx.fillRect(0, 0, W, totalH);
@@ -483,21 +519,23 @@ export default function App() {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.font = `12px system-ui, -apple-system, Segoe UI, Roboto`;
-    let x = startX,
-      y = startY;
+    let x = startX;
+    const y = startY;
     for (let i = 0; i < 6; i++) {
-      const entry = slots[i];
+      const slotValue = slots[i];
+      const hex = slotHex(slotValue);
       // swatch box
-      if (entry?.hex) {
-        ctx.fillStyle = entry.hex;
+      if (hex) {
+        ctx.fillStyle = hex;
         roundRect(ctx, x, y, sw, sh, 8);
         ctx.fill();
         // index
-        const rgb = hexToRgb(entry.hex);
+        const rgb = hexToRgb(hex);
         if (rgb) {
           const lum = relLuminance(rgb[0], rgb[1], rgb[2]);
           ctx.fillStyle = lum > 0.55 ? '#111' : '#fff';
-          ctx.fillText(String(entry.index), x + sw / 2, y + sh / 2);
+          const idxLabel = slotIndexString(slotValue) ?? '';
+          ctx.fillText(idxLabel, x + sw / 2, y + sh / 2);
         }
       } else {
         drawChecker(ctx, x, y, sw, sh, 8);
@@ -514,6 +552,7 @@ export default function App() {
     setDownloadingType('palette');
     off.toBlob((blob) => {
       try {
+        if (!blob) return;
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
         a.download = 'recolor_palette.png';
@@ -525,7 +564,7 @@ export default function App() {
     }, 'image/png');
   }
 
-  function roundRect(c, x, y, w, h, r) {
+  function roundRect(c: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
     c.beginPath();
     c.moveTo(x + r, y);
     c.arcTo(x + w, y, x + w, y + h, r);
@@ -534,7 +573,7 @@ export default function App() {
     c.arcTo(x, y, x + w, y, r);
     c.closePath();
   }
-  function drawChecker(c, x, y, w, h, size) {
+  function drawChecker(c: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, size: number) {
     c.save();
     c.fillStyle = '#cfcfcf';
     c.fillRect(x, y, w, h);
@@ -548,8 +587,8 @@ export default function App() {
   }
 
   const doFillWith = useCallback(
-    (entry) => {
-      setSlots(Array.from({ length: 6 }, (_, i) => (disabledSet.has(i) ? null : entry ? { ...entry } : null)));
+    (entry: ArkPaletteEntry | null) => {
+      setSlots(Array.from({ length: 6 }, (_, i) => (disabledSet.has(i) ? null : cloneSlotValue(entry))));
       closeFill();
     },
     [disabledSet, closeFill],
@@ -595,7 +634,7 @@ export default function App() {
     setExportText,
   ]);
 
-  async function handleCustomFiles(fileList) {
+  async function handleCustomFiles(fileList: FileList | File[] | null | undefined) {
     const baseName = await loadPairFromFiles(fileList);
     if (!baseName) return;
     setCustomMode(true);
@@ -611,17 +650,22 @@ export default function App() {
     setSlots(Array.from({ length: 6 }, () => null));
   };
 
-  const onPickSlot = useCallback((slotIndex, entryOrNull) => {
+  const onPickSlot = useCallback((slotIndex: number, entryOrNull: SlotValue | null) => {
     setSlots((prev) => {
       const next = prev.slice();
-      next[slotIndex] = entryOrNull ? { ...entryOrNull } : null;
+      next[slotIndex] = cloneSlotValue(entryOrNull);
       return next;
     });
   }, []);
 
   const randomAll = useCallback(() => {
     const pool = ARK_PALETTE.filter((p) => String(p.index) !== '255');
-    setSlots(Array.from({ length: 6 }, (_, i) => (disabledSet.has(i) ? null : pool[Math.floor(Math.random() * pool.length)])));
+    setSlots(
+      Array.from({ length: 6 }, (_, i) => {
+        if (disabledSet.has(i) || pool.length === 0) return null;
+        return { ...pool[Math.floor(Math.random() * pool.length)] };
+      }),
+    );
   }, [disabledSet]);
 
   const navItems = useMemo(
@@ -662,7 +706,7 @@ export default function App() {
   );
 
   const handleSelectCreature = useCallback(
-    (name) => {
+    (name: string | null | undefined) => {
       if (!name) return;
       setCustomMode(false);
       setTempCreatureName(null);
@@ -671,7 +715,7 @@ export default function App() {
     [selectByName, setCustomMode, setTempCreatureName],
   );
 
-  const canvasState = {
+  const canvasState: CanvasState = {
     baseImg,
     maskImg,
     extraMasks,
@@ -681,7 +725,7 @@ export default function App() {
     maskCanvasRef,
   };
 
-  const fillControls = {
+  const fillControls: FillControlState = {
     isOpen: fillOpen,
     anchorRef: fillBtnRef,
     open: openFill,
@@ -689,14 +733,14 @@ export default function App() {
     onPick: doFillWith,
   };
 
-  const creaturePickerProps = {
-    list,
+  const creaturePickerProps: CreaturePickerControls = {
+    list: list ?? [],
     currentName: current?.name || '',
     customMode,
     onSelect: handleSelectCreature,
   };
 
-  const toolbarActions = {
+  const toolbarActions: ToolbarActionState = {
     onReset: reset,
     onDownloadImage: handleDownloadImage,
     onDownloadWithPalette: handleDownloadWithPalette,

@@ -7,6 +7,8 @@ export const STORAGE_KEYS = {
   language: `${NS}:lang`,
   exportBg: `${NS}:exportBg`,
   exportTx: `${NS}:exportTx`,
+  exportBgFavorites: `${NS}:exportBgFav`,
+  exportTextFavorites: `${NS}:exportTextFav`,
   threshold: `${NS}:threshold`,
   strength: `${NS}:strength`,
   neutralStrength: `${NS}:neutralStrength`,

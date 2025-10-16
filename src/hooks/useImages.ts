@@ -15,15 +15,15 @@ const toColorId = (slotValue: SlotValue): number | null => {
     return Number.isFinite(parsed) ? parsed : null;
   }
   if (typeof slotValue === 'object') {
-    if (slotValue.index != null) {
+    if ('index' in slotValue && slotValue.index != null) {
       const parsed = Number(slotValue.index);
       if (Number.isFinite(parsed)) return parsed;
     }
-    if (slotValue.id != null) {
+    if ('id' in slotValue && slotValue.id != null) {
       const parsed = Number(slotValue.id);
       if (Number.isFinite(parsed)) return parsed;
     }
-    if (slotValue.value != null) {
+    if ('value' in slotValue && slotValue.value != null) {
       const parsed = Number(slotValue.value);
       if (Number.isFinite(parsed)) return parsed;
     }
@@ -124,9 +124,16 @@ const resolveVariantSources = (entry: CreatureEntry | null | undefined, slots: S
   }
 
   const variantParts: string[] = [];
-  const pairs = Object.entries(entry.variantSlots)
-    .map(([slot, cfg]) => [Number(slot), cfg as CreatureVariantSlot])
-    .filter(([slot, cfg]) => Number.isInteger(slot) && cfg && Array.isArray(cfg.sequence) && cfg.sequence.length > 0)
+  const pairs: Array<[number, CreatureVariantSlot]> = Object.entries(entry.variantSlots)
+    .map(([slot, rawCfg]) => {
+      const slotIndex = Number(slot);
+      if (!Number.isInteger(slotIndex)) return null;
+      if (!rawCfg || typeof rawCfg !== 'object') return null;
+      const candidate = rawCfg as CreatureVariantSlot;
+      if (!Array.isArray(candidate.sequence) || candidate.sequence.length === 0) return null;
+      return [slotIndex, candidate];
+    })
+    .filter((value): value is [number, CreatureVariantSlot] => value !== null)
     .sort((a, b) => a[0] - b[0]);
 
   if (pairs.length === 0) {
@@ -193,7 +200,7 @@ const loadImageFromFile = (file: File): Promise<HTMLImageElement | null> =>
     img.src = url;
   });
 
-interface ExtraMask {
+export interface ExtraMask {
   img: HTMLImageElement;
   pair: [number, number] | null;
   name: string;

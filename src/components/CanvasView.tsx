@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
+import type { MouseEventHandler, MutableRefObject } from 'react';
 import { useI18n } from '../i18n';
 import { hexToRgb, relLuminance } from '../utils/color';
+import { slotHex, slotIndexString } from '../utils/slotDisplay';
+import type { SlotValue } from '../utils/slotUtils';
 
 const SLOT_REFERENCE_VECTORS = [
   [1, 0, 0],
@@ -9,14 +12,28 @@ const SLOT_REFERENCE_VECTORS = [
   [0, 1, 1],
   [1, 1, 0],
   [1, 0, 1],
-].map((vector) => {
+].map((vector: number[]) => {
   const length = Math.hypot(vector[0], vector[1], vector[2]);
   return length > 0 ? [vector[0] / length, vector[1] / length, vector[2] / length] : vector;
 });
 
 const MIN_CHROMA = 4;
 
-function resolveMaskSlot(r, g, b) {
+interface CanvasViewProps {
+  outCanvasRef: MutableRefObject<HTMLCanvasElement | null>;
+  loading: boolean;
+  busy?: boolean;
+  slots?: SlotValue[];
+  exportBg?: string;
+  exportText?: string;
+  maskImg: HTMLImageElement | null;
+  baseCanvasRef: MutableRefObject<HTMLCanvasElement | null>;
+  baseImg: HTMLImageElement | null;
+  highlightSlots?: number[];
+  maskCanvasRef?: MutableRefObject<HTMLCanvasElement | null>;
+}
+
+function resolveMaskSlot(r: number, g: number, b: number): { index: number; chroma: number } {
   const max = Math.max(r, g, b);
   const min = Math.min(r, g, b);
   const chroma = max - min;
@@ -58,16 +75,16 @@ export default function CanvasView({
   baseCanvasRef,
   baseImg,
   highlightSlots = [],
-}) {
+}: CanvasViewProps) {
   const { t } = useI18n();
-  const wrapRef = useRef(null);
-  const highlightCanvasRef = useRef(null);
-  const maskImageDataRef = useRef(null);
-  const maskImageKeyRef = useRef(null);
-  const [maskVersion, setMaskVersion] = useState(0);
-  const [hint, setHint] = useState(false);
-  const [toast, setToast] = useState(null);
-  const [mouse, setMouse] = useState({ x: 0, y: 0 });
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const highlightCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const maskImageDataRef = useRef<ImageData | null>(null);
+  const maskImageKeyRef = useRef<string | null>(null);
+  const [maskVersion, setMaskVersion] = useState<number>(0);
+  const [hint, setHint] = useState<boolean>(false);
+  const [toast, setToast] = useState<string | null>(null);
+  const [mouse, setMouse] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -75,7 +92,7 @@ export default function CanvasView({
 
     const onEnter = () => setHint(true);
     const onLeave = () => setHint(false);
-    const onMove = (e) => {
+    const onMove = (e: MouseEvent) => {
       const rect = wrap.getBoundingClientRect();
       setMouse({ x: e.clientX - rect.left, y: e.clientY - rect.top });
     };
@@ -239,9 +256,9 @@ export default function CanvasView({
     ctx.drawImage(tempCanvas, 0, 0);
   }, [baseCanvasRef, baseImg, busy, highlightSlots, loading, maskImg, maskVersion, outCanvasRef]);
 
-  const notify = (text) => {
-    setToast({ text, t: Date.now() });
-    setTimeout(() => setToast(null), 1200);
+  const notify = (text: string) => {
+    setToast(text);
+    window.setTimeout(() => setToast(null), 1200);
   };
 
   const onClick = async () => {
@@ -254,6 +271,10 @@ export default function CanvasView({
       off.width = W;
       off.height = H;
       const ctx = off.getContext('2d');
+      if (!ctx) {
+        notify(t('canvas.copyError'));
+        return;
+      }
       if (exportBg && exportBg !== 'transparent') {
         ctx.fillStyle = exportBg;
         ctx.fillRect(0, 0, W, H);
@@ -261,7 +282,11 @@ export default function CanvasView({
         ctx.clearRect(0, 0, W, H);
       }
       ctx.drawImage(src, 0, 0, W, H);
-      const blob = await new Promise((res) => off.toBlob(res, 'image/png'));
+      const blob = await new Promise<Blob | null>((resolve) => off.toBlob(resolve, 'image/png'));
+      if (!blob) {
+        notify(t('canvas.copyError'));
+        return;
+      }
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
       notify(t('canvas.copyImageSuccess'));
     } catch {
@@ -269,7 +294,7 @@ export default function CanvasView({
     }
   };
 
-  const onContextMenu = async (e) => {
+  const onContextMenu: MouseEventHandler<HTMLCanvasElement> = async (e) => {
     e.preventDefault();
     try {
       const blob = await exportWithPaletteBlob(outCanvasRef.current, slots, {
@@ -412,15 +437,29 @@ export default function CanvasView({
             pointerEvents: 'none',
             whiteSpace: 'nowrap',
           }}>
-          {toast.text}
+          {toast}
         </div>
       )}
     </div>
   );
 }
 
-async function exportWithPaletteBlob(srcCanvas, slots, { exportBg, exportText, slotLabel }) {
-  if (!srcCanvas) throw new Error('no canvas');
+async function exportWithPaletteBlob(
+  srcCanvas: HTMLCanvasElement | null,
+  slots: SlotValue[],
+  {
+    exportBg,
+    exportText,
+    slotLabel,
+  }: {
+    exportBg?: string;
+    exportText?: string;
+    slotLabel?: (index: number) => string;
+  },
+): Promise<Blob> {
+  if (!srcCanvas) {
+    throw new Error('no canvas');
+  }
   const W = srcCanvas.width;
   const H = srcCanvas.height;
 
@@ -436,13 +475,15 @@ async function exportWithPaletteBlob(srcCanvas, slots, { exportBg, exportText, s
   const stripW = Math.min(W - padX * 2, contentW);
   const startX = Math.round((W - stripW) / 2);
   const startY = H + padTop;
-
   const totalH = H + padTop + sh + labelY + padBottom;
 
   const off = document.createElement('canvas');
   off.width = W;
   off.height = totalH;
   const ctx = off.getContext('2d');
+  if (!ctx) {
+    throw new Error('no context');
+  }
 
   if (exportBg && exportBg !== 'transparent') {
     ctx.fillStyle = exportBg;
@@ -454,14 +495,14 @@ async function exportWithPaletteBlob(srcCanvas, slots, { exportBg, exportText, s
 
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.font = `12px system-ui, -apple-system, Segoe UI, Roboto`;
+  ctx.font = '12px system-ui, -apple-system, Segoe UI, Roboto';
 
   let x = startX;
   const y = startY;
   for (let i = 0; i < items; i++) {
-    const entry = slots[i];
-    if (entry?.hex) {
-      ctx.fillStyle = entry.hex;
+    const hex = slotHex(slots[i]);
+    if (hex) {
+      ctx.fillStyle = hex;
       roundRect(ctx, x, y, sw, sh, 8);
       ctx.fill();
     } else {
@@ -470,24 +511,34 @@ async function exportWithPaletteBlob(srcCanvas, slots, { exportBg, exportText, s
       roundRect(ctx, x, y, sw, sh, 8);
       ctx.stroke();
     }
-    if (entry?.hex) {
-      const [r, g, b] = hexToRgb(entry.hex);
+
+    if (hex) {
+      const [r, g, b] = hexToRgb(hex);
       const lum = relLuminance(r, g, b);
       ctx.fillStyle = lum > 0.55 ? '#111' : '#fff';
-      ctx.fillText(String(entry.index), x + sw / 2, y + sh / 2);
+      const idx = slotIndexString(slots[i]) ?? '';
+      ctx.fillText(idx, x + sw / 2, y + sh / 2);
     }
+
     ctx.fillStyle = exportText || '#fff';
-    ctx.font = `12px system-ui, -apple-system, Segoe UI, Roboto`;
     const labelText = typeof slotLabel === 'function' ? slotLabel(i) : `Slot ${i}`;
     ctx.fillText(labelText, x + sw / 2, y + sh + labelY - 4);
 
     x += sw + gap;
   }
 
-  return await new Promise((res) => off.toBlob(res, 'image/png'));
+  return await new Promise<Blob>((resolve, reject) => {
+    off.toBlob((blob) => {
+      if (blob) {
+        resolve(blob);
+      } else {
+        reject(new Error('failed to export canvas'));
+      }
+    }, 'image/png');
+  });
 }
 
-function roundRect(c, x, y, w, h, r) {
+function roundRect(c: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   c.beginPath();
   c.moveTo(x + r, y);
   c.arcTo(x + w, y, x + w, y + h, r);
@@ -496,7 +547,7 @@ function roundRect(c, x, y, w, h, r) {
   c.arcTo(x, y, x + w, y, r);
   c.closePath();
 }
-function drawChecker(c, x, y, w, h, size) {
+function drawChecker(c: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, size: number) {
   c.save();
   c.fillStyle = '#cfcfcf';
   c.fillRect(x, y, w, h);

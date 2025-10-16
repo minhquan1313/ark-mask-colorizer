@@ -9,6 +9,7 @@
   creatureEnabled: boolean;
   creatureDecaySeconds: number;
   creatureUpdatedAt: number | null;
+  hasCreatures?: boolean;
 }
 
 export interface DecayServerView extends DecayServer {

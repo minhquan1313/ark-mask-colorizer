@@ -69,6 +69,13 @@ export default function DecayControls({
             {translate('utilities.decay.actions.refreshAll', 'Refresh all')}
           </Button>
           <div className="decay-tool__sort-group">
+            <Select
+              value={sortField}
+              options={sortOptions}
+              onChange={onSortFieldChange}
+              className="decay-tool__sort"
+              popupMatchSelectWidth={false}
+            />
             <Button
               type="text"
               icon={sortOrder === 'asc' ? <SortAscendingOutlined /> : <SortDescendingOutlined />}
@@ -76,13 +83,6 @@ export default function DecayControls({
               aria-label={
                 sortOrder === 'asc' ? translate('utilities.decay.sort.asc', 'Ascending') : translate('utilities.decay.sort.desc', 'Descending')
               }
-            />
-            <Select
-              value={sortField}
-              options={sortOptions}
-              onChange={onSortFieldChange}
-              className="decay-tool__sort"
-              popupMatchSelectWidth={false}
             />
           </div>
         </Space>

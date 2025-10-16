@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "format": "prettier . --write",
     "generate:creatures": "node ./scripts/generate-creatures.cjs",
-    "organize:mask-in-temp": "node ./scripts/organize-dino-images.cjs"
+    "organize:mask-in-temp": "node ./scripts/organize-dino-images.cjs",
+    "lint:ts": "npx tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@ant-design/icons": "^5.6.1",
