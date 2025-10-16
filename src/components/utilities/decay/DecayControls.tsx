@@ -1,16 +1,15 @@
-﻿import { ReloadOutlined, SearchOutlined, SortAscendingOutlined, SortDescendingOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Input, Popconfirm, Select, Space } from 'antd';
+import { ArrowDownOutlined, ArrowUpOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
+import { Button, Checkbox, Col, Input, Popconfirm, Row, Select, Space, Tag } from 'antd';
 import type { SortField } from './decayTypes';
-import { SORT_FIELDS } from './useDecayState';
+import { SORT_FIELDS, type SortOrder } from './useDecayState';
 
 interface DecayControlsProps {
   translate: (key: string, fallback: string, values?: Record<string, unknown>) => string;
   searchTerm: string;
   onSearchChange: (value: string) => void;
   sortField: SortField;
-  onSortFieldChange: (value: SortField) => void;
-  sortOrder: 'asc' | 'desc';
-  onToggleSortOrder: () => void;
+  sortOrder: SortOrder;
+  onSortChange: (field: SortField, order: SortOrder) => void;
   onRefreshAll: () => void;
   selectedCount: number;
   isAllSelected: boolean;
@@ -25,9 +24,8 @@ export default function DecayControls({
   searchTerm,
   onSearchChange,
   sortField,
-  onSortFieldChange,
   sortOrder,
-  onToggleSortOrder,
+  onSortChange,
   onRefreshAll,
   selectedCount,
   isAllSelected,
@@ -36,89 +34,117 @@ export default function DecayControls({
   onRefreshSelected,
   onDeleteSelected,
 }: DecayControlsProps) {
-  const sortOptions = SORT_FIELDS.map((field) => ({
-    value: field,
-    label:
-      field === 'server'
-        ? translate('utilities.decay.sort.server', 'Server Number')
-        : field === 'map'
-          ? translate('utilities.decay.sort.map', 'Map')
-          : translate('utilities.decay.sort.structure', 'Structure Type'),
-  }));
+  const sortBaseLabel = (field: SortField) =>
+    field === 'server'
+      ? translate('utilities.decay.sort.server', 'Server Number')
+      : field === 'map'
+        ? translate('utilities.decay.sort.map', 'Map')
+        : translate('utilities.decay.sort.structure', 'Structure Type');
+
+  const sortOptions = SORT_FIELDS.flatMap((field) => {
+    const label = sortBaseLabel(field);
+    return [
+      {
+        value: `${field}:asc`,
+        label: (
+          <Space size={4}>
+            <span>{label}</span>
+            <ArrowUpOutlined />
+          </Space>
+        ),
+      },
+      {
+        value: `${field}:desc`,
+        label: (
+          <Space size={4}>
+            <span>{label}</span>
+            <ArrowDownOutlined />
+          </Space>
+        ),
+      },
+    ];
+  });
+
+  const handleSortSelect = (value: string) => {
+    const [field, order] = value.split(':') as [SortField, SortOrder];
+    onSortChange(field, order);
+  };
+
+  const hasSelection = selectedCount > 0;
+  const sortValue = `${sortField}:${sortOrder}`;
 
   return (
     <div className="decay-tool__controls">
       <div className="decay-tool__control-row">
-        <Input
-          allowClear
-          prefix={<SearchOutlined />}
-          placeholder={translate('utilities.decay.actions.search', 'Search servers')}
-          className="decay-tool__search"
-          value={searchTerm}
-          onChange={(event) => onSearchChange(event.target.value)}
-        />
-        <Space
-          size={12}
-          align="center"
-          className="decay-tool__control-right"
-          wrap>
-          <Button
-            icon={<ReloadOutlined />}
-            onClick={onRefreshAll}
-            className="decay-tool__refresh-all">
-            {translate('utilities.decay.actions.refreshAll', 'Refresh all')}
-          </Button>
-          <div className="decay-tool__sort-group">
-            <Select
-              value={sortField}
-              options={sortOptions}
-              onChange={onSortFieldChange}
-              className="decay-tool__sort"
-              popupMatchSelectWidth={false}
-            />
-            <Button
-              type="text"
-              icon={sortOrder === 'asc' ? <SortAscendingOutlined /> : <SortDescendingOutlined />}
-              onClick={onToggleSortOrder}
-              aria-label={
-                sortOrder === 'asc' ? translate('utilities.decay.sort.asc', 'Ascending') : translate('utilities.decay.sort.desc', 'Descending')
-              }
-            />
-          </div>
-        </Space>
-      </div>
-
-      {selectedCount > 0 ? (
-        <div className="decay-tool__bulk">
-          <Checkbox
-            indeterminate={isSomeSelected}
-            checked={isAllSelected}
-            onChange={(event) => onToggleSelectAll(event.target.checked)}>
-            {translate('utilities.decay.selection.selectAll', 'Select all')}
-          </Checkbox>
-          <Space
-            size={12}
-            wrap>
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={onRefreshSelected}>
-              {translate('utilities.decay.actions.refreshSelected', 'Refresh selected')}
-            </Button>
-            <Popconfirm
-              title={translate('utilities.decay.confirm.deleteSelectedTitle', 'Delete selected servers?')}
-              description={translate('utilities.decay.confirm.deleteSelectedMessage', 'This cannot be undone.')}
-              okText={translate('utilities.decay.confirm.ok', 'Delete')}
-              cancelText={translate('utilities.decay.confirm.cancel', 'Cancel')}
-              onConfirm={onDeleteSelected}>
+        {hasSelection ? (
+          <>
+            <Checkbox
+              indeterminate={isSomeSelected}
+              checked={isAllSelected}
+              onChange={(event) => onToggleSelectAll(event.target.checked)}>
+              {translate('utilities.decay.selection.selectAll', 'Select all')}
+            </Checkbox>
+            <Space
+              size={12}
+              align="center"
+              className="decay-tool__control-right"
+              wrap>
+              <Tag color="blue">{translate('utilities.decay.info.selectedCount', '{{count}} selected', { count: selectedCount })}</Tag>
               <Button
-                danger
-                className="decay-tool__danger">
-                {translate('utilities.decay.actions.deleteSelected', 'Delete selected')}
+                icon={<ReloadOutlined />}
+                onClick={onRefreshSelected}>
+                {translate('utilities.decay.actions.refreshSelected', 'Refresh selected')}
               </Button>
-            </Popconfirm>
-          </Space>
-        </div>
-      ) : null}
+              <Popconfirm
+                title={translate('utilities.decay.confirm.deleteSelectedTitle', 'Delete selected servers?')}
+                description={translate('utilities.decay.confirm.deleteSelectedMessage', 'This cannot be undone.')}
+                okText={translate('utilities.decay.confirm.ok', 'Delete')}
+                cancelText={translate('utilities.decay.confirm.cancel', 'Cancel')}
+                onConfirm={onDeleteSelected}>
+                <Button danger>{translate('utilities.decay.actions.deleteSelected', 'Delete selected')}</Button>
+              </Popconfirm>
+            </Space>
+          </>
+        ) : (
+          <Row
+            gutter={[12, 12]}
+            style={{ flex: 1 }}>
+            <Col
+              xs={{ flex: '100%' }}
+              md={{ flex: 1 }}>
+              <Input
+                allowClear
+                prefix={<SearchOutlined />}
+                placeholder={translate('utilities.decay.actions.search', 'Search servers')}
+                className="decay-tool__search"
+                value={searchTerm}
+                onChange={(event) => onSearchChange(event.target.value)}
+              />
+            </Col>
+            <Col>
+              <Space
+                size={12}
+                align="center"
+                className="decay-tool__control-right"
+                wrap>
+                <Button
+                  icon={<ReloadOutlined />}
+                  onClick={onRefreshAll}
+                  className="decay-tool__refresh-all">
+                  {translate('utilities.decay.actions.refreshAll', 'Refresh all')}
+                </Button>
+                <Select
+                  value={sortValue}
+                  options={sortOptions}
+                  onChange={handleSortSelect}
+                  className="decay-tool__sort"
+                  popupMatchSelectWidth={false}
+                />
+              </Space>
+            </Col>
+          </Row>
+        )}
+      </div>
     </div>
   );
 }

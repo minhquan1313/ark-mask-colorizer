@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { DEFAULT_ARK_MAP } from '../../../data/arkMaps';
 import { DEFAULT_STRUCTURE_TYPE, STRUCTURE_TYPES } from '../../../data/structureTypes';
-import type { DecayFormValues } from './decayTypes';
+import type { DecayFormValues, SortField } from './decayTypes';
 import DecayControls from './DecayControls';
 import DecayDetailDrawer from './DecayDetailDrawer';
 import DecayModal from './DecayModal';
@@ -36,7 +36,7 @@ export default function DecayTool({ t }: DecayToolProps) {
     sortField,
     setSortField,
     sortOrder,
-    toggleSortOrder,
+    setSortOrder,
     selectedIds,
     isAllSelected,
     isSomeSelected,
@@ -94,13 +94,19 @@ export default function DecayTool({ t }: DecayToolProps) {
     form.resetFields();
   };
 
-  const handleSaveDetails = (serverId: string, values: DecayFormValues) => {
+  const handleSaveDetails = (serverId: string, values: DecayFormValues & { lastRefreshed?: number }) => {
     updateServer(serverId, {
       mapId: values.mapId,
       structureId: values.structureId,
       serverNumber: Number(values.serverNumber ?? 0),
       note: values.note ? String(values.note).trim() : '',
+      updatedAt: values.lastRefreshed,
     });
+  };
+
+  const handleSortChange = (field: SortField, order: 'asc' | 'desc') => {
+    setSortField(field);
+    setSortOrder(order);
   };
 
   return (
@@ -129,9 +135,8 @@ export default function DecayTool({ t }: DecayToolProps) {
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         sortField={sortField}
-        onSortFieldChange={setSortField}
         sortOrder={sortOrder}
-        onToggleSortOrder={toggleSortOrder}
+        onSortChange={handleSortChange}
         onRefreshAll={handleRefreshAll}
         selectedCount={selectedIds.length}
         isAllSelected={isAllSelected}

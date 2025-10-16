@@ -27,7 +27,7 @@ interface UseDecayStateResult {
   sortField: SortField;
   setSortField: Dispatch<SetStateAction<SortField>>;
   sortOrder: SortOrder;
-  toggleSortOrder: () => void;
+  setSortOrder: Dispatch<SetStateAction<SortOrder>>;
   selectedIds: string[];
   setSelectedIds: Dispatch<SetStateAction<string[]>>;
   isAllSelected: boolean;
@@ -184,10 +184,6 @@ export function useDecayState({ translate, searchParams, setSearchParams }: UseD
     setSelectedIds([]);
   };
 
-  const toggleSortOrder = () => {
-    setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-  };
-
   const openAddModal = () => {
     setIsModalOpen(true);
   };
@@ -215,7 +211,8 @@ export function useDecayState({ translate, searchParams, setSearchParams }: UseD
     setServers((prev) =>
       prev.map((server) => {
         if (server.id !== serverId) return server;
-        return normalizeServer({ ...server, ...payload, updatedAt: now });
+        const nextUpdatedAt = payload.updatedAt ?? now;
+        return normalizeServer({ ...server, ...payload, updatedAt: nextUpdatedAt });
       }),
     );
   };
@@ -228,7 +225,7 @@ export function useDecayState({ translate, searchParams, setSearchParams }: UseD
     sortField,
     setSortField,
     sortOrder,
-    toggleSortOrder,
+    setSortOrder,
     selectedIds,
     setSelectedIds,
     isAllSelected,

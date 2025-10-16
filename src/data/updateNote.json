@@ -1,4 +1,5 @@
 {
+  "2025/10/16": ["Better translation for vi. Viet: tiếng Việt có dấu rồi nhé mấy bồ"],
   "2025/10/15": ["Added Utilities page", "Added Decay timer tool"],
   "2025/10/13": ["Added paste color with \"setTargetDinoColor x y\"", "Better paste color logic"],
   "2025/10/12": ["Added unlock all slots region", "Fixed image not loading for creature has no mask", "Changed settings order"],

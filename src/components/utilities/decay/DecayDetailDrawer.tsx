@@ -17,6 +17,7 @@ import {
   Button,
   Card,
   Col,
+  DatePicker,
   Divider,
   Drawer,
   Flex,
@@ -34,6 +35,8 @@ import {
   Typography,
   theme,
 } from 'antd';
+import type { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import { useEffect, useMemo, useState } from 'react';
 import { ARK_MAPS } from '../../../data/arkMaps';
 import { STRUCTURE_TYPES } from '../../../data/structureTypes';
@@ -49,17 +52,21 @@ interface DecayDetailDrawerProps {
   open: boolean;
   onClose: () => void;
   onRefresh: (serverId: string) => void;
-  onSave: (serverId: string, values: DecayFormValues) => void;
+  onSave: (serverId: string, values: DecayFormValues & { lastRefreshed?: number }) => void;
   onDelete: (serverId: string) => void;
 }
 
+type DrawerFormValues = DecayFormValues & { lastRefreshed?: Dayjs | null };
+
 export default function DecayDetailDrawer({ translate, server, open, onClose, onRefresh, onSave, onDelete }: DecayDetailDrawerProps) {
-  const [form] = Form.useForm<DecayFormValues>();
+  const [form] = Form.useForm<DrawerFormValues>();
   const { message } = AntdApp.useApp();
   const { token } = theme.useToken();
   const [isDirty, setIsDirty] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const screens = Grid.useBreakpoint();
+  const structureAvatarSize = screens?.md ? 80 : 64;
+  const coverHeight = screens?.md ? 220 : 180;
 
   const mapOptions = useMemo(() => ARK_MAPS.map((map) => ({ value: map.id, label: map.name })), []);
   const structureOptions = useMemo(
@@ -78,6 +85,7 @@ export default function DecayDetailDrawer({ translate, server, open, onClose, on
         structureId: server.structureId,
         serverNumber: server.serverNumber,
         note: server.note ?? '',
+        lastRefreshed: dayjs(server.updatedAt),
       });
       setIsDirty(false);
     } else {
@@ -86,34 +94,41 @@ export default function DecayDetailDrawer({ translate, server, open, onClose, on
     }
   }, [form, server]);
 
-  const computeDirty = (values: DecayFormValues): boolean => {
+  const computeDirty = (values: DrawerFormValues): boolean => {
     if (!server) return false;
     const normalizedNote = values.note ? values.note.trim() : '';
+    const refreshedAt = values.lastRefreshed ? values.lastRefreshed.valueOf() : server.updatedAt;
     return (
       values.mapId !== server.mapId ||
       values.structureId !== server.structureId ||
       Number(values.serverNumber ?? 0) !== server.serverNumber ||
-      normalizedNote !== (server.note ?? '')
+      normalizedNote !== (server.note ?? '') ||
+      refreshedAt !== server.updatedAt
     );
   };
 
-  const handleValuesChange = (_: unknown, allValues: DecayFormValues) => {
+  const handleValuesChange = (_: unknown, allValues: DrawerFormValues) => {
     setIsDirty(computeDirty(allValues));
   };
 
   const handleSave = async () => {
     if (!server) return;
     try {
-      const values = await form.validateFields();
-      const normalized: DecayFormValues = {
+      const values = (await form.validateFields()) as DrawerFormValues;
+      const refreshedAt = values.lastRefreshed ? values.lastRefreshed.valueOf() : server.updatedAt;
+      const normalized: DecayFormValues & { lastRefreshed?: number } = {
         mapId: values.mapId,
         structureId: values.structureId,
         serverNumber: Number(values.serverNumber ?? 0),
         note: values.note ? values.note.trim() : '',
+        lastRefreshed: refreshedAt,
       };
       setIsSaving(true);
       await Promise.resolve(onSave(server.id, normalized));
-      form.setFieldsValue(normalized);
+      form.setFieldsValue({
+        ...values,
+        lastRefreshed: dayjs(refreshedAt),
+      });
       setIsDirty(false);
       message.success(translate('utilities.decay.toast.saved', 'Server updated'));
     } catch {
@@ -219,7 +234,7 @@ export default function DecayDetailDrawer({ translate, server, open, onClose, on
                 <Image
                   src={server.map.image}
                   alt={server.map.name}
-                  height={220}
+                  height={coverHeight}
                   preview={false}
                   style={{ objectFit: 'cover', width: '100%' }}
                 />
@@ -251,7 +266,7 @@ export default function DecayDetailDrawer({ translate, server, open, onClose, on
                   wrap>
                   <Avatar
                     shape="square"
-                    size={80}
+                    size={structureAvatarSize}
                     src={server.structure.image}
                     alt={translate('utilities.decay.labels.structureIconAlt', '{{structure}} icon', {
                       structure: server.structure.name,
@@ -387,6 +402,18 @@ export default function DecayDetailDrawer({ translate, server, open, onClose, on
                   </Form.Item>
                 </Col>
               </Row>
+
+              <Form.Item
+                label={renderEditableLabel(translate('utilities.decay.fields.lastRefreshed', 'Last refreshed'))}
+                name="lastRefreshed"
+                rules={[{ required: true, message: translate('utilities.decay.validation.lastRefreshed', 'Select the last refresh time') }]}>
+                <DatePicker
+                  showTime
+                  style={{ width: '100%' }}
+                  allowClear={false}
+                  inputReadOnly
+                />
+              </Form.Item>
 
               <Form.Item
                 label={renderEditableLabel(translate('utilities.decay.fields.structureType', 'Structure type'))}

@@ -1,5 +1,5 @@
 ﻿import { ReloadOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Flex, Tooltip, Typography } from 'antd';
+import { Button, Checkbox, Col, Row, Tooltip, Typography } from 'antd';
 import type { DecayServerView } from './decayTypes';
 import { formatDecayDate } from './decayUtils';
 
@@ -36,46 +36,54 @@ export default function DecayServerCard({ translate, server, selected, onToggleS
           />
         </div>
         <div className="decay-tool__meta">
-          <Flex
-            align="start"
-            justify="space-between">
-            <div className="decay-tool__server-header">
-              <div className="decay-tool__map-block">
-                <span className="decay-tool__eyebrow">{translate('utilities.decay.labels.map', 'Map')}</span>
-                <Text className="decay-tool__map-name">{server.map.name}</Text>
-                <div className="decay-tool__server-subtitle">
-                  <span className="decay-tool__server-number">
-                    {translate('utilities.decay.info.serverNumber', 'Server #{{number}}', {
-                      number: server.serverNumber,
-                    })}
-                  </span>
-                  <div className="decay-tool__structure-chip">
-                    <span className="decay-tool__structure-chip-thumb">
-                      <img
-                        src={server.structure.image}
-                        alt={translate('utilities.decay.labels.structureIconAlt', '{{structure}} icon', {
-                          structure: server.structure.name,
-                        })}
-                      />
+          <Row
+            justify="space-between"
+            gutter={[12, 12]}>
+            <Col
+              xs={{ flex: '100%' }}
+              lg={{ flex: '1' }}>
+              <div className="decay-tool__server-header">
+                <div className="decay-tool__map-block">
+                  <span className="decay-tool__eyebrow">{translate('utilities.decay.labels.map', 'Map')}</span>
+                  <Text className="decay-tool__map-name">{server.map.name}</Text>
+                  <div className="decay-tool__server-subtitle">
+                    <span className="decay-tool__server-number">
+                      {translate('utilities.decay.info.serverNumber', 'Server #{{number}}', {
+                        number: server.serverNumber,
+                      })}
                     </span>
-                    <span className="decay-tool__structure-chip-label">{server.structure.name}</span>
+                    <div className="decay-tool__structure-chip">
+                      <span className="decay-tool__structure-chip-thumb">
+                        <img
+                          src={server.structure.image}
+                          alt={translate('utilities.decay.labels.structureIconAlt', '{{structure}} icon', {
+                            structure: server.structure.name,
+                          })}
+                        />
+                      </span>
+                      <span className="decay-tool__structure-chip-label">{server.structure.name}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </Col>
 
-            <div className="decay-tool__timers">
-              <Tooltip
-                title={translate('utilities.decay.tooltip.decaysOn', 'Decays on {{date}}', {
-                  date: formatDecayDate(server.decayAt),
-                })}>
-                <div className={`decay-tool__timer-card ${server.timeInfo.status === 'expired' ? 'decay-tool__timer-card--expired' : ''}`}>
-                  <span className="decay-tool__timer-title">{translate('utilities.decay.labels.structure', 'Structure')}</span>
-                  <span className="decay-tool__timer-value">{server.timeInfo.label}</span>
-                </div>
-              </Tooltip>
-            </div>
-          </Flex>
+            <Col
+              xs={{ flex: '100%' }}
+              lg={{ flex: 'none' }}>
+              <div className="decay-tool__timers">
+                <Tooltip
+                  title={translate('utilities.decay.tooltip.decaysOn', 'Decays on {{date}}', {
+                    date: formatDecayDate(server.decayAt),
+                  })}>
+                  <div className={`decay-tool__timer-card ${server.timeInfo.status === 'expired' ? 'decay-tool__timer-card--expired' : ''}`}>
+                    <span className="decay-tool__timer-title">{translate('utilities.decay.labels.structure', 'Structure')}</span>
+                    <span className="decay-tool__timer-value">{server.timeInfo.label}</span>
+                  </div>
+                </Tooltip>
+              </div>
+            </Col>
+          </Row>
 
           <Button
             type="primary"
