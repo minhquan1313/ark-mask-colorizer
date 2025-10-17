@@ -1,17 +1,18 @@
 {
   "name": "ark-mask-colorizer",
-  "private": true,
   "version": "0.0.1",
+  "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
     "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview",
+    "dev": "vite",
     "format": "prettier . --write",
     "generate:creatures": "node ./scripts/generate-creatures.cjs",
+    "lint": "eslint .",
+    "lint:all": "npm run format && npm run lint && npm run lint:ts",
+    "lint:ts": "npx tsc --noEmit -p tsconfig.json",
     "organize:mask-in-temp": "node ./scripts/organize-dino-images.cjs",
-    "lint:ts": "npx tsc --noEmit -p tsconfig.json"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@ant-design/icons": "^5.6.1",
