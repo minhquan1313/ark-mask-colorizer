@@ -365,76 +365,78 @@ export default function Toolbar({ onReset, onDownloadImage, onDownloadWithPalett
   };
 
   return (
-    <Space
-      direction="vertical"
-      size="large"
-      style={{ width: '100%' }}>
-      {!isProduction && (
-        <Button
-          icon={<SlidersOutlined />}
-          type={devSlidersVisible ? 'primary' : 'default'}
-          onClick={() => setDevSlidersVisible((prev) => !prev)}>
-          {devSlidersVisible
-            ? t('toolbar.hideSliders', { defaultValue: 'Hide sliders' })
-            : t('toolbar.showSliders', { defaultValue: 'Show sliders' })}
-        </Button>
-      )}
-      {!isProduction && devSlidersVisible && (
-        <Space
-          direction="vertical"
-          size="middle"
-          style={{ width: '100%' }}>
-          {sliderConfigs.map(renderSlider)}
+    <>
+      <input
+        ref={fileRef as MutableRefObject<HTMLInputElement | null>}
+        type="file"
+        accept="image/png"
+        multiple
+        style={{ display: 'none' }}
+        onChange={handleFileChange}
+      />
+      <Space
+        direction="vertical"
+        size="large"
+        style={{ width: '100%' }}>
+        {!isProduction && (
           <Button
-            icon={<ExperimentOutlined />}
-            onClick={toggleOverlayBlend}>
-            {t('toolbar.overlayBlendButton')}
+            icon={<SlidersOutlined />}
+            type={devSlidersVisible ? 'primary' : 'default'}
+            onClick={() => setDevSlidersVisible((prev) => !prev)}>
+            {devSlidersVisible
+              ? t('toolbar.hideSliders', { defaultValue: 'Hide sliders' })
+              : t('toolbar.showSliders', { defaultValue: 'Show sliders' })}
+          </Button>
+        )}
+        {!isProduction && devSlidersVisible && (
+          <Space
+            direction="vertical"
+            size="middle"
+            style={{ width: '100%' }}>
+            {sliderConfigs.map(renderSlider)}
+            <Button
+              icon={<ExperimentOutlined />}
+              onClick={toggleOverlayBlend}>
+              {t('toolbar.overlayBlendButton')}
+            </Button>
+          </Space>
+        )}
+
+        {!isProduction && devSlidersVisible && <Divider style={{ margin: '8px 0' }} />}
+
+        <Space
+          size="middle"
+          wrap>
+          <Button
+            icon={<UploadOutlined />}
+            onClick={() => fileRef.current?.click()}>
+            {t('toolbar.customMask')}
+          </Button>
+
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={handleReset}>
+            {t('toolbar.reset')}
+          </Button>
+
+          <Button
+            type="primary"
+            icon={<DownloadOutlined />}
+            onClick={onDownloadImage}
+            loading={isDownloadingImage}
+            disabled={isDownloadingPalette}>
+            {t('toolbar.downloadImage')}
+          </Button>
+          <Button
+            type="primary"
+            icon={<DownloadOutlined />}
+            onClick={onDownloadWithPalette}
+            loading={isDownloadingPalette}
+            disabled={isDownloadingImage}>
+            {t('toolbar.downloadWithPalette')}
           </Button>
         </Space>
-      )}
-
-      {!isProduction && devSlidersVisible && <Divider style={{ margin: '8px 0' }} />}
-
-      <Space
-        size="middle"
-        wrap>
-        <Button
-          icon={<UploadOutlined />}
-          onClick={() => fileRef.current?.click()}>
-          {t('toolbar.customMask')}
-        </Button>
-
-        <Button
-          icon={<ReloadOutlined />}
-          onClick={handleReset}>
-          {t('toolbar.reset')}
-        </Button>
-
-        <Button
-          type="primary"
-          icon={<DownloadOutlined />}
-          onClick={onDownloadImage}
-          loading={isDownloadingImage}
-          disabled={isDownloadingPalette}>
-          {t('toolbar.downloadImage')}
-          <input
-            ref={fileRef as MutableRefObject<HTMLInputElement | null>}
-            type="file"
-            accept="image/png"
-            multiple
-            style={{ display: 'none' }}
-            onChange={handleFileChange}
-          />
-        </Button>
-        <Button
-          type="primary"
-          icon={<DownloadOutlined />}
-          onClick={onDownloadWithPalette}
-          loading={isDownloadingPalette}
-          disabled={isDownloadingImage}>
-          {t('toolbar.downloadWithPalette')}
-        </Button>
       </Space>
-    </Space>
+    </>
   );
 }

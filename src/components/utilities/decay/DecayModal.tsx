@@ -1,4 +1,4 @@
-import { Form, Input, InputNumber, Modal, Select } from 'antd';
+import { Form, Input, InputNumber, Modal, Select, Switch } from 'antd';
 import { ARK_MAPS, DEFAULT_ARK_MAP } from '../../../data/arkMaps';
 import { STRUCTURE_TYPES } from '../../../data/structureTypes';
 import { DAY_SECONDS } from './decayUtils';
@@ -42,6 +42,7 @@ export default function DecayModal({ translate, form, open, selectedMapId, onCan
           mapId: DEFAULT_ARK_MAP.id,
           structureId: STRUCTURE_TYPES[0]?.id,
           note: '',
+          creatureEnabled: false,
         }}>
         <Form.Item
           label={translate('utilities.decay.fields.map', 'Map')}
@@ -79,6 +80,16 @@ export default function DecayModal({ translate, form, open, selectedMapId, onCan
               value: structure.id,
               label: `${structure.name} (${Math.round(structure.decaySeconds / DAY_SECONDS)} ${translate('utilities.decay.labels.days', 'days')})`,
             }))}
+          />
+        </Form.Item>
+
+        <Form.Item
+          label={translate('utilities.decay.fields.creatureToggle', 'Track creature decay')}
+          name="creatureEnabled"
+          valuePropName="checked">
+          <Switch
+            checkedChildren={translate('utilities.decay.actions.enabled', 'On')}
+            unCheckedChildren={translate('utilities.decay.actions.disabled', 'Off')}
           />
         </Form.Item>
 

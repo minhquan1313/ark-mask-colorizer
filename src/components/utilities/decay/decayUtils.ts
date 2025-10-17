@@ -1,10 +1,11 @@
 ﻿import { ARK_MAPS, DEFAULT_ARK_MAP, getArkMap } from '../../../data/arkMaps';
 import { DEFAULT_STRUCTURE_TYPE, STRUCTURE_TYPES, getStructureType } from '../../../data/structureTypes';
+import { i18n } from '../../../i18n';
 import type { DecayServer, DecayServerView, SortField } from './decayTypes';
 
 export const DAY_SECONDS = 24 * 60 * 60;
 export const CREATURE_DEFAULT_DECAY_SECONDS = 7 * DAY_SECONDS;
-export const SORT_FIELDS: SortField[] = ['server', 'map', 'structure'];
+export const SORT_FIELDS: SortField[] = ['server', 'map', 'structure', 'decay'];
 
 export function generateServerId(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -51,10 +52,11 @@ export function formatTimeRemaining(
   return { label, status: 'active' };
 }
 
-export function formatDecayDate(decayTimestamp: number | null | undefined): string {
+export function formatDecayDate(decayTimestamp: number | null | undefined, locale?: string): string {
   if (!decayTimestamp) return 'Unknown';
   try {
-    return new Intl.DateTimeFormat(undefined, {
+    const resolvedLocale = locale ?? i18n?.language ?? (typeof navigator !== 'undefined' ? navigator.language : undefined);
+    return new Intl.DateTimeFormat(resolvedLocale, {
       weekday: 'short',
       year: 'numeric',
       month: 'short',
@@ -63,7 +65,8 @@ export function formatDecayDate(decayTimestamp: number | null | undefined): stri
       minute: '2-digit',
     }).format(new Date(decayTimestamp));
   } catch {
-    return new Date(decayTimestamp).toLocaleString();
+    const fallbackLocale = locale ?? i18n?.language ?? (typeof navigator !== 'undefined' ? navigator.language : undefined);
+    return new Date(decayTimestamp).toLocaleString(fallbackLocale);
   }
 }
 
@@ -117,9 +120,36 @@ export function buildServerView(
   const map = getArkMap(server.mapId);
   const structure = getStructureType(server.structureId);
   const updatedAt = server.updatedAt ?? server.createdAt ?? Date.now();
-  const decayAt = updatedAt + structure.decaySeconds * 1000;
-  const secondsRemaining = Math.max(0, Math.round((decayAt - Date.now()) / 1000));
-  const timeInfo = formatTimeRemaining(secondsRemaining, translate);
+  const structureDecayAt = updatedAt + structure.decaySeconds * 1000;
+  const structureSecondsRemaining = Math.max(0, Math.round((structureDecayAt - Date.now()) / 1000));
+  const structureTimeInfo = formatTimeRemaining(structureSecondsRemaining, translate);
+
+  let creatureDecayAt: number | null = null;
+  let creatureSecondsRemaining: number | null = null;
+  let creatureTimeInfo: { label: string; status: 'active' | 'expired' } | null = null;
+
+  if (server.creatureEnabled) {
+    const creatureBase = server.creatureUpdatedAt ?? updatedAt;
+    creatureDecayAt = creatureBase + server.creatureDecaySeconds * 1000;
+    creatureSecondsRemaining = Math.max(0, Math.round((creatureDecayAt - Date.now()) / 1000));
+    creatureTimeInfo = formatTimeRemaining(creatureSecondsRemaining, translate);
+  }
+
+  let nextDecayType: 'structure' | 'creature' = 'structure';
+  let decayAt = structureDecayAt;
+  let secondsRemaining = structureSecondsRemaining;
+  let timeInfo = structureTimeInfo;
+
+  if (
+    creatureDecayAt != null &&
+    creatureSecondsRemaining != null &&
+    (creatureDecayAt < decayAt || (creatureDecayAt === decayAt && creatureSecondsRemaining < secondsRemaining))
+  ) {
+    nextDecayType = 'creature';
+    decayAt = creatureDecayAt;
+    secondsRemaining = creatureSecondsRemaining;
+    timeInfo = creatureTimeInfo ?? structureTimeInfo;
+  }
 
   return {
     ...server,
@@ -128,6 +158,13 @@ export function buildServerView(
     decayAt,
     secondsRemaining,
     timeInfo,
+    structureDecayAt,
+    structureSecondsRemaining,
+    structureTimeInfo,
+    creatureDecayAt,
+    creatureSecondsRemaining,
+    creatureTimeInfo,
+    nextDecayType,
   };
 }
 

@@ -130,6 +130,7 @@
         "server": "Server Number",
         "map": "Map",
         "structure": "Structure Type",
+        "decay": "Decay Time",
         "asc": "Ascending",
         "desc": "Descending"
       },
@@ -146,7 +147,10 @@
         "refreshSelected": "Refresh selected",
         "deleteSelected": "Delete selected",
         "enabled": "On",
-        "disabled": "Off"
+        "disabled": "Off",
+        "favorite": "Favorite",
+        "unfavorite": "Unfavorite",
+        "copyNumber": "Copy server number"
       },
       "empty": "No servers yet. Add your first one to start tracking decay timers.",
       "tooltip": {
@@ -154,7 +158,9 @@
         "creaturesDecayOn": "Creatures decay on {{date}}"
       },
       "toast": {
-        "saved": "Server updated"
+        "saved": "Server updated",
+        "copySuccess": "Server number copied",
+        "copyError": "Unable to copy server number"
       },
       "messages": {
         "noteEmpty": "No note yet. Add one below!"

@@ -41,6 +41,8 @@ interface UseDecayStateResult {
   handleDeleteSelected: () => void;
   enrichedServers: DecayServerView[];
   activeServer: DecayServerView | null;
+  favoriteIds: string[];
+  toggleFavorite: (serverId: string, next?: boolean) => void;
   openDetails: (serverId: string) => void;
   closeDetails: () => void;
   isModalOpen: boolean;
@@ -53,8 +55,22 @@ interface UseDecayStateResult {
 export function useDecayState({ translate, searchParams, setSearchParams }: UseDecayStateArgs): UseDecayStateResult {
   const [servers, setServers] = useState<DecayServer[]>(() => normalizeServerList(loadJSON(STORAGE_KEYS.decayServers, [])));
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortField, setSortField] = useState<SortField>('server');
-  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
+  const [favoriteIds, setFavoriteIds] = useState<string[]>(() => {
+    const stored = loadJSON<unknown>(STORAGE_KEYS.decayFavorites, []);
+    if (!Array.isArray(stored)) return [];
+    return stored.filter((value): value is string => typeof value === 'string');
+  });
+  const [sortField, setSortField] = useState<SortField>(() => {
+    const stored = loadJSON<unknown>(STORAGE_KEYS.decaySortField, 'server');
+    if (typeof stored === 'string' && SORT_FIELDS.includes(stored as SortField)) {
+      return stored as SortField;
+    }
+    return 'server';
+  });
+  const [sortOrder, setSortOrder] = useState<SortOrder>(() => {
+    const stored = loadJSON<unknown>(STORAGE_KEYS.decaySortOrder, 'asc');
+    return stored === 'desc' ? 'desc' : 'asc';
+  });
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -68,6 +84,25 @@ export function useDecayState({ translate, searchParams, setSearchParams }: UseD
   useEffect(() => {
     setSelectedIds((prev) => prev.filter((id) => servers.some((server) => server.id === id)));
   }, [servers]);
+
+  useEffect(() => {
+    setFavoriteIds((prev) => {
+      const filtered = prev.filter((id) => servers.some((server) => server.id === id));
+      return filtered.length === prev.length ? prev : filtered;
+    });
+  }, [servers]);
+
+  useEffect(() => {
+    saveJSON(STORAGE_KEYS.decayFavorites, favoriteIds);
+  }, [favoriteIds]);
+
+  useEffect(() => {
+    saveJSON(STORAGE_KEYS.decaySortField, sortField);
+  }, [sortField]);
+
+  useEffect(() => {
+    saveJSON(STORAGE_KEYS.decaySortOrder, sortOrder);
+  }, [sortOrder]);
 
   useEffect(() => {
     if (queryServerId && servers.some((server) => server.id === queryServerId)) {
@@ -103,27 +138,37 @@ export function useDecayState({ translate, searchParams, setSearchParams }: UseD
       const view = buildServerView(server, translate);
       const haystack = normalizeText(`${view.map.name} ${view.structure.name} ${view.serverNumber ?? ''} ${view.note ?? ''}`);
       const matches = searchKeywords.length === 0 || searchKeywords.every((keyword) => haystack.includes(keyword));
-      return { ...view, matches } as DecayServerView & { matches: boolean };
+      const isFavorite = favoriteIds.includes(server.id);
+      return { view, matches, isFavorite };
     });
 
     const filtered = mapped.filter((server) => server.matches);
-    return filtered.sort((a, b) => {
+    filtered.sort((a, b) => {
+      if (a.isFavorite !== b.isFavorite) {
+        return a.isFavorite ? -1 : 1;
+      }
+
       let compare = 0;
       switch (sortField) {
         case 'map':
-          compare = a.map.name.localeCompare(b.map.name);
+          compare = a.view.map.name.localeCompare(b.view.map.name);
           break;
         case 'structure':
-          compare = a.structure.name.localeCompare(b.structure.name);
+          compare = a.view.structure.name.localeCompare(b.view.structure.name);
+          break;
+        case 'decay':
+          compare = a.view.secondsRemaining - b.view.secondsRemaining;
           break;
         case 'server':
         default:
-          compare = (a.serverNumber ?? 0) - (b.serverNumber ?? 0);
+          compare = (a.view.serverNumber ?? 0) - (b.view.serverNumber ?? 0);
           break;
       }
       return sortOrder === 'asc' ? compare : -compare;
     });
-  }, [servers, translate, searchKeywords, sortField, sortOrder]);
+
+    return filtered.map((server) => ({ ...server.view, isFavorite: server.isFavorite }));
+  }, [servers, translate, searchKeywords, sortField, sortOrder, favoriteIds]);
 
   const activeServer = useMemo(() => enrichedServers.find((server) => server.id === viewedServerId) ?? null, [enrichedServers, viewedServerId]);
 
@@ -148,27 +193,70 @@ export function useDecayState({ translate, searchParams, setSearchParams }: UseD
     });
   };
 
+  const toggleFavorite = (serverId: string, next?: boolean) => {
+    setFavoriteIds((prev) => {
+      const isFavorite = prev.includes(serverId);
+      const shouldFavorite = typeof next === 'boolean' ? next : !isFavorite;
+      if (shouldFavorite) {
+        if (isFavorite) return prev;
+        return [...prev, serverId];
+      }
+      if (!isFavorite) return prev;
+      return prev.filter((id) => id !== serverId);
+    });
+  };
+
   const handleRefreshAll = () => {
     const now = Date.now();
-    setServers((prev) => prev.map((server) => ({ ...server, updatedAt: now })));
+    setServers((prev) =>
+      prev.map((server) => ({
+        ...server,
+        updatedAt: now,
+        creatureUpdatedAt: server.creatureEnabled ? now : server.creatureUpdatedAt,
+      })),
+    );
   };
 
   const handleRefresh = (serverId: string) => {
     const now = Date.now();
-    setServers((prev) => prev.map((server) => (server.id === serverId ? { ...server, updatedAt: now } : server)));
+    setServers((prev) =>
+      prev.map((server) =>
+        server.id === serverId
+          ? {
+              ...server,
+              updatedAt: now,
+              creatureUpdatedAt: server.creatureEnabled ? now : server.creatureUpdatedAt,
+            }
+          : server,
+      ),
+    );
     setSelectedIds((prev) => prev.filter((id) => id !== serverId));
   };
 
   const handleRefreshSelected = () => {
     if (!selectedIds.length) return;
     const now = Date.now();
-    setServers((prev) => prev.map((server) => (selectedIds.includes(server.id) ? { ...server, updatedAt: now } : server)));
+    setServers((prev) =>
+      prev.map((server) =>
+        selectedIds.includes(server.id)
+          ? {
+              ...server,
+              updatedAt: now,
+              creatureUpdatedAt: server.creatureEnabled ? now : server.creatureUpdatedAt,
+            }
+          : server,
+      ),
+    );
     setSelectedIds([]);
   };
 
   const handleDelete = (serverId: string) => {
     setServers((prev) => prev.filter((server) => server.id !== serverId));
     setSelectedIds((prev) => prev.filter((id) => id !== serverId));
+    setFavoriteIds((prev) => {
+      if (!prev.includes(serverId)) return prev;
+      return prev.filter((id) => id !== serverId);
+    });
     if (viewedServerId === serverId) {
       closeDetails();
     }
@@ -181,6 +269,10 @@ export function useDecayState({ translate, searchParams, setSearchParams }: UseD
     if (viewedServerId && toRemove.has(viewedServerId)) {
       closeDetails();
     }
+    setFavoriteIds((prev) => {
+      const filtered = prev.filter((id) => !toRemove.has(id));
+      return filtered.length === prev.length ? prev : filtered;
+    });
     setSelectedIds([]);
   };
 
@@ -211,7 +303,28 @@ export function useDecayState({ translate, searchParams, setSearchParams }: UseD
       prev.map((server) => {
         if (server.id !== serverId) return server;
         const nextUpdatedAt = payload.updatedAt ?? now;
-        return normalizeServer({ ...server, ...payload, updatedAt: nextUpdatedAt });
+        const nextCreatureEnabled = typeof payload.creatureEnabled === 'boolean' ? payload.creatureEnabled : server.creatureEnabled;
+        let nextCreatureUpdatedAt: number | null = server.creatureUpdatedAt ?? null;
+
+        if (nextCreatureEnabled) {
+          if (typeof payload.creatureUpdatedAt === 'number') {
+            nextCreatureUpdatedAt = payload.creatureUpdatedAt;
+          } else if (!server.creatureEnabled) {
+            nextCreatureUpdatedAt = payload.updatedAt ?? nextUpdatedAt;
+          } else if (payload.updatedAt) {
+            nextCreatureUpdatedAt = payload.updatedAt;
+          }
+        } else {
+          nextCreatureUpdatedAt = null;
+        }
+
+        return normalizeServer({
+          ...server,
+          ...payload,
+          updatedAt: nextUpdatedAt,
+          creatureEnabled: nextCreatureEnabled,
+          creatureUpdatedAt: nextCreatureUpdatedAt ?? undefined,
+        });
       }),
     );
   };
@@ -238,6 +351,8 @@ export function useDecayState({ translate, searchParams, setSearchParams }: UseD
     handleDeleteSelected,
     enrichedServers,
     activeServer,
+    favoriteIds,
+    toggleFavorite,
     openDetails,
     closeDetails,
     isModalOpen,

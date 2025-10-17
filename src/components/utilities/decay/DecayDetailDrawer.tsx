@@ -31,17 +31,19 @@ import {
   Select,
   Space,
   Statistic,
+  Switch,
   Tag,
+  Tooltip,
   Typography,
   theme,
 } from 'antd';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type KeyboardEvent } from 'react';
 import { ARK_MAPS } from '../../../data/arkMaps';
 import { STRUCTURE_TYPES } from '../../../data/structureTypes';
 import type { DecayFormValues, DecayServerView } from './decayTypes';
-import { DAY_SECONDS, formatDecayDate } from './decayUtils';
+import { DAY_SECONDS, formatDecayDate, itemStatusToColor } from './decayUtils';
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
@@ -67,6 +69,56 @@ export default function DecayDetailDrawer({ translate, server, open, onClose, on
   const screens = Grid.useBreakpoint();
   const structureAvatarSize = screens?.md ? 80 : 64;
   const coverHeight = screens?.md ? 220 : 180;
+  const copyToClipboard = useCallback(async (value: string): Promise<boolean> => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(value);
+        return true;
+      } catch {
+        /* ignore clipboard errors */
+      }
+    }
+
+    if (typeof document === 'undefined') return false;
+    const textarea = document.createElement('textarea');
+    textarea.value = value;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'absolute';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    textarea.setSelectionRange(0, value.length);
+    let result = false;
+    try {
+      result = document.execCommand('copy');
+    } catch {
+      result = false;
+    }
+    document.body.removeChild(textarea);
+    return result;
+  }, []);
+
+  const handleCopyServerNumber = useCallback(async () => {
+    if (!server) return;
+    const value = String(server.serverNumber ?? '');
+    if (!value) return;
+    const success = await copyToClipboard(value);
+    if (success) {
+      message.success(translate('utilities.decay.toast.copySuccess', 'Server number copied'));
+    } else {
+      message.error(translate('utilities.decay.toast.copyError', 'Unable to copy server number'));
+    }
+  }, [copyToClipboard, message, server, translate]);
+
+  const handleCopyServerNumberKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLElement>) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        void handleCopyServerNumber();
+      }
+    },
+    [handleCopyServerNumber],
+  );
 
   const mapOptions = useMemo(() => ARK_MAPS.map((map) => ({ value: map.id, label: map.name })), []);
   const structureOptions = useMemo(
@@ -86,6 +138,7 @@ export default function DecayDetailDrawer({ translate, server, open, onClose, on
         serverNumber: server.serverNumber,
         note: server.note ?? '',
         lastRefreshed: dayjs(server.updatedAt),
+        creatureEnabled: server.creatureEnabled,
       });
       setIsDirty(false);
     } else {
@@ -103,7 +156,8 @@ export default function DecayDetailDrawer({ translate, server, open, onClose, on
       values.structureId !== server.structureId ||
       Number(values.serverNumber ?? 0) !== server.serverNumber ||
       normalizedNote !== (server.note ?? '') ||
-      refreshedAt !== server.updatedAt
+      refreshedAt !== server.updatedAt ||
+      Boolean(values.creatureEnabled) !== server.creatureEnabled
     );
   };
 
@@ -122,6 +176,7 @@ export default function DecayDetailDrawer({ translate, server, open, onClose, on
         serverNumber: Number(values.serverNumber ?? 0),
         note: values.note ? values.note.trim() : '',
         lastRefreshed: refreshedAt,
+        creatureEnabled: Boolean(values.creatureEnabled),
       };
       setIsSaving(true);
       await Promise.resolve(onSave(server.id, normalized));
@@ -150,8 +205,15 @@ export default function DecayDetailDrawer({ translate, server, open, onClose, on
     </span>
   );
 
-  const statusColor = server?.timeInfo.status === 'expired' ? 'volcano' : 'geekblue';
+  const nextStatusColor = itemStatusToColor(server?.timeInfo.status ?? 'active');
+  const structureStatusColor = itemStatusToColor(server?.structureTimeInfo.status ?? 'active');
+  const creatureStatusColor = itemStatusToColor(server?.creatureTimeInfo?.status ?? 'active');
   const drawerWidth = screens?.lg ? 640 : screens?.md ? 520 : '100%';
+  const nextDecayLabel = server
+    ? server.nextDecayType === 'creature'
+      ? translate('utilities.decay.labels.creatures', 'Creatures')
+      : translate('utilities.decay.labels.structure', 'Structure')
+    : '';
 
   return (
     <Drawer
@@ -220,8 +282,8 @@ export default function DecayDetailDrawer({ translate, server, open, onClose, on
           size={16}
           style={{ width: '100%' }}>
           <Badge.Ribbon
-            color={statusColor}
-            text={server.timeInfo.label}>
+            color={nextStatusColor}
+            text={`${nextDecayLabel}: ${server.timeInfo.label}`}>
             <Card
               variant="borderless"
               styles={{
@@ -245,19 +307,29 @@ export default function DecayDetailDrawer({ translate, server, open, onClose, on
                 style={{ width: '100%' }}>
                 <Flex
                   gap="small"
-                  wrap>
+                  wrap
+                  align="center">
                   <Tag
                     icon={<EnvironmentOutlined />}
                     color="blue">
                     {server.map.name}
                   </Tag>
-                  <Tag
-                    icon={<FieldNumberOutlined />}
-                    color="purple">
-                    {translate('utilities.decay.info.serverNumber', 'Server #{{number}}', {
-                      number: server.serverNumber,
-                    })}
-                  </Tag>
+                  <Tooltip title={translate('utilities.decay.actions.copyNumber', 'Copy server number')}>
+                    <Tag
+                      icon={<FieldNumberOutlined />}
+                      color="purple"
+                      role="button"
+                      tabIndex={0}
+                      className="decay-tool__copyable"
+                      onClick={() => {
+                        void handleCopyServerNumber();
+                      }}
+                      onKeyDown={handleCopyServerNumberKeyDown}>
+                      {translate('utilities.decay.info.serverNumber', 'Server #{{number}}', {
+                        number: server.serverNumber,
+                      })}
+                    </Tag>
+                  </Tooltip>
                 </Flex>
 
                 <Flex
@@ -288,6 +360,14 @@ export default function DecayDetailDrawer({ translate, server, open, onClose, on
                         days: Math.round(server.structure.decaySeconds / DAY_SECONDS),
                       })}
                     </Tag>
+                    <Tag color={server.creatureEnabled ? 'success' : 'default'}>
+                      {translate('utilities.decay.labels.creatures', 'Creatures')}:{' '}
+                      {server.creatureEnabled
+                        ? translate('utilities.decay.labels.creatureDecayDuration', '{{days}} days', {
+                            days: Math.round(server.creatureDecaySeconds / DAY_SECONDS),
+                          })
+                        : translate('utilities.decay.labels.creaturesDisabled', 'Not tracking creatures')}
+                    </Tag>
                   </Space>
                 </Flex>
 
@@ -302,27 +382,52 @@ export default function DecayDetailDrawer({ translate, server, open, onClose, on
           </Badge.Ribbon>
 
           <Row gutter={[16, 16]}>
-            <Col xs={24}>
+            <Col
+              xs={24}
+              lg={server.creatureEnabled && server.creatureTimeInfo ? 24 : 24}>
               <Card size="small">
                 <Space
                   direction="vertical"
                   size={8}>
                   <Statistic
                     title={translate('utilities.decay.labels.structureDecay', 'Structure decay')}
-                    value={server.timeInfo.label}
-                    prefix={<ClockCircleOutlined style={{ color: statusColor === 'volcano' ? token.colorError : token.colorPrimary }} />}
-                    valueStyle={{ color: statusColor === 'volcano' ? token.colorError : token.colorPrimary }}
+                    value={server.structureTimeInfo.label}
+                    prefix={<ClockCircleOutlined style={{ color: structureStatusColor === 'volcano' ? token.colorError : token.colorPrimary }} />}
+                    valueStyle={{ color: structureStatusColor === 'volcano' ? token.colorError : token.colorPrimary }}
                   />
                   <Tag
                     icon={<CalendarOutlined />}
                     color="blue">
                     {translate('utilities.decay.tooltip.decaysOn', 'Decays on {{date}}', {
-                      date: formatDecayDate(server.decayAt),
+                      date: formatDecayDate(server.structureDecayAt),
                     })}
                   </Tag>
                 </Space>
               </Card>
             </Col>
+            {server.creatureEnabled && server.creatureTimeInfo ? (
+              <Col xs={24}>
+                <Card size="small">
+                  <Space
+                    direction="vertical"
+                    size={8}>
+                    <Statistic
+                      title={translate('utilities.decay.labels.creatures', 'Creatures')}
+                      value={server.creatureTimeInfo.label}
+                      prefix={<ClockCircleOutlined style={{ color: creatureStatusColor === 'volcano' ? token.colorError : token.colorPrimary }} />}
+                      valueStyle={{ color: creatureStatusColor === 'volcano' ? token.colorError : token.colorPrimary }}
+                    />
+                    <Tag
+                      icon={<CalendarOutlined />}
+                      color="blue">
+                      {translate('utilities.decay.tooltip.creaturesDecayOn', 'Creatures decay on {{date}}', {
+                        date: formatDecayDate(server.creatureDecayAt),
+                      })}
+                    </Tag>
+                  </Space>
+                </Card>
+              </Col>
+            ) : null}
             <Col
               xs={24}
               lg={12}>
@@ -418,6 +523,17 @@ export default function DecayDetailDrawer({ translate, server, open, onClose, on
                 name="structureId"
                 rules={[{ required: true, message: translate('utilities.decay.validation.structure', 'Select structure type') }]}>
                 <Select options={structureOptions} />
+              </Form.Item>
+
+              <Form.Item
+                label={renderEditableLabel(translate('utilities.decay.fields.creatureToggle', 'Track creature decay'))}
+                name="creatureEnabled"
+                valuePropName="checked"
+                extra={translate('utilities.decay.fields.creatureDecayHint', 'Default is 7 days')}>
+                <Switch
+                  checkedChildren={translate('utilities.decay.actions.enabled', 'On')}
+                  unCheckedChildren={translate('utilities.decay.actions.disabled', 'Off')}
+                />
               </Form.Item>
 
               <Form.Item

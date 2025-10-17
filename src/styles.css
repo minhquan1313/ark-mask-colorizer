@@ -872,6 +872,43 @@ body {
   margin-top: 16px;
 }
 
+.decay-tool__server-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.decay-tool__icon-btn {
+  padding: 4px;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.decay-tool__favorite-btn--active {
+  color: var(--ant-color-warning, #faad14);
+}
+
+.decay-tool__favorite-btn--active:hover,
+.decay-tool__favorite-btn--active:focus {
+  color: var(--ant-color-warning, #faad14);
+}
+
+.decay-tool__copyable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.decay-tool__copyable:focus {
+  outline: none;
+}
+
+.decay-tool__copyable:focus-visible {
+  outline: 2px solid rgba(56, 189, 248, 0.6);
+  outline-offset: 2px;
+}
+
 .decay-tool__map-block {
   display: grid;
   gap: 6px;
@@ -970,6 +1007,11 @@ body {
   gap: 4px;
 }
 
+.decay-tool__timer-card--warning {
+  background: rgba(248, 113, 113, 0.2);
+  border-color: rgba(248, 113, 113, 0.6);
+}
+
 .decay-tool__timer-card--expired {
   background: rgba(248, 113, 113, 0.15);
   border-color: rgba(248, 113, 113, 0.45);
@@ -1035,8 +1077,11 @@ body {
   }
 
   .decay-tool__refresh-button {
-    border-bottom-left-radius: calc(var(--utilities-decay-server-card-border-radius) - 8px);
     border-bottom-right-radius: calc(var(--utilities-decay-server-card-border-radius) - 8px);
+  }
+
+  .decay-tool__view-button {
+    border-bottom-left-radius: calc(var(--utilities-decay-server-card-border-radius) - 4px);
   }
 
   .decay-tool__timer-card {

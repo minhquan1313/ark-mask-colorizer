@@ -4,11 +4,11 @@ import { useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { DEFAULT_ARK_MAP } from '../../../data/arkMaps';
 import { DEFAULT_STRUCTURE_TYPE, STRUCTURE_TYPES } from '../../../data/structureTypes';
-import type { DecayFormValues, SortField } from './decayTypes';
 import DecayControls from './DecayControls';
 import DecayDetailDrawer from './DecayDetailDrawer';
 import DecayModal from './DecayModal';
 import DecayServerCard from './DecayServerCard';
+import type { DecayFormValues, SortField } from './decayTypes';
 import { useDecayState } from './useDecayState';
 
 const { Title, Paragraph } = Typography;
@@ -49,6 +49,7 @@ export default function DecayTool({ t }: DecayToolProps) {
     handleDeleteSelected,
     enrichedServers,
     activeServer,
+    toggleFavorite,
     openDetails,
     closeDetails,
     isModalOpen,
@@ -66,6 +67,7 @@ export default function DecayTool({ t }: DecayToolProps) {
       structureId: defaultStructure,
       serverNumber: undefined,
       note: '',
+      creatureEnabled: false,
     });
     openAddModal();
   };
@@ -79,6 +81,7 @@ export default function DecayTool({ t }: DecayToolProps) {
           structureId: values.structureId,
           serverNumber: Number(values.serverNumber ?? 0),
           note: values.note ? String(values.note).trim() : '',
+          creatureEnabled: Boolean(values.creatureEnabled),
         };
         addServer(payload);
         closeModal();
@@ -101,6 +104,8 @@ export default function DecayTool({ t }: DecayToolProps) {
       serverNumber: Number(values.serverNumber ?? 0),
       note: values.note ? String(values.note).trim() : '',
       updatedAt: values.lastRefreshed,
+      creatureEnabled: Boolean(values.creatureEnabled),
+      creatureUpdatedAt: Boolean(values.creatureEnabled) ? (values.lastRefreshed ?? Date.now()) : null,
     });
   };
 
@@ -160,13 +165,13 @@ export default function DecayTool({ t }: DecayToolProps) {
             <List.Item key={item.id}>
               <Card
                 className={`decay-tool__server${selectedIds.includes(item.id) ? ' decay-tool__server--selected' : ''}`}
-                hoverable
                 styles={{ body: { padding: 0 } }}>
                 <DecayServerCard
                   translate={translate}
                   server={item}
                   selected={selectedIds.includes(item.id)}
                   onToggleSelect={(checked) => toggleSelection(item.id, checked)}
+                  onToggleFavorite={(favorite) => toggleFavorite(item.id, favorite)}
                   onOpenDetails={() => openDetails(item.id)}
                   onRefresh={() => handleRefresh(item.id)}
                 />

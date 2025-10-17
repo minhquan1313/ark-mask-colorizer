@@ -130,6 +130,7 @@
         "server": "Số máy chủ",
         "map": "Bản đồ",
         "structure": "Loại công trình",
+        "decay": "Thời gian hư",
         "asc": "Tăng dần",
         "desc": "Giảm dần"
       },
@@ -146,7 +147,10 @@
         "refreshSelected": "Làm mới đã chọn",
         "deleteSelected": "Xóa đã chọn",
         "enabled": "Bật",
-        "disabled": "Tắt"
+        "disabled": "Tắt",
+        "favorite": "Đánh dấu yêu thích",
+        "unfavorite": "Bỏ yêu thích",
+        "copyNumber": "Sao chép số máy chủ"
       },
       "empty": "Chưa có máy chủ nào. Thêm để bắt đầu theo dõi hư hại.",
       "tooltip": {
@@ -154,7 +158,9 @@
         "creaturesDecayOn": "Sinh vật hư vào {{date}}"
       },
       "toast": {
-        "saved": "Máy chủ đã được cập nhật"
+        "saved": "Máy chủ đã được cập nhật",
+        "copySuccess": "Đã sao chép số máy chủ",
+        "copyError": "Không thể sao chép số máy chủ"
       },
       "messages": {
         "noteEmpty": "Chưa có ghi chú. Thêm một cái bên dưới!"

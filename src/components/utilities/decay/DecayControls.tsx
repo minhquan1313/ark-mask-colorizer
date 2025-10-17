@@ -34,12 +34,20 @@ export default function DecayControls({
   onRefreshSelected,
   onDeleteSelected,
 }: DecayControlsProps) {
-  const sortBaseLabel = (field: SortField) =>
-    field === 'server'
-      ? translate('utilities.decay.sort.server', 'Server Number')
-      : field === 'map'
-        ? translate('utilities.decay.sort.map', 'Map')
-        : translate('utilities.decay.sort.structure', 'Structure Type');
+  const sortBaseLabel = (field: SortField) => {
+    switch (field) {
+      case 'server':
+        return translate('utilities.decay.sort.server', 'Server Number');
+      case 'map':
+        return translate('utilities.decay.sort.map', 'Map');
+      case 'structure':
+        return translate('utilities.decay.sort.structure', 'Structure Type');
+      case 'decay':
+        return translate('utilities.decay.sort.decay', 'Decay Time');
+      default:
+        return translate('utilities.decay.sort.server', 'Server Number');
+    }
+  };
 
   const sortOptions = SORT_FIELDS.flatMap((field) => {
     const label = sortBaseLabel(field);

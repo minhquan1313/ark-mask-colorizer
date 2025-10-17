@@ -35,6 +35,9 @@ export const STORAGE_KEYS = {
   cmdIncStats: `${NS}:cmd:inc`,
   unlockAllSlots: `${NS}:unlockAllSlots`,
   decayServers: `${NS}:decayServers`,
+  decayFavorites: `${NS}:decayFavorites`,
+  decaySortField: `${NS}:decaySortField`,
+  decaySortOrder: `${NS}:decaySortOrder`,
 } as const;
 
 export function saveJSON(key: string, data: unknown): void {
