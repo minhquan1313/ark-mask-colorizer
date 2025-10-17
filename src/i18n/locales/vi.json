@@ -99,7 +99,7 @@
     "comingSoon": "Công cụ trích xuất sẽ hiển thị ở đây."
   },
   "library": {
-    "comingSoon": "Trang thư viện sắp có."
+    "comingSoon": "Trang thư viện sắp ra mắt."
   },
   "settings": {
     "title": "Cài đặt",
@@ -125,7 +125,7 @@
     "decay": {
       "tab": "Hư hại",
       "title": "Hư hại",
-      "description": "Đồng hồ giúp bạn biết khi nào căn cứ hư.",
+      "description": "Đồng hồ giúp bạn biết khi nào căn cứ bị hư.",
       "sort": {
         "server": "Số máy chủ",
         "map": "Bản đồ",
@@ -148,16 +148,16 @@
         "enabled": "Bật",
         "disabled": "Tắt"
       },
-      "empty": "Chưa có máy chủ nào. Thêm một cái để bắt đầu theo dõi.",
+      "empty": "Chưa có máy chủ nào. Thêm để bắt đầu theo dõi hư hại.",
       "tooltip": {
         "decaysOn": "Hư vào {{date}}",
         "creaturesDecayOn": "Sinh vật hư vào {{date}}"
       },
       "toast": {
-        "saved": "Đã cập nhật máy chủ"
+        "saved": "Máy chủ đã được cập nhật"
       },
       "messages": {
-        "noteEmpty": "Chưa có ghi chú. Thêm bên dưới!"
+        "noteEmpty": "Chưa có ghi chú. Thêm một cái bên dưới!"
       },
       "info": {
         "serverNumber": "Máy chủ #{{number}}",
@@ -171,8 +171,8 @@
         "structure": "Công trình",
         "creatures": "Sinh vật",
         "map": "Bản đồ",
-        "serverNumber": "Server number",
-        "structureDecay": "Structure decay",
+        "serverNumber": "Số máy chủ",
+        "structureDecay": "Hư công trình",
         "structureDecayDuration": "{{days}} ngày",
         "creatureDecayDuration": "{{days}} ngày",
         "creaturesDisabled": "Không theo dõi sinh vật",
@@ -205,10 +205,10 @@
       },
       "fields": {
         "map": "Bản đồ",
-        "serverNumber": "Server number",
+        "serverNumber": "Số máy chủ",
         "structureType": "Loại công trình",
         "creatureToggle": "Theo dõi sinh vật",
-        "creatureDecay": "Hư sinh vật (ngày)",
+        "creatureDecay": "Thời gian hư sinh vật (ngày)",
         "creatureDecayHint": "Mặc định 7 ngày",
         "note": "Ghi chú",
         "lastRefreshed": "Làm mới gần nhất"
