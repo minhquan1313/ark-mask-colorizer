@@ -202,7 +202,6 @@ export function useDecayState({ translate, searchParams, setSearchParams }: UseD
       creatureDecaySeconds: CREATURE_DEFAULT_DECAY_SECONDS,
     });
     setServers((prev) => [...prev, entry]);
-    openDetails(entry.id);
     return entry;
   };
 
